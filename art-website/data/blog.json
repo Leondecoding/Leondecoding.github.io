@@ -1,0 +1,22 @@
+[
+  {
+    "id": "1",
+    "title_en": "Painting Misty Forests",
+    "title_zh": "画雾林",
+    "date": "2025-06-01",
+    "excerpt_en": "Process notes on glazing and soft edges.",
+    "excerpt_zh": "关于分层上色与柔边的笔记。",
+    "cover": "assets/ph-1.svg",
+    "video_url": "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+  },
+  {
+    "id": "2",
+    "title_en": "Paper & Pigments",
+    "title_zh": "纸与颜料",
+    "date": "2025-05-15",
+    "excerpt_en": "Trying different cotton papers and granulating colors.",
+    "excerpt_zh": "尝试不同棉纸与颗粒颜料。",
+    "cover": "assets/ph-2.svg",
+    "video_url": ""
+  }
+]

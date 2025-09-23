@@ -1,0 +1,36 @@
+[
+  {
+    "id": "p1",
+    "title_en": "Morning Creek - Print",
+    "title_zh": "晨溪 - 微喷",
+    "image": "assets/ph-6.svg",
+    "description_en": "Giclée print on archival paper.",
+    "description_zh": "博物馆级微喷，档案纸。",
+    "sizes": [
+      "A5",
+      "A4",
+      "A3"
+    ],
+    "paypalLinks": {
+      "A5": "https://www.paypal.com/your-link-A5",
+      "A4": "https://www.paypal.com/your-link-A4",
+      "A3": "https://www.paypal.com/your-link-A3"
+    }
+  },
+  {
+    "id": "p2",
+    "title_en": "City Rain - Print",
+    "title_zh": "城雨 - 微喷",
+    "image": "assets/ph-7.svg",
+    "description_en": "Limited edition print.",
+    "description_zh": "限量版微喷。",
+    "sizes": [
+      "A5",
+      "A4"
+    ],
+    "paypalLinks": {
+      "A5": "https://www.paypal.com/your-link-A5",
+      "A4": "https://www.paypal.com/your-link-A4"
+    }
+  }
+]
