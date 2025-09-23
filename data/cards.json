@@ -1,0 +1,32 @@
+[
+  {
+    "id": "c1",
+    "title_en": "Peony - Greeting Card",
+    "title_zh": "牡丹 - 贺卡",
+    "image": "assets/ph-8.svg",
+    "description_en": "Blank inside, includes envelope.",
+    "description_zh": "内页空白，附信封。",
+    "sizes": [
+      "A6",
+      "Square"
+    ],
+    "paypalLinks": {
+      "A6": "https://www.paypal.com/your-link-A6",
+      "Square": "https://www.paypal.com/your-link-Square"
+    }
+  },
+  {
+    "id": "c2",
+    "title_en": "Seaside - Greeting Card",
+    "title_zh": "海边 - 贺卡",
+    "image": "assets/ph-9.svg",
+    "description_en": "Textured cardstock.",
+    "description_zh": "纹理卡纸。",
+    "sizes": [
+      "A6"
+    ],
+    "paypalLinks": {
+      "A6": "https://www.paypal.com/your-link-A6"
+    }
+  }
+]
