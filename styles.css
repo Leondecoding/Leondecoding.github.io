@@ -1,0 +1,102 @@
+:root{--bg:#fff;--text:#222;--muted:#666;--border:#e6e6e6;--maxw:1200px;--pad:16px;--fs-h1:clamp(30px,4vw,44px);--fs-body:clamp(16px,1.6vw,18px)}
+*{box-sizing:border-box}html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font:400 var(--fs-body)/1.6 system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,PingFang SC,Microsoft YaHei,sans-serif}
+.container{max-width:var(--maxw);margin:0 auto;padding:0 var(--pad)}
+header{position:sticky;top:0;z-index:1000;background:rgba(255,255,255,.8);backdrop-filter:saturate(180%) blur(8px);border-bottom:1px solid var(--border)}
+.header-inner{display:flex;align-items:center;gap:16px;padding:10px var(--pad)}
+.brand img{height:40px;width:auto;display:block}
+nav{margin-left:auto;display:flex;align-items:center;gap:18px;white-space:nowrap;overflow:auto;scrollbar-width:none;text-transform:uppercase;letter-spacing:.03em}
+nav::-webkit-scrollbar{display:none}
+nav a, nav button{background:none;border:1px solid transparent;color:inherit;text-decoration:none;font:inherit;padding:6px 8px;border-radius:6px;cursor:pointer}
+nav a.active{border-color:#ddd;background:#f4f4f4} nav a:hover,nav button:hover{background:#f6f6f6}
+main{min-height:60vh}
+section{padding:36px 0}
+h1{text-align:center;font-size:var(--fs-h1);margin:.2em 0 .3em;font-weight:800}
+.hero{aspect-ratio:16/9;border:1px solid var(--border);border-radius:0}
+.hero img{width:100%;height:100%;object-fit:cover;display:block}
+.gallery{display:grid;gap:10px;grid-template-columns:repeat(12,1fr)}
+.card{grid-column:span 12;border:1px solid var(--border);border-radius:0;overflow:hidden;background:#fff}
+.card .img{aspect-ratio:1/1;background:#f7f7f7;display:flex;align-items:center;justify-content:center}
+.card img{max-width:100%;max-height:100%;object-fit:contain;display:block}
+.card .caption{text-align:center;padding:8px 10px;color:#666}
+@media (min-width:600px){.card{grid-column:span 6}}
+@media (min-width:900px){.card{grid-column:span 4}}
+.lightbox{position:fixed;inset:0;background:rgba(0,0,0,.75);display:grid;place-items:center;z-index:2000}
+.lb-inner{position:relative;display:grid;gap:12px;grid-template-columns:1fr;max-width:min(1024px,92vw);width:100%}
+.lb-img{background:#111;display:grid;place-items:center;aspect-ratio:4/3;border-radius:0;overflow:hidden}
+.lb-img img{max-width:100%;max-height:100%;object-fit:contain;display:block}
+.lb-caption{color:#fff;text-align:center}
+.lb-close,.lb-prev,.lb-next{position:absolute;top:50%;transform:translateY(-50%);border:1px solid #fff;background:rgba(0,0,0,.35);color:#fff;padding:10px 14px;border-radius:6px;cursor:pointer;font-size:16px}
+.lb-close{top:16px;right:16px;transform:none;border-radius:6px}
+.lb-prev{left:-10px}
+.lb-next{right:-10px}
+.product-panel{display:grid;gap:16px;grid-template-columns:1.2fr 1fr}
+.product-panel .image{border:1px solid var(--border);border-radius:0;overflow:hidden}
+.product-panel .row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:6px 0;justify-content:center}
+.product-panel select,.product-panel button{padding:10px 12px;border:1px solid var(--border);font:inherit;cursor:pointer;background:#fff}
+.product-panel button.buy{background:#111;color:#fff;border-color:#111}
+footer{padding:36px 0;border-top:1px solid var(--border);margin-top:36px}
+.socials{display:flex;gap:16px;align-items:center;justify-content:center}
+.icon{width:22px;height:22px;display:inline-block}
+.icon.youtube{background:conic-gradient(from 180deg,#f00,#f88)}
+.icon.instagram{background:radial-gradient(circle at 30% 30%,#fdc,#f0f,#06f)}
+
+/* ==== FZ Studio: Typography overrides per client request ==== */
+:root{
+  --text:#999;
+  --fs-body:18px;
+}
+html, body, body * {
+  font-family: "Helvetica Neue", Helvetica, Arial, "PingFang SC", "Microsoft YaHei", sans-serif;
+  font-weight: 300;
+  line-height: 1.6;
+}
+body{ color: var(--text); }
+
+/* Reduce heavy heading weight to match light Helvetica feel */
+h1,h2,h3{ font-weight: 300; color: #999; }
+
+/* Story page cards */
+.story-card{
+  max-width: 880px;
+  margin: 0 auto;
+  padding: 28px 28px;
+  border: 1px solid var(--border);
+  border-radius: 22px;
+  background: #fff;
+}
+
+/* Newsletter block */
+.newsletter{
+  max-width: 880px;
+  margin: 0 auto;
+  padding: 28px;
+  border: 1px solid var(--border);
+  border-radius: 22px;
+  text-align: center;
+}
+.newsletter h2{ margin-top: 0.2em; margin-bottom: .4em; }
+.nl-form{
+  margin: 18px auto;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  max-width: 760px;
+}
+.nl-form input, .nl-form button{
+  padding: 12px 14px;
+  border: 1px solid var(--border);
+  background: #fff;
+  border-radius: 8px;
+  font: inherit;
+  color: inherit;
+}
+.nl-form button{
+  grid-column: 1 / -1;
+  cursor: pointer;
+  border-color: #111;
+  background: #111;
+  color: #fff;
+}
+@media (max-width: 640px){
+  .nl-form{ grid-template-columns: 1fr; }
+}
