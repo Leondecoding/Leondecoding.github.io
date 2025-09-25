@@ -1,0 +1,27 @@
+[
+  {
+    "id": "p1",
+    "title_en": "Morning Creek - Print",
+    "title_zh": "晨溪 - 微喷",
+    "image": "assets/ph-6.svg",
+    "description_en": "Giclée print on archival paper.",
+    "description_zh": "博物馆级微喷，档案纸。",
+    "sizes": [
+      "A5",
+      "A4",
+      "A3"
+    ],
+    "prices": {
+      "A5": "£20",
+      "A4": "£35",
+      "A3": "£55"
+    },
+    "paypalLinks": {
+      "A5": "https://www.paypal.com/your-link-A5",
+      "A4": "https://www.paypal.com/your-link-A4",
+      "A3": "https://www.paypal.com/your-link-A3"
+    },
+    "info_en": "Museum-grade giclée. Pigment inks. 100% cotton archival paper.",
+    "info_zh": "博物馆级微喷，颜料墨水，100% 棉档案纸。"
+  }
+]
