@@ -1,0 +1,8 @@
+[
+  {"id":"orig-01","title":"DAWN 1","src":"./assets/images/orig.svg","price":450,"currency":"GBP","size":"30×40 cm","description":"DAWN 1 — original watercolour on paper."},
+  {"id":"orig-02","title":"BUTTERFLY 1","src":"./assets/images/orig.svg","price":520,"currency":"GBP","size":"40×50 cm","description":"BUTTERFLY 1 — original watercolour on paper."},
+  {"id":"orig-03","title":"BUTTERFLY 2","src":"./assets/images/orig.svg","price":500,"currency":"GBP","size":"30×40 cm","description":"BUTTERFLY 2 — original watercolour on paper."},
+  {"id":"orig-04","title":"SEA 1","src":"./assets/images/orig.svg","price":650,"currency":"GBP","size":"50×70 cm","description":"SEA 1 — original watercolour on paper."},
+  {"id":"orig-05","title":"BLOOM 1","src":"./assets/images/orig.svg","price":480,"currency":"GBP","size":"30×40 cm","description":"BLOOM 1 — original watercolour on paper."},
+  {"id":"orig-06","title":"WIND 1","src":"./assets/images/orig.svg","price":530,"currency":"GBP","size":"40×50 cm","description":"WIND 1 — original watercolour on paper."}
+]

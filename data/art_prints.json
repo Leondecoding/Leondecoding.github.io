@@ -1,0 +1,8 @@
+[
+  {"id":"print-01","title":"DAWN 1 PRINT","src":"./assets/images/print.svg","price":60,"currency":"GBP","size":"A3 (unframed)","description":"Fine art giclée print of DAWN 1."},
+  {"id":"print-02","title":"BUTTERFLY 1 PRINT","src":"./assets/images/print.svg","price":60,"currency":"GBP","size":"A3 (unframed)","description":"Fine art giclée print of BUTTERFLY 1."},
+  {"id":"print-03","title":"BUTTERFLY 2 PRINT","src":"./assets/images/print.svg","price":60,"currency":"GBP","size":"A3 (unframed)","description":"Fine art giclée print of BUTTERFLY 2."},
+  {"id":"print-04","title":"SEA 1 PRINT","src":"./assets/images/print.svg","price":60,"currency":"GBP","size":"A3 (unframed)","description":"Fine art giclée print of SEA 1."},
+  {"id":"print-05","title":"BLOOM 1 PRINT","src":"./assets/images/print.svg","price":60,"currency":"GBP","size":"A3 (unframed)","description":"Fine art giclée print of BLOOM 1."},
+  {"id":"print-06","title":"WIND 1 PRINT","src":"./assets/images/print.svg","price":60,"currency":"GBP","size":"A3 (unframed)","description":"Fine art giclée print of WIND 1."}
+]
