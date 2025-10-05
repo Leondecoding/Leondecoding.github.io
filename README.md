@@ -1,13 +1,6 @@
-# FZ Studio — Reference-aligned build (v17)
-
-This build matches your reference:
-- **Logo at top-left enlarged**.
-- **Top sticky nav** with: HOME, OUR STORY, BLOG, ORIGINAL ART, ART PRINTS, GREETING CARDS, CONTACT, Login.
-- **Home**: centered single hero image + Instagram / YouTube at bottom.
-- **Category pages**: ORIGINAL ART / ART PRINTS / GREETING CARDS with clean 3-column grid and uppercase captions.
-- **Blog** page with YouTube embed.
-- **Our Story** page with copy + newsletter block.
-
-Edit images in `assets/images/` and data in `/data/*.json`.
-
-Files to deploy on GitHub Pages as static site.
+FZ Studio — Final Pack
+- Replace PayPal email in app.js (BUSINESS_EMAIL).
+- Edit product lists in /data/*.json; replace images in /assets/images/.
+- Category pages have no big titles; click an item to open detail with large image (left) + info panel (right).
+- Cart icon next to Login; supports multi-item PayPal checkout.
+- Typography: Helvetica Neue Light (300), 18px, 1.6 line-height, color #999.
