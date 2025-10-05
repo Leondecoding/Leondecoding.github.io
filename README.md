@@ -84,3 +84,9 @@ FZ-Studio-v16-refined/
 ```
 
 祝上线顺利！
+
+
+## 数据文件夹（/data）
+- `data/i18n.json`：站点多语言文案。
+- `data/works.json`：作品清单（可追加字段：price、size、year、tags 等）。
+- 你可以只改 `/data`，无需动 JS；`app.js` 会自动加载，加载失败时回退到内置默认数据。
