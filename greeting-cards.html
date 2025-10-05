@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>FZ Studio — Greeting Cards</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+<header class="topbar">
+  <div class="container row a-center j-between">
+    <a class="logo" href="/">
+      <!-- Simple monogram-like logo -->
+      <svg viewBox="0 0 64 64" aria-hidden="true"><path d="M12 12h16l-7 7 18 0-13 13 23 0-13 13h-24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </a>
+    <nav class="nav row a-center">
+      <a href="./index.html" data-nav="home">Home</a>
+      <a href="./our-story.html" data-nav="ourstory">Our Story</a>
+      <a href="./blog.html" data-nav="blog">Blog</a>
+      <a href="./original-art.html" data-nav="original">Original Art</a>
+      <a href="./art-prints.html" data-nav="prints">Art Prints</a>
+      <a href="./greeting-cards.html" data-nav="cards">Greeting Cards</a>
+      <a href="./contact.html" data-nav="contact">Contact</a>
+    </nav>
+    <div class="right"><a href="#" aria-label="Login">Login</a></div>
+  </div>
+</header>
+<main class="container">
+  <div class="page-title">Greeting Cards</div>
+  <div id="grid" class="grid"></div>
+</main>
+<footer class="footer">
+  <div class="container">&copy; <span id="year"></span> FZ Studio</div>
+</footer>
+<script src="./app.js"></script>
+<script>
+  fetch('./data/greeting_cards.json', {cache:'no-store'}).then(r=>r.json()).then(items=>{
+    const grid = document.getElementById('grid');
+    items.forEach(item=>{
+      const fig = document.createElement('figure');
+      fig.innerHTML = `<img src="${item.src}" alt="${item.title}"><figcaption>${item.title}</figcaption>`;
+      grid.appendChild(fig);
+    });
+  });
+</script>
+</body>
+</html>
