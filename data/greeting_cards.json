@@ -1,0 +1,17 @@
+[
+  {
+    "id": "card-01",
+    "title": "DAWN 1 CARD",
+    "thumb": "./assets/images/card-01.jpg",
+    "images": [
+      "./assets/images/card-01.jpg",
+      "./assets/images/card-02.jpg",
+      "./assets/images/card-03.jpg",
+      "./assets/images/card-04.jpg"
+    ],
+    "price": 4,
+    "currency": "GBP",
+    "size": "A6 folded",
+    "description": "Greeting card \u2014 DAWN 1. Blank inside, envelope included."
+  }
+]
