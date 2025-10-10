@@ -90,7 +90,11 @@ body{margin:0;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;font-weigh
 @media (max-width:640px){.nav{display:none}.product{margin:20px auto}.stage.cards{height:auto}}
 
 /* Ensure header logo stays exactly at --logoH */
-.logo 
+.topbar .logo img,.logo img{height:var(--logoH) !important;width:auto !important;display:block}
+
+/* Undo any accidental global shrink */
+body img{height:auto !important}
+
 
 /* --- HOTFIX: 修复整页被缩小的问题，仅让头部 logo 用 160px --- */
 :root{ --logoH:160px !important; }
