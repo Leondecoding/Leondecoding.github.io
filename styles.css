@@ -371,3 +371,44 @@ main .cards,
   .product .info .btn{width:100%}
 }
 /* ========================================================== */
+/* ========== PRODUCT: 标题/价格/尺寸 排版修正 (2025-10-10) ========== */
+
+/* 右栏改为单列堆叠，避免价格跑到右侧 */
+.product > :not(.stage){
+  grid-template-columns: 1fr !important;  /* 单列 */
+}
+
+/* 标题变小 */
+.product .info .title{
+  font-size: 36px !important;   /* 原来过大，改小 */
+  line-height: 1.15 !important;
+  margin: 0 0 8px 0 !important;
+}
+
+/* 价格块：紧跟标题，靠左，字号减半 */
+.product .info .price-line{
+  grid-column: 1 !important;
+  margin: 0 0 12px 0 !important;
+}
+.product .info .price,
+.product > :not(.stage) .price,
+.product > :not(.stage) [class*="price"],
+.product > :not(.stage) .currency,
+.product > :not(.stage) [class*="currenc"]{
+  grid-column: 1 !important;
+  justify-self: start !important;
+  font-size: 18px !important;   /* 减半：更小的价格字号 */
+  font-weight: 700 !important;
+  white-space: nowrap !important;
+}
+.product .info .tax-note{
+  font-size: 13px !important;
+  color: #6b7280 !important;
+}
+
+/* Size 选项保持在价格下面 */
+.product .info .options{
+  grid-column: 1 !important;
+  margin-top: 6px !important;
+}
+/* ============================================================= */
