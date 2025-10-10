@@ -147,3 +147,68 @@ main .cards,
   }
 }
 /* ========================================================================== */
+/* ==================== PRODUCT DETAIL FIX ==================== */
+/* 两列骨架：左图 / 右信息 */
+.product{
+  display:grid !important;
+  grid-template-columns: min(560px,48vw) 1fr !important;
+  gap:48px !important;
+  align-items:start !important;
+}
+
+/* 左侧大图容器 */
+.product .stage{
+  width:100% !important;
+  aspect-ratio: 4/3 !important;
+  background:#fff !important;
+  border:1px solid #e5e5e5 !important;
+}
+
+/* 右侧信息容器（尽量兼容不同类名） */
+.product > .info,
+.product > .details,
+.product > .right,
+.product > .content,
+.product > div:last-child{
+  display:grid !important;
+  grid-template-columns: 1fr !important;
+  gap:12px !important;
+}
+
+/* 标题 + 货币 + 价格：同一行对齐基线 */
+.product .heading,
+.product .titlebar{
+  display:flex !important;
+  flex-wrap:wrap !important;
+  align-items:baseline !important;
+  gap:16px !important;
+}
+
+/* 标题样式（没有 .heading 包裹也能生效） */
+.product .heading h1,
+.product h1{
+  margin:0 !important;
+  font-weight:600 !important;
+  font-size:28px !important;
+  letter-spacing:.02em !important;
+}
+
+/* 货币与价格 */
+.product .currency{color:#666 !important;font-weight:600 !important}
+.product .price{font-weight:700 !important;font-size:28px !important}
+
+/* 尺寸等 meta 信息 */
+.product .meta{display:flex !important;gap:12px !important;color:#666 !important}
+
+/* 描述与按钮区 */
+.product .desc{color:#555 !important;margin:8px 0 16px !important}
+.product .actions{display:flex !important;gap:10px !important;align-items:center !important}
+.product .btn{
+  appearance:none;border:1px solid #111;background:#111;color:#fff;
+  padding:12px 18px;border-radius:10px;height:44px;display:inline-grid;place-items:center
+}
+.product .btn.ghost{background:#fff;color:#111;border-color:#111}
+
+/* 保证右侧任何图片都不被拉伸变形 */
+.product > :not(.stage) img{width:auto !important;height:auto !important;max-width:100% !important}
+/* ============================================================ */
