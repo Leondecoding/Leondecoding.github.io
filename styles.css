@@ -9,7 +9,7 @@ body{margin:0;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;font-weigh
 .container{max-width:var(--container);margin:0 auto;padding:0 20px}
 .row{display:flex}.a-center{align-items:center}.j-between{justify-content:space-between}
 .nav{gap:26px}
-.logo img{width:100%;height:auto;display:block}
+.logo img{height:var(--logoH);width:auto;display:block}
 /* Topbar links per spec: 18px/300 uppercase */
 .nav a,
 .right a{color:#111;text-decoration:none;letter-spacing:.08em;text-transform:uppercase;font-weight:300;font-size:18px;padding:20px 0;border-bottom:2px solid transparent}
