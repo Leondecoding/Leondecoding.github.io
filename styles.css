@@ -277,3 +277,97 @@ main .cards,
 /* 保证右侧的任何图片都不会被拉伸（例如支付图标） */
 .product > :not(.stage) img{height:auto !important;width:auto !important;max-width:100% !important}
 /* ================================================================ */
+/* ===== PRODUCT DETAIL — SPEC LAYOUT (ref 2025-10-10) ===== */
+
+/* 图文间距扩大 2 倍：如果你原来是 gap:48px，这里直接用 96px */
+.product{
+  display:grid !important;
+  grid-template-columns: min(640px,50vw) 1fr !important; /* 左 640px 上限 */
+  gap:96px !important;                                   /* ← 两倍间距 */
+  align-items:start !important;
+}
+
+/* 左侧大图容器保持 4:3，占位灰背景 */
+.product .stage{
+  width:100% !important;
+  aspect-ratio:4/3 !important;
+  background:#f6f6f6 !important;
+  border:1px solid #e5e5e5 !important;
+  display:grid !important; place-items:center !important;
+}
+.product .stage img{width:100%;height:auto;display:block}
+
+/* 右侧信息竖向栈：标题 / 价格 / 规格 / 按钮 / 简介 */
+.product .info{
+  display:grid !important;
+  grid-template-columns: 1fr !important;
+  row-gap:20px !important;
+  align-content:start !important;
+}
+
+/* 1) 名称（标题） */
+.product .info .title{
+  margin:0 !important;
+  font-weight:700 !important;
+  font-size:48px !important;      /* 参考图大标题 */
+  line-height:1.1 !important;
+}
+
+/* 2) 价格（小号）+ 税费说明 */
+.product .info .price-line{
+  display:grid !important;
+  row-gap:6px !important;
+}
+.product .info .price{
+  font-size:22px !important;      /* ← 比之前小一档 */
+  font-weight:600 !important;
+}
+.product .info .tax-note{
+  font-size:14px !important;
+  color:#6b7280 !important;
+}
+
+/* 3) Size 选项（A5 / A4） */
+.product .info .options{display:flex !important; gap:12px !important; align-items:center}
+.product .info .options .label{font-size:14px; color:#666; margin-right:8px}
+
+/* radio + label 的小胶囊按钮 */
+.product .info .options input{position:absolute; opacity:0; pointer-events:none}
+.product .info .options label{
+  display:inline-flex; align-items:center; justify-content:center;
+  min-width:60px; height:36px; padding:0 14px; border-radius:999px;
+  border:1px solid #111; background:#fff; color:#111; cursor:pointer;
+  user-select:none; font-weight:500;
+}
+.product .info .options input:checked + label{
+  background:#111; color:#fff;
+}
+
+/* 4) 按钮区：Add to cart / Pay with PayPal */
+.product .info .actions{display:flex !important; gap:14px !important; align-items:center}
+.product .info .btn{
+  appearance:none; border:1px solid #111; background:#111; color:#fff;
+  height:48px; padding:0 18px; border-radius:10px; display:inline-grid; place-items:center;
+  font-weight:600;
+}
+.product .info .btn.ghost{background:#fff; color:#111}
+
+/* 可选：PayPal 按钮样式（可替换为实际 PayPal SDK 按钮） */
+.product .info .btn.paypal{
+  background:#111; color:#fff; /* 留黑底，后续可嵌入 PayPal 官方按钮 */
+}
+
+/* 5) 简介 / 细节（预留可多段文本） */
+.product .info .desc{color:#444; line-height:1.7}
+
+/* 小屏适配 */
+@media (max-width:1024px){
+  .product{grid-template-columns:1fr !important; gap:40px !important}
+  .product .info .title{font-size:36px !important}
+}
+@media (max-width:640px){
+  .product .info .title{font-size:30px !important}
+  .product .info .actions{flex-direction:column !important; align-items:stretch !important}
+  .product .info .btn{width:100%}
+}
+/* ========================================================== */
