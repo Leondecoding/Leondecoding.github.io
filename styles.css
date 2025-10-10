@@ -479,3 +479,16 @@ main .cards,
   .product .stage + * .actions{ flex-direction:column !important; align-items:stretch !important }
   .product .stage + * .actions .btn{ width:100% }
 }
+/* === Topbar: 上下各 20px 内边距 + 与正文之间留 20px 空白 === */
+.topbar{
+  /* 顶部栏内部上下留白 */
+  padding-top: 20px !important;
+  padding-bottom: 20px !important;
+}
+
+/* 在顶部栏“下面”制造一个稳定的 20px 间隔（sticky 时也有效） */
+.topbar::after{
+  content: "";
+  display: block;
+  height: 20px;               /* 顶部栏与正文之间的空白 */
+}
