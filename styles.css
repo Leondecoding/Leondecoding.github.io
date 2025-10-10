@@ -601,3 +601,34 @@ h1,h2,h3,h4,h5,h6{ color:#999 !important; }
 .topbar + div:first-of-type{
   margin-top:0 !important;
 }
+/* SAFEGUARD: 顶部栏的容器不受各页面样式影响 */
+.topbar .container{
+  max-width: var(--container) !important;
+  margin: 0 auto !important;
+  padding: 0 20px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  text-align: left !important;
+}
+.topbar .logo{ margin:0 !important; }
+/* Blog：只作用正文，不再写到 .container（避免命中 header） */
+.blog main, .blog .page, .blog section{
+  max-width: 1040px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+/* Our Story：正文居中（不要写 .our-story .container） */
+.our-story main, .our-story .page{
+  max-width: 960px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+/* Contact：正文居中（不要写 .contact .container） */
+.contact main, .contact .page{
+  max-width: 960px;
+  margin: 0 auto;
+  text-align: center;
+}
