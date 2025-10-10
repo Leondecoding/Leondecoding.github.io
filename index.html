@@ -1,5 +1,19 @@
 <!doctype html>
 <html lang="en">
+  <head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>FZ Studio — Home</title>
+
+  <!-- 你的外链样式，先加载 -->
+  <link rel="stylesheet" href="./styles.css?v=20251010i">
+
+  <!-- 覆盖首页 20px 间距（仅首页写这段，所以只影响首页） -->
+  <style>
+    .topbar + .home-hero{ margin-top:0 !important; }
+    .topbar::after{ height:0 !important; } /* 若之前用 ::after 撑间距，这里清掉 */
+  </style>
+</head>
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
