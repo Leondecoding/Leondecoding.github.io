@@ -512,7 +512,7 @@ main .cards,
   margin-top:20px !important;
 }
 /* BLOG 列宽起点（和正文小标题 “Why I choose…” 左边对齐） */
-:root{ --blog-gutter: 64px; } /* 觉得还偏就调这个值，比如 72/80px */
+:root{ --blog-gutter: 100px; } /* 觉得还偏就调这个值，比如 72/80px */
 
 /* 把大标题与预览媒体（iframe/图片）整体右移，与正文起点对齐 */
 .blog .page h1,
