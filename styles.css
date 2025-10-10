@@ -575,3 +575,10 @@ h1,h2,h3,h4,h5,h6{ color:#999 !important; }
 }
 /* 所有作品详情页标题为黑色 */
 .product .info .title{ color:#000 !important; }
+.contact main,
+.contact .page,
+.contact .container{
+  max-width:960px;
+  margin:0 auto;
+  text-align:center;
+}
