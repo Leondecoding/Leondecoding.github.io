@@ -511,3 +511,65 @@ main .cards,
 .topbar + div:first-of-type{
   margin-top:20px !important;
 }
+/* BLOG 列宽起点（和正文小标题 “Why I choose…” 左边对齐） */
+:root{ --blog-gutter: 64px; } /* 觉得还偏就调这个值，比如 72/80px */
+
+/* 把大标题与预览媒体（iframe/图片）整体右移，与正文起点对齐 */
+.blog .page h1,
+.blog .page .lead,
+.blog .page .video,
+.blog .page iframe,
+.blog .page .embed,
+.blog .page .lead-media{
+  margin-left: var(--blog-gutter) !important;
+}
+
+/* 大标题减半（根据你现在的字号，先给 32px，不够再调） */
+.blog .page h1{
+  font-size: 32px !important;   /* 原来大一倍，这里压到一半 */
+  line-height: 1.2 !important;
+  margin-bottom: 12px !important;
+}
+/* Our Story 文案居中 + 全站文字颜色 #999（按钮文本保留白色保证对比度） */
+.our-story .page, .our-story .container, .our-story main{ text-align:center !important; }
+body{ color:#999 !important; }
+a{ color:#999 !important; }
+h1,h2,h3,h4,h5,h6{ color:#999 !important; }
+.btn, .button{ color:#fff !important; } /* 按钮仍用白字避免黑底变灰看不清 */
+
+/* “NEW RELEASES & MORE” 字号降到 2/3（约 32px，可再调） */
+.our-story h2, .our-story .section-title{
+  font-size: 32px !important;   /* 如果你原来是 ~48px，32px ≈ 2/3 */
+  letter-spacing: .02em !important;
+  margin: 24px 0 12px 0 !important;
+}
+
+/* Sign up 表单：去掉边框，改为下划线风格 */
+.our-story form input[type="text"],
+.our-story form input[type="email"],
+.our-story form input[type="name"],
+.our-story form input[type="search"]{
+  border: none !important;
+  border-bottom: 1px solid #999 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  padding: 6px 0 !important;
+  color: #999 !important;
+}
+.our-story form input::placeholder{ color:#999 !important; opacity:.8; }
+.our-story form .btn, .our-story form button{
+  background:#111 !important; color:#fff !important; border-radius:10px !important;
+}
+/* 顶部栏内部上下各 20px */
+.topbar{ padding-top:20px !important; padding-bottom:20px !important; }
+/* 顶部栏与紧随其后的主内容之间固定 20px */
+.topbar + main,
+.topbar + section,
+.topbar + .container,
+.topbar + .page,
+.topbar + .home-hero,
+.topbar + .grid,
+.topbar + .cards,
+.topbar + div:first-of-type{
+  margin-top:20px !important;
+}
