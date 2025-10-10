@@ -8,6 +8,25 @@ body img{height:auto !important;}
 /* re-apply only to the header logo */
 .topbar .logo img,.logo img{height:var(--logoH) !important;width:auto !important;display:block;}
 </style>
+<!-- FINAL OVERRIDE: fix site appearing tiny -->
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<style id="final-override">
+  /* 1) 全局：取消任何缩放/变换，防止整页被缩小 */
+  html, body { transform: none !important; zoom: 1 !important; }
+
+  /* 2) 普通图片：高度自适应，杜绝全局把图片锁到某个固定高度 */
+  body img { height: auto !important; max-width: 100% !important; }
+
+  /* 3) 只让 logo=160px；并且不受任何全局 img 宽度规则影响 */
+  :root { --logoH: 160px !important; }
+  .topbar .logo img, .logo img {
+    height: var(--logoH) !important;
+    width: auto !important;
+    max-width: none !important;
+    display: block;
+  }
+</style>
 
 </head><body><header class="topbar">
   <div class="container row a-center j-between">
