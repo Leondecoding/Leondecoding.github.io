@@ -492,3 +492,22 @@ main .cards,
   display: block;
   height: 20px;               /* 顶部栏与正文之间的空白 */
 }
+/* === 顶部栏与主内容之间保持 20px 空白（无论是哪种页面） === */
+
+/* 顶部栏自身内部上下各 20px 留白 */
+.topbar{
+  padding-top:20px !important;
+  padding-bottom:20px !important;
+}
+
+/* 顶部栏与下方的主要内容之间留 20px 间距 */
+.topbar + main,
+.topbar + section,
+.topbar + .container,
+.topbar + .page,
+.topbar + .home-hero,
+.topbar + .grid,
+.topbar + .cards,
+.topbar + div:first-of-type{
+  margin-top:20px !important;
+}
