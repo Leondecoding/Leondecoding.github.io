@@ -7,6 +7,21 @@
 
   <!-- 你的外链样式，先加载 -->
   <link rel="stylesheet" href="./styles.css?v=20251010j">
+    <style>
+  /* 让副标题和 H1/预览媒体用同一左边距 */
+  :root{ --blog-gutter: 64px; }            /* 若已存在就不用再写；不够齐就改 72/80 */
+
+  /* 只移动第一段副标题（就是这句 Why…） */
+  .blog h3:first-of-type{
+    margin-left: var(--blog-gutter) !important;
+  }
+
+  /* 手机端跟随我们给 H1 的移动值 */
+  @media (max-width:640px){
+    .blog h3:first-of-type{ margin-left: 20px !important; }
+  }
+</style>
+
 
   <!-- 覆盖首页 20px 间距（仅首页写这段，所以只影响首页） -->
   <style>
