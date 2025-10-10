@@ -134,3 +134,20 @@
   </script>
 </body>
 </html>
+/* ===== Topbar spacing: 20px inside + 20px below ===== */
+
+/* 顶部栏内部上下留白（padding 更可靠，margin-top 在吸顶时看不到） */
+.topbar .container{
+  padding-block: 20px !important;   /* 上下各 20px */
+}
+
+/* 顶部栏与下面正文之间留 20px 间距 */
+.topbar + main,
+.topbar + .container,
+.topbar + .page,
+.topbar + *{
+  margin-top: 20px !important;
+}
+
+/* 可选：保证条内能容纳 logo（你现在 --logoH:40px） */
+.topbar{ min-height: calc(var(--logoH) + 40px); }  /* 40px(logo) + 20+20 padding */
