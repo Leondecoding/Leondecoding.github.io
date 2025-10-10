@@ -412,3 +412,70 @@ main .cards,
   margin-top: 6px !important;
 }
 /* ============================================================= */
+/* ===== PRODUCT: 右栏单列 + 标题/价格/尺寸顺序与样式修正 ===== */
+/* 选中“右侧信息容器”（不依赖具体类名）：紧随 .stage 的那个兄弟元素 */
+.product .stage + *{
+  display:flex !important;
+  flex-direction:column !important;      /* 单列竖排 */
+  align-items:flex-start !important;
+  gap:14px !important;
+}
+
+/* 1) 标题：减小字号 */
+.product .stage + * h1,
+.product .info .title{
+  order:1 !important;
+  font-size:32px !important;             /* 原来太大 → 32px */
+  line-height:1.2 !important;
+  margin:0 0 6px 0 !important;
+  max-width:28ch;                         /* 避免过长一行 */
+}
+
+/* 2) 价格行：放在标题后，靠左，字号减半（约 18px） */
+.product .stage + * .price-line,
+.product .stage + * .price,
+.product .stage + * [class*="price"]{
+  order:2 !important;
+  font-size:18px !important;             /* 减半 */
+  font-weight:700 !important;
+  position:static !important;
+  float:none !important;
+  text-align:left !important;
+  margin:0 !important;
+}
+.product .stage + * .tax-note,
+.product .stage + * [class*="tax"]{
+  order:2 !important;
+  font-size:13px !important;
+  color:#6b7280 !important;
+  margin-top:4px !important;
+}
+
+/* 3) Size（A5/A4） */
+.product .stage + * .options{ order:3 !important; display:flex !important; gap:12px !important; align-items:center !important; }
+.product .stage + * .options .label{ font-size:14px; color:#666; margin-right:8px }
+.product .stage + * .options input{ position:absolute; opacity:0; pointer-events:none }
+.product .stage + * .options label{
+  display:inline-flex; align-items:center; justify-content:center;
+  min-width:60px; height:36px; padding:0 14px; border-radius:999px;
+  border:1px solid #111; background:#fff; color:#111; cursor:pointer; font-weight:500;
+}
+.product .stage + * .options input:checked + label{ background:#111; color:#fff }
+
+/* 4) 按钮区：保持横排 */
+.product .stage + * .actions{ order:4 !important; display:flex !important; gap:14px !important; align-items:center !important }
+.product .stage + * .actions .btn{ height:48px; padding:0 18px; border-radius:10px; font-weight:600 }
+
+/* 5) 简介：占整行 */
+.product .stage + * .desc,
+.product .stage + * p,
+.product .stage + * .meta{ order:5 !important; width:100% }
+
+/* 小屏微调 */
+@media (max-width:1024px){
+  .product .stage + * h1{ font-size:28px !important }
+}
+@media (max-width:640px){
+  .product .stage + * .actions{ flex-direction:column !important; align-items:stretch !important }
+  .product .stage + * .actions .btn{ width:100% }
+}
