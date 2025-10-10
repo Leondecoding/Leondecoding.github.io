@@ -13,6 +13,13 @@
     .topbar + .home-hero{ margin-top:0 !important; }
     .topbar::after{ height:0 !important; } /* 若之前用 ::after 撑间距，这里清掉 */
   </style>
+<style>
+  /* 仅首页：去掉顶部栏与主图之间的 20px */
+  .topbar::after{ height:0 !important; }
+  .topbar + .home-hero,
+  .topbar + .stage,
+  .topbar + .container { margin-top:0 !important; }
+</style>
 </head>
 <head>
 <meta charset="utf-8">
