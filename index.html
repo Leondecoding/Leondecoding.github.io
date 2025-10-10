@@ -1,86 +1,50 @@
-<!DOCTYPE html><html lang='en'><head>
-<meta name="viewport" content="width=device-width, initial-scale=1"><meta charset='utf-8'/><meta name='viewport' content='width=device-width, initial-scale=1'/><title>FZ Studio — Home</title><link rel='stylesheet' href="./styles-160.css?v=1"/>
-<!-- Inline hotfix: force correct logo height and reset global img shrink -->
-<style id="hotfix-160">
-:root{--logoH:160px !important;}
-/* reset any global image shrink */
-body img{height:auto !important;}
-/* re-apply only to the header logo */
-.topbar .logo img,.logo img{height:var(--logoH) !important;width:auto !important;display:block;}
-</style>
-<!-- FINAL OVERRIDE: fix site appearing tiny -->
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-
-<style id="final-override">
-  /* 1) 全局：取消任何缩放/变换，防止整页被缩小 */
-  html, body { transform: none !important; zoom: 1 !important; }
-
-  /* 2) 普通图片：高度自适应，杜绝全局把图片锁到某个固定高度 */
-  body img { height: auto !important; max-width: 100% !important; }
-
-  /* 3) 只让 logo=160px；并且不受任何全局 img 宽度规则影响 */
-  :root { --logoH: 160px !important; }
-  .topbar .logo img, .logo img {
-    height: var(--logoH) !important;
-    width: auto !important;
-    max-width: none !important;
-    display: block;
+<title>FZ Studio — Home (Minimal Test)</title>
+<style>
+  :root{ --logoH:160px; --ink:#111; --line:#eee; --container:1200px; }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    margin:0;
+    font-family:-apple-system,BlinkMacSystemFont,'Helvetica Neue',Arial,sans-serif;
+    color:var(--ink);font-size:18px;line-height:1.6
   }
+  .topbar{position:sticky;top:0;background:#fff;border-bottom:1px solid var(--line)}
+  .container{max-width:var(--container);margin:0 auto;padding:12px 20px;display:flex;align-items:center;justify-content:space-between}
+  .logo img{height:var(--logoH);width:auto;display:block}
+  nav a{margin:0 12px;text-decoration:none;color:#111;text-transform:uppercase;font-weight:300;font-size:16px;letter-spacing:.08em}
+  .hero{max-width:960px;width:72vw;margin:80px auto;border:1px solid #eee;background:#f8f8f8;padding:12px;display:grid;place-items:center}
+  .hero img{width:100%;height:auto;display:block}
+  footer{border-top:1px solid var(--line);color:#999;text-align:center;margin-top:80px;padding:20px 0}
 </style>
-
-</head><body><header class="topbar">
-  <div class="container row a-center j-between">
-    <a class="logo" href="./index.html" aria-label="FZ Studio">
-      <img src="./assets/images/logo.jpg" alt="FZ Studio logo" />
-    </a>
-    <nav class="nav row a-center">
-      <a href="./index.html" data-nav="home">Home</a>
-      <a href="./our-story.html" data-nav="ourstory">Our Story</a>
-      <a href="./blog.html" data-nav="blog">Blog</a>
-      <a href="./original-art.html" data-nav="original">Original Art</a>
-      <a href="./art-prints.html" data-nav="prints">Art Prints</a>
-      <a href="./greeting-cards.html" data-nav="cards">Greeting Cards</a>
-      <a href="./contact.html" data-nav="contact">Contact</a>
-    </nav>
-    <div class="right">
-      <a href="#" aria-label="Login">Login</a>
-      <button id="cartBtn" class="icon-btn badge" data-count="0" title="Cart" aria-label="Cart">
-        <svg viewBox="0 0 24 24"><path d="M3 3h2l.6 3M7 13h10l3-8H6l1 8zm-1 0l-2 8m14-8l2 8M10 21a1 1 0 110-2 1 1 0 010 2m8 0a1 1 0 110-2 1 1 0 010 2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      </button>
+</head>
+<body>
+  <div class="topbar">
+    <div class="container">
+      <div class="logo"><img src="./assets/images/logo.jpg" alt="FZS"></div>
+      <nav>
+        <a href="./index.html">Home</a>
+        <a href="./our-story.html">Our Story</a>
+        <a href="./blog.html">Blog</a>
+        <a href="./original-art.html">Original Art</a>
+        <a href="./art-prints.html">Art Prints</a>
+        <a href="./greeting-cards.html">Greeting Cards</a>
+        <a href="./contact.html">Contact</a>
+        <a href="./login.html">Login</a>
+      </nav>
     </div>
   </div>
-</header><main><section class='home-hero container'><img src='./assets/images/home-hero.jpg' alt='Featured artwork'/></section></main><footer class="footer"><div class="container">&copy; <span id="year"></span> FZ Studio</div></footer><script src='./app.js'></script><script>
-(function () {
-  function fix() {
-    // 1) 取消任何缩放/变换（防止整页被缩小）
-    document.documentElement.style.zoom = '1';
-    document.documentElement.style.transform = 'none';
-    document.body.style.zoom = '1';
-    document.body.style.transform = 'none';
 
-    // 2) 只把 logo 设为 160px 高
-    var logo = document.querySelector('.topbar .logo img, .logo img');
-    if (logo) {
-      logo.style.height = '160px';
-      logo.style.width = 'auto';
-      logo.style.maxWidth = 'none';
-      logo.style.display = 'block';
-    }
+  <main class="hero">
+    <img src="./assets/images/home-hero.jpg" alt="Featured artwork">
+  </main>
 
-    // 3) 其它图片一律恢复自适应高度，避免“整页缩小”
-    document.querySelectorAll('img').forEach(function (img) {
-      if (img !== logo) {
-        img.style.height = 'auto';
-        // 只在非 logo 的场景下给宽度 100%
-        if (!img.closest('.logo')) {
-          img.style.width = '100%';
-          img.style.maxWidth = '100%';
-        }
-      }
-    });
-  }
-  if (document.readyState !== 'loading') fix();
-  else document.addEventListener('DOMContentLoaded', fix);
-})();
-</script>
-</body></html>
+  <footer>© <span id="year"></span> FZ Studio</footer>
+
+<script>document.getElementById('year').textContent = new Date().getFullYear();</script>
+</body>
+</html>
