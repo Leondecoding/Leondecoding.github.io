@@ -573,3 +573,5 @@ h1,h2,h3,h4,h5,h6{ color:#999 !important; }
 .topbar + div:first-of-type{
   margin-top:20px !important;
 }
+/* 所有作品详情页标题为黑色 */
+.product .info .title{ color:#000 !important; }
