@@ -7,7 +7,7 @@
 
 /* Base */
 *{box-sizing:border-box}
-:root{--container:1200px;--ink:#111;--muted:#6b7280;--line:#eee;--logoH:50px}
+:root{--container:1200px;--ink:#111;--muted:#6b7280;--line:#eee;--logoH:30px}
 html,body{height:100%}
 body{
   margin:0;
