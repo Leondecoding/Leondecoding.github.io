@@ -1,7 +1,8 @@
 /* ==========================================================================
-   FZ Studio — CLEAN 160PX LOGO BUILD  (2025-10-09)
+   FZ Studio — CLEAN 160PX LOGO + GRID FIX  (2025-10-10)
    - 仅头部 logo 固定高度 = var(--logoH)
-   - 其他图片统一自适应高度，避免整页被缩小
+   - 所有普通图片自适应（不再被锁高）
+   - 分类/商品列表强制横排：桌面 3 列 / 平板 2 列 / 手机 1 列
    ========================================================================== */
 
 /* Base */
@@ -18,7 +19,7 @@ body{
   background:#fff;
 }
 
-/* 全站图片默认：宽度自适应容器，高度自适应比例 */
+/* 全站图片默认：宽度自适应，高度自适应 */
 img{width:100%;height:auto;display:block}
 
 /* Links */
@@ -41,14 +42,108 @@ a:hover{opacity:.85}
 /* 仅头部 logo 使用 --logoH；其余图片不受影响 */
 .logo img{height:var(--logoH);width:auto;display:block}
 
-/* 顶部导航文字（可按你之前的排版要求调整） */
+/* 顶部导航（按你之前的排版要求可再微调） */
 .nav a,.right a{
   color:#111;text-decoration:none;
   letter-spacing:.08em;text-transform:uppercase;
-  font-weight:300;font-size:16px; /* 你若需要 14/18 可自行改 */
+  font-weight:300;font-size:16px;
 }
 
 /* ----- Home: Hero / Grid -------------------------------------------------- */
-.home-hero{display:grid;place-i
+.home-hero{display:grid;place-items:center;padding:80px 0}
+.stage{
+  max-width:960px;width:72vw;
+  background:#f8f8f8;border:1px solid #eee;
+  display:grid;place-items:center;
+  aspect-ratio:4/3;
+  margin:0 auto;
+}
+.stage .placeholder{color:#bbb;font-size:12px;letter-spacing:.1em;text-transform:uppercase}
 
+/* 商品网格（基础样式，最终强制规则见文末 “GRID FIX” 段） */
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:60px;align-items:start}
+.grid a{text-decoration:none}
+.grid figure{margin:0}
+.grid img{width:100%;height:auto;display:block;background:#f8f8f8}
+.grid figcaption{
+  display:flex;justify-content:space-between;align-items:center;
+  margin-top:12px;font-size:16px;color:#222
+}
+.grid .meta{display:flex;gap:10px;color:#666;font-size:14px}
 
+/* ----- Product page ------------------------------------------------------- */
+.product{
+  max-width:var(--container);
+  display:grid;grid-template-columns:480px 1fr;gap:40px;
+  padding:40px 20px;margin:40px auto;
+}
+.product .stage{width:100%;aspect-ratio:4/3;background:#fff;border:1px solid #e5e5e5}
+.product h1{margin:0 0 10px 0;font-weight:600;font-size:28px;letter-spacing:.02em}
+.product .meta{display:flex;gap:12px;color:#666}
+.product .price{font-weight:600;font-size:24px;letter-spacing:.02em}
+.product .desc{color:#555;margin:16px 0 24px}
+.btn{
+  appearance:none;border:1px solid #111;background:#111;color:#fff;
+  padding:12px 18px;border-radius:10px;height:44px;display:inline-grid;place-items:center;
+}
+.btn.ghost{background:#fff;color:#111;border-color:#111}
+.choices{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+
+/* Cart / cards */
+.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.card{background:#fff;border:1px solid #eee;display:grid;place-items:center;padding:16px;border-radius:10px}
+
+/* Footer */
+.footer{padding:20px 0;margin-top:60px;color:#aaa;text-align:center;border-top:1px solid var(--line)}
+.footer a{color:#999}
+
+/* ----- Responsive --------------------------------------------------------- */
+@media (max-width:1024px){
+  .grid{grid-template-columns:repeat(2,1fr);gap:40px}
+  .product{grid-template-columns:1fr}
+}
+@media (max-width:640px){
+  .nav{display:none}
+  .product{margin:20px auto}
+  .stage.cards{height:auto}
+}
+
+/* ----- STRONG OVERRIDES --------------------------------------------------- */
+/* 防止任何遗留规则把图片高度锁死（导致整页看起来变小） */
+body img{height:auto !important}
+
+/* 确保只有 logo 被固定为 160px */
+.topbar .logo img,
+.logo img{height:var(--logoH) !important;width:auto !important;display:block}
+
+/* ----- GRID FIX: 强制横排 3/2/1 列（Original Art / Art Prints / Greeting Cards 等列表页） */
+.grid,
+main .cards,
+.listing .grid,
+.catalog .grid{
+  display:grid !important;
+  grid-template-columns:repeat(3, minmax(0,1fr)) !important;
+  gap:60px !important;
+  align-items:start !important;
+}
+.grid img, .cards img{width:100% !important;height:auto !important;display:block !important}
+
+@media (max-width:1024px){
+  .grid,
+  main .cards,
+  .listing .grid,
+  .catalog .grid{
+    grid-template-columns:repeat(2, minmax(0,1fr)) !important;
+    gap:40px !important;
+  }
+}
+@media (max-width:640px){
+  .grid,
+  main .cards,
+  .listing .grid,
+  .catalog .grid{
+    grid-template-columns:1fr !important;
+    gap:20px !important;
+  }
+}
+/* ========================================================================== */
