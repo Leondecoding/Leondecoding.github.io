@@ -582,3 +582,22 @@ h1,h2,h3,h4,h5,h6{ color:#999 !important; }
   margin:0 auto;
   text-align:center;
 }
+/* === Remove the 20px gap BELOW the topbar line on ALL pages === */
+
+/* 保留顶部栏内部的上下 20px 留白 */
+.topbar{ padding-top:20px !important; padding-bottom:20px !important; }
+
+/* 取消横线(边线)下面的额外空白 */
+.topbar::after{ display:none !important; height:0 !important; }
+
+/* 紧跟在 topbar 之后的主内容，不再留 20px 间距 */
+.topbar + main,
+.topbar + section,
+.topbar + .container,
+.topbar + .home-hero,
+.topbar + .grid,
+.topbar + .page,
+.topbar + .cards,
+.topbar + div:first-of-type{
+  margin-top:0 !important;
+}
