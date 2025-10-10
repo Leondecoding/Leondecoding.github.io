@@ -1,4 +1,32 @@
-<!DOCTYPE html><html lang='en'><head><meta charset='utf-8'/><meta name='viewport' content='width=device-width, initial-scale=1'/><title>FZ Studio — Blog</title><link rel='stylesheet' href='./styles.css?v=160'/><link rel="stylesheet" href="./styles.css?v=20251010i">
+<!DOCTYPE html><html lang='en'><head><meta charset='utf-8'/><meta name='viewport' content='width=device-width, initial-scale=1'/><title>FZ Studio — Blog</title><link rel='stylesheet' href='./styles.css?v=160'/><link rel="stylesheet"<style>
+  /* 可微调的左边距，让 H1 和预览媒体与正文对齐 */
+  :root{ --blog-gutter: 64px; }  /* 不够就调 72 / 80 */
+
+  /* 让本页主容器居中（无论你用 main/.page/.container/section 哪个） */
+  .blog main, .blog .page, .blog .container, .blog section{
+    max-width: 1040px;
+    margin: 0 auto;
+    padding: 0 20px;
+  }
+
+  /* 大标题减半并向右移动到正文起点 */
+  .blog h1:first-of-type{
+    font-size: 32px !important;         /* 标题减半 */
+    line-height: 1.2 !important;
+    margin: 20px 0 12px var(--blog-gutter) !important;
+  }
+
+  /* 预览媒体（iframe/图片/视频）与标题保持同一左对齐 */
+  .blog iframe,
+  .blog .video,
+  .blog .embed,
+  .blog .lead-media,
+  .blog .lead{
+    display:block;
+    margin-left: var(--blog-gutter) !important;
+  }
+</style>
+ href="./styles.css?v=20251010i">
 <style>
   /* 列表页：去掉顶部栏与列表的 20px */
   .topbar::after{ height:0 !important; }
@@ -19,7 +47,7 @@
   /* 大标题减半（示例 32px，可自行微调） */
   .page h1{ font-size:32px !important; line-height:1.2 !important; margin-bottom:12px !important; }
 </style>
-</head><body><header class="topbar">
+</head><body class="blog"><header class="topbar">
   <div class="container row a-center j-between">
     <a class="logo" href="./index.html" aria-label="FZ Studio">
       <img src="./assets/images/logo.jpg" alt="FZ Studio logo" />
