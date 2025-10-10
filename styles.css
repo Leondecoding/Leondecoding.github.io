@@ -212,3 +212,68 @@ main .cards,
 /* 保证右侧任何图片都不被拉伸变形 */
 .product > :not(.stage) img{width:auto !important;height:auto !important;max-width:100% !important}
 /* ============================================================ */
+/* ===== PRODUCT DETAIL — RIGHT COLUMN LAYOUT FIX (2025-10-10) ===== */
+/* 两列骨架：左图（.stage） / 右信息（自动识别为 :not(.stage) ） */
+.product{
+  display:grid !important;
+  grid-template-columns: min(560px,48vw) 1fr !important;
+  gap:48px !important;
+  align-items:start !important;
+}
+
+/* 右侧信息容器（不改 HTML，用通配方式抓取） */
+.product > :not(.stage){
+  display:grid !important;
+  grid-template-columns: 1fr auto !important;  /* 左文案、右价格 */
+  grid-auto-flow: row !important;
+  align-items:baseline !important;
+  gap:12px 24px !important;
+}
+
+/* 标题在左列，去掉多余外边距 */
+.product > :not(.stage) h1{
+  grid-column:1 !important;
+  margin:0 !important;
+  font-weight:700 !important;
+  font-size:28px !important;
+  letter-spacing:.02em !important;
+}
+
+/* 货币与价格放右列，右对齐（类名不确定，用多重选择器兜底） */
+.product > :not(.stage) .price,
+.product > :not(.stage) [class*="price"],
+.product > :not(.stage) .currency,
+.product > :not(.stage) [class*="currenc"]{
+  grid-column:2 !important;
+  justify-self:end !important;
+  white-space:nowrap !important;
+  font-weight:700;
+  font-size:28px;
+}
+
+/* 数量/编号等（若存在仅有数字的元素），放左列次行 */
+.product > :not(.stage) .edition,
+.product > :not(.stage) .qty,
+.product > :not(.stage) [class*="edition"],
+.product > :not(.stage) [class*="qty"]{
+  grid-column:1 !important;
+  color:#666;
+  font-weight:600;
+}
+
+/* 尺寸、材料等 meta 与描述、按钮都占满整行 */
+.product > :not(.stage) .meta,
+.product > :not(.stage) .desc,
+.product > :not(.stage) p,
+.product > :not(.stage) ul,
+.product > :not(.stage) .actions{
+  grid-column:1 / -1 !important;
+}
+
+/* 按钮横排、对齐 */
+.product > :not(.stage) .actions{display:flex !important;gap:12px !important;align-items:center !important;margin-top:6px !important}
+.product > :not(.stage) .btn{height:44px;padding:12px 18px;border-radius:10px}
+
+/* 保证右侧的任何图片都不会被拉伸（例如支付图标） */
+.product > :not(.stage) img{height:auto !important;width:auto !important;max-width:100% !important}
+/* ================================================================ */
