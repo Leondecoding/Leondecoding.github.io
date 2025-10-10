@@ -7,6 +7,31 @@
   .topbar + section,
   .topbar + main { margin-top:0 !important; }
 </style>
+<style>
+  /* 文案整体置中 */
+  main, .page, .container{ text-align:center !important; }
+
+  /* 全站文字 #999（按钮文字仍保持白色可读） */
+  body, a, p, li, h1, h2, h3, h4, h5, h6{ color:#999 !important; }
+  .btn, .button{ color:#fff !important; }
+
+  /* “NEW RELEASES & MORE” 字体减到 2/3（例如 48px->32px） */
+  h2, .section-title{ font-size:32px !important; letter-spacing:.02em !important; }
+
+  /* Sign up 输入框：去边框，改下划线 */
+  form input[type="text"],
+  form input[type="email"],
+  form input[type="name"],
+  form input[type="search"]{
+    border:none !important;
+    border-bottom:1px solid #999 !important;
+    border-radius:0 !important;
+    background:transparent !important;
+    padding:6px 0 !important;
+    color:#999 !important;
+  }
+  form input::placeholder{ color:#999 !important; opacity:.8; }
+</style>
 </head><body><header class="topbar">
   <div class="container row a-center j-between">
     <a class="logo" href="./index.html" aria-label="FZ Studio">
