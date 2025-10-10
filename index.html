@@ -49,4 +49,38 @@ body img{height:auto !important;}
       </button>
     </div>
   </div>
-</header><main><section class='home-hero container'><img src='./assets/images/home-hero.jpg' alt='Featured artwork'/></section></main><footer class="footer"><div class="container">&copy; <span id="year"></span> FZ Studio</div></footer><script src='./app.js'></script></body></html>
+</header><main><section class='home-hero container'><img src='./assets/images/home-hero.jpg' alt='Featured artwork'/></section></main><footer class="footer"><div class="container">&copy; <span id="year"></span> FZ Studio</div></footer><script src='./app.js'></script><script>
+(function () {
+  function fix() {
+    // 1) 取消任何缩放/变换（防止整页被缩小）
+    document.documentElement.style.zoom = '1';
+    document.documentElement.style.transform = 'none';
+    document.body.style.zoom = '1';
+    document.body.style.transform = 'none';
+
+    // 2) 只把 logo 设为 160px 高
+    var logo = document.querySelector('.topbar .logo img, .logo img');
+    if (logo) {
+      logo.style.height = '160px';
+      logo.style.width = 'auto';
+      logo.style.maxWidth = 'none';
+      logo.style.display = 'block';
+    }
+
+    // 3) 其它图片一律恢复自适应高度，避免“整页缩小”
+    document.querySelectorAll('img').forEach(function (img) {
+      if (img !== logo) {
+        img.style.height = 'auto';
+        // 只在非 logo 的场景下给宽度 100%
+        if (!img.closest('.logo')) {
+          img.style.width = '100%';
+          img.style.maxWidth = '100%';
+        }
+      }
+    });
+  }
+  if (document.readyState !== 'loading') fix();
+  else document.addEventListener('DOMContentLoaded', fix);
+})();
+</script>
+</body></html>
