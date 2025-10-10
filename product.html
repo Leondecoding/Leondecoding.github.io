@@ -1,99 +1,136 @@
-<!DOCTYPE html>
-<html lang="en"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>View — FZ Studio</title><link rel="stylesheet" href='./styles.css?v=160'/><link rel="stylesheet" href="./styles.css?v=20251010b">
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Artwork — FZ Studio</title>
+
+  <!-- 站点样式（建议统一使用带版本号的 styles.css 以绕开缓存） -->
+  <link rel="stylesheet" href="./styles.css?v=20251010d">
+
+  <!-- PRODUCT 详情页排版：兜底内联（与 styles.css 中的同名规则一致） -->
+  <style>
+    /* 两列骨架：左图 / 右信息；图文间距扩大为 96px（≈原先两倍） */
+    .product{display:grid !important;grid-template-columns:min(640px,50vw) 1fr !important;gap:96px !important;align-items:start !important}
+    .product .stage{width:100% !important;aspect-ratio:4/3 !important;background:#f6f6f6 !important;border:1px solid #e5e5e5 !important;display:grid !important;place-items:center !important}
+    .product .stage img{width:100%;height:auto;display:block}
+
+    /* 右侧信息区：竖向栈 */
+    .product .info{display:grid !important;grid-template-columns:1fr !important;row-gap:20px !important;align-content:start !important}
+
+    /* 1) 名称（大标题） */
+    .product .info .title{margin:0 !important;font-weight:700 !important;font-size:48px !important;line-height:1.1 !important}
+
+    /* 2) 价格（小号）+ 税费说明 */
+    .product .info .price-line{display:grid !important;row-gap:6px !important}
+    .product .info .price{font-size:22px !important;font-weight:600 !important}
+    .product .info .tax-note{font-size:14px !important;color:#6b7280 !important}
+
+    /* 3) Size 选项（A5/A4） */
+    .product .info .options{display:flex !important;gap:12px !important;align-items:center}
+    .product .info .options .label{font-size:14px;color:#666;margin-right:8px}
+    .product .info .options input{position:absolute;opacity:0;pointer-events:none}
+    .product .info .options label{display:inline-flex;align-items:center;justify-content:center;min-width:60px;height:36px;padding:0 14px;border-radius:999px;border:1px solid #111;background:#fff;color:#111;cursor:pointer;font-weight:500}
+    .product .info .options input:checked + label{background:#111;color:#fff}
+
+    /* 4) 按钮区：Add to cart / Pay with PayPal */
+    .product .info .actions{display:flex !important;gap:14px !important;align-items:center}
+    .product .info .btn{appearance:none;border:1px solid #111;background:#111;color:#fff;height:48px;padding:0 18px;border-radius:10px;display:inline-grid;place-items:center;font-weight:600}
+    .product .info .btn.ghost{background:#fff;color:#111}
+    .product .info .btn.paypal{background:#111;color:#fff}
+
+    /* 5) 简介文本 */
+    .product .info .desc{color:#444;line-height:1.7}
+
+    /* 小屏适配 */
+    @media (max-width:1024px){
+      .product{grid-template-columns:1fr !important;gap:40px !important}
+      .product .info .title{font-size:36px !important}
+    }
+    @media (max-width:640px){
+      .product .info .title{font-size:30px !important}
+      .product .info .actions{flex-direction:column !important;align-items:stretch !important}
+      .product .info .btn{width:100%}
+    }
+  </style>
 </head>
 <body>
-<header class="topbar">
-  <div class="container row a-center j-between">
-    <a class="logo" href="./index.html" aria-label="FZ Studio">
-      <img src="./assets/images/logo.jpg" alt="FZ Studio logo" />
-    </a>
-    <nav class="nav row a-center">
-      <a href="./index.html" data-nav="home">Home</a>
-      <a href="./our-story.html" data-nav="ourstory">Our Story</a>
-      <a href="./blog.html" data-nav="blog">Blog</a>
-      <a href="./original-art.html" data-nav="original">Original Art</a>
-      <a href="./art-prints.html" data-nav="prints">Art Prints</a>
-      <a href="./greeting-cards.html" data-nav="cards">Greeting Cards</a>
-      <a href="./contact.html" data-nav="contact">Contact</a>
-    </nav>
-    <div class="right">
-      <a href="#" aria-label="Login">Login</a>
-      <button id="cartBtn" class="icon-btn badge" data-count="0" title="Cart" aria-label="Cart">
-        <svg viewBox="0 0 24 24"><path d="M3 3h2l.6 3M7 13h10l3-8H6l1 8zm-1 0l-2 8m14-8l2 8M10 21a1 1 0 110-2 1 1 0 010 2m8 0a1 1 0 110-2 1 1 0 010 2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      </button>
+
+  <!-- 顶部：沿用你现有结构（logo 高度由 :root --logoH 控制，你已设为 40px） -->
+  <div class="topbar">
+    <div class="container row">
+      <a class="logo" href="./index.html" aria-label="FZ Studio">
+        <img src="./assets/images/logo.jpg" alt="FZ Studio Logo">
+      </a>
+      <nav class="nav">
+        <a href="./index.html">Home</a>
+        <a href="./our-story.html">Our Story</a>
+        <a href="./blog.html">Blog</a>
+        <a href="./original-art.html">Original Art</a>
+        <a href="./art-prints.html">Art Prints</a>
+        <a href="./greeting-cards.html">Greeting Cards</a>
+        <a href="./contact.html">Contact</a>
+        <a href="./login.html">Login</a>
+      </nav>
     </div>
   </div>
-</header>
-<main>
-  <section class="product">
-    <div class="stage" id="stage">
-      <button class="pnav prev" id="navPrev" aria-label="Previous">
-        <svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      </button>
-      <img id="prodImg" alt="Artwork"/>
-      <button class="pnav next" id="navNext" aria-label="Next">
-        <svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      </button>
-    </div>
-    <aside class="meta">
-      <h1 id="prodTitle">Title</h1>
-      <div class="price" id="prodPrice"></div>
-      <div class="size" id="prodSize"></div>
-      <p id="prodDesc"></p>
-      <div class="actions">
-        <button id="btnAdd" class="btn">Add to Cart</button>
-        <a id="btnBuy" class="btn link" target="_blank" rel="noopener">Buy with PayPal</a>
+
+  <!-- 主体：左图 / 右信息 -->
+  <main class="product container">
+
+    <!-- 左侧：作品大图 -->
+    <figure class="stage">
+      <!-- 替换为该作品的大图路径 -->
+      <img src="./assets/images/sample-product.jpg" alt="Artwork title">
+    </figure>
+
+    <!-- 右侧：信息区（按你的参考格式与顺序） -->
+    <section class="info">
+
+      <!-- 1) 名称 -->
+      <h1 class="title">"Great tit 2" fine art print</h1>
+
+      <!-- 2) 价格（小号）+ 税费说明 -->
+      <div class="price-line">
+        <div class="price">£25.00 <span class="currency">GBP</span></div>
+        <div class="tax-note">Taxes included.</div>
       </div>
-    </aside>
-  </section>
-</main>
-<footer class="footer"><div class="container">&copy; <span id="year"></span> FZ Studio</div></footer>
-<script src="./app.js"></script>
-<script>
-(async function(){
-  const url=new URL(location.href);
-  const cat=url.searchParams.get('cat');
-  const id=url.searchParams.get('id');
-  const file=cat==='original'?'./data/original_art.json':(cat==='prints'?'./data/art_prints.json':'./data/greeting_cards.json');
-  const list=await fetch(file,{cache:'no-store'}).then(r=>r.json());
-  let idx=list.findIndex(x=>x.id===id); if(idx<0) idx=0;
 
-  function layoutForCat(item){
-    const stage=document.getElementById('stage');
-    stage.classList.remove('cards');
-    if(cat==='cards'){
-      stage.classList.add('cards');
-      stage.innerHTML = `
-        <button class="pnav prev" id="navPrev" aria-label="Previous"><svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
-        ${(item.images||[]).slice(0,4).map(src=>`<img src="${src}" alt="${item.title}">`).join('')}
-        <button class="pnav next" id="navNext" aria-label="Next"><svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>`;
-    }else{
-      stage.innerHTML = `
-        <button class="pnav prev" id="navPrev" aria-label="Previous"><svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
-        <img id="prodImg" alt="Artwork"/>
-        <button class="pnav next" id="navNext" aria-label="Next"><svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>`;
-    }
-  }
+      <!-- 3) Size 选项（A5 / A4） -->
+      <div class="options">
+        <span class="label">Size</span>
 
-  function show(i){
-    const item=list[i];
-    layoutForCat(item);
-    const primary=item.src||item.thumb||(item.images&&item.images[0]);
-    const imgEl=document.getElementById('prodImg'); if(imgEl) imgEl.src=primary;
-    document.getElementById('prodTitle').textContent=item.title;
-    document.getElementById('prodPrice').textContent=(item.currency||'GBP')+' '+Number(item.price).toFixed(2);
-    document.getElementById('prodSize').textContent=item.size||'';
-    document.getElementById('prodDesc').textContent=item.description||'';
-    document.getElementById('btnAdd').onclick=()=>addToCart({id:item.id,title:item.title,price:Number(item.price),src:primary,qty:1});
-    document.getElementById('btnBuy').onclick=(e)=>{ const u=new URL('https://www.paypal.com/cgi-bin/webscr'); u.searchParams.set('cmd','_xclick'); u.searchParams.set('business', BUSINESS_EMAIL); u.searchParams.set('item_name', item.title); u.searchParams.set('amount', Number(item.price).toFixed(2)); u.searchParams.set('currency_code', item.currency || 'GBP'); e.currentTarget.href=u.toString(); };
-    document.getElementById('navNext').onclick=next; document.getElementById('navPrev').onclick=prev;
-  }
-  function next(){ idx=(idx+1)%list.length; show(idx); history.replaceState(null,'','./product.html?cat='+cat+'&id='+list[idx].id); }
-  function prev(){ idx=(idx-1+list.length)%list.length; show(idx); history.replaceState(null,'','./product.html?cat='+cat+'&id='+list[idx].id); }
-  document.addEventListener('keydown',(e)=>{ if(e.key==='ArrowRight') next(); if(e.key==='ArrowLeft') prev(); });
+        <input type="radio" name="size" id="size-a5" checked>
+        <label for="size-a5">A5</label>
 
-  show(idx);
-})();
-</script>
-</body></html>
+        <input type="radio" name="size" id="size-a4">
+        <label for="size-a4">A4</label>
+      </div>
+
+      <!-- 4) 按钮区 -->
+      <div class="actions">
+        <button class="btn add">Add to cart</button>
+        <button class="btn paypal">Buy with PayPal</button>
+      </div>
+
+      <!-- 5) 简介（预留可多段） -->
+      <div class="desc">
+        <p>Fine art print of my watercolor painting "Great tit 2", from the 2022 In Flight collection.</p>
+        <p>Giclée on archival paper (Hahnemühle German Etching, 310gsm). Signed in the corner with a digital pencil signature.</p>
+        <!-- 你可以继续在这里添加更多细节段落 -->
+      </div>
+
+    </section>
+  </main>
+
+  <!-- 页脚 -->
+  <div class="footer">
+    © <span id="year"></span> FZ Studio
+  </div>
+
+  <script>
+    // 年份
+    document.getElementById('year').textContent = new Date().getFullYear();
+  </script>
+</body>
+</html>
