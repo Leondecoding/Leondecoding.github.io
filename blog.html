@@ -7,6 +7,18 @@
   .topbar + section,
   .topbar + main { margin-top:0 !important; }
 </style>
+<style>
+  /* 让 H1 与预览媒体和正文左起点对齐 */
+  :root{ --blog-gutter:64px; } /* 不够贴齐可调 72/80px */
+  .page h1,
+  .page .video,
+  .page iframe,
+  .page .embed,
+  .page .lead-media{ margin-left:var(--blog-gutter) !important; }
+
+  /* 大标题减半（示例 32px，可自行微调） */
+  .page h1{ font-size:32px !important; line-height:1.2 !important; margin-bottom:12px !important; }
+</style>
 </head><body><header class="topbar">
   <div class="container row a-center j-between">
     <a class="logo" href="./index.html" aria-label="FZ Studio">
