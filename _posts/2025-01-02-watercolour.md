@@ -1,8 +1,8 @@
 ---
-title: "WHAT I FOUND IN MAKING MY OWN WATERCOLOUR PAINT"
 layout: post
+title: "WHAT I FOUND IN MAKING MY OWN WATERCOLOUR PAINT"
 date: 2025-01-02
-cover: /assets/images/blog/sample-cover.jpg
+video_id: dQw4w9WgXcQ   # ← 换成你自己的 YouTube 视频 ID
 ---
 
 ### Why I choose to make my own watercolour?
