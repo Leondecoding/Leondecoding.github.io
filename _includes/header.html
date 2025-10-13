@@ -1,0 +1,39 @@
+<header class="topbar">
+  <div class="container row">
+    <a class="logo" href="{{ '/' | relative_url }}" aria-label="FZ Studio">
+      <img src="{{ '/assets/images/logo.jpg' | relative_url }}" alt="FZ Studio Logo">
+    </a>
+
+    <nav class="nav">
+      <a href="{{ '/' | relative_url }}">Home</a>
+      <a href="{{ '/our-story/' | relative_url }}">Our Story</a>
+      <a href="{{ '/blog/' | relative_url }}">Blog</a>
+      <a href="{{ '/original-art/' | relative_url }}">Original Art</a>
+      <a href="{{ '/art-prints/' | relative_url }}">Art Prints</a>
+      <a href="{{ '/greeting-cards/' | relative_url }}">Greeting Cards</a>
+      <a href="{{ '/contact/' | relative_url }}">Contact</a>
+    </nav>
+
+    <!-- 右侧图标：搜索 / 登录 / 购物篮 -->
+    <div class="icons" aria-label="quick actions">
+      <a class="icon" href="{{ '/search/' | relative_url }}" aria-label="Search" title="Search">
+        <svg viewBox="0 0 24 24" role="img" aria-hidden="true">
+          <circle cx="11" cy="11" r="6.5"></circle>
+          <line x1="16" y1="16" x2="21" y2="21"></line>
+        </svg>
+      </a>
+      <a class="icon" href="{{ '/login/' | relative_url }}" aria-label="Login" title="Login">
+        <svg viewBox="0 0 24 24" role="img" aria-hidden="true">
+          <circle cx="12" cy="8" r="3.5"></circle>
+          <path d="M4 20c0-3.5 3.6-6 8-6s8 2.5 8 6"></path>
+        </svg>
+      </a>
+      <a class="icon" href="{{ '/cart/' | relative_url }}" aria-label="Cart" title="Cart">
+        <svg viewBox="0 0 24 24" role="img" aria-hidden="true">
+          <path d="M6 7h12l-1 13H7L6 7z"></path>
+          <path d="M9 7a3 3 0 0 1 6 0"></path>
+        </svg>
+      </a>
+    </div>
+  </div>
+</header>
