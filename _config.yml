@@ -1,0 +1,5 @@
+title: FZ Studio
+url: https://leondecoding.github.io
+baseurl: ""         # 用户主页仓库保持空字符串
+markdown: kramdown
+permalink: pretty
