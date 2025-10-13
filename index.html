@@ -1,87 +1,15 @@
-<!doctype html>
-<html lang="en">
-  <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>FZ Studio — Home</title>
+---
+layout: default
+title: Home
+---
 
-  <!-- 你的外链样式，先加载 -->
-  <link rel="stylesheet" href="./styles.css?v=20251010j">
-    <style>
-  /* 让副标题和 H1/预览媒体用同一左边距 */
-  :root{ --blog-gutter: 64px; }            /* 若已存在就不用再写；不够齐就改 72/80 */
-
-  /* 只移动第一段副标题（就是这句 Why…） */
-  .blog h3:first-of-type{
-    margin-left: var(--blog-gutter) !important;
-  }
-
-  /* 手机端跟随我们给 H1 的移动值 */
-  @media (max-width:640px){
-    .blog h3:first-of-type{ margin-left: 20px !important; }
-  }
-</style>
-
-
-  <!-- 覆盖首页 20px 间距（仅首页写这段，所以只影响首页） -->
-  <style>
-    .topbar + .home-hero{ margin-top:0 !important; }
-    .topbar::after{ height:0 !important; } /* 若之前用 ::after 撑间距，这里清掉 */
-  </style>
-<style>
-  /* 仅首页：去掉顶部栏与主图之间的 20px */
-  .topbar::after{ height:0 !important; }
-  .topbar + .home-hero,
-  .topbar + .stage,
-  .topbar + .container { margin-top:0 !important; }
-</style>
-</head>
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>FZ Studio — Home (Minimal Test)</title>
-<style>
-  :root{ --logoH:160px; --ink:#111; --line:#eee; --container:1200px; }
-  *{box-sizing:border-box}
-  html,body{height:100%}
-  body{
-    margin:0;
-    font-family:-apple-system,BlinkMacSystemFont,'Helvetica Neue',Arial,sans-serif;
-    color:var(--ink);font-size:18px;line-height:1.6
-  }
-  .topbar{position:sticky;top:0;background:#fff;border-bottom:1px solid var(--line)}
-  .container{max-width:var(--container);margin:0 auto;padding:12px 20px;display:flex;align-items:center;justify-content:space-between}
-  .logo img{height:var(--logoH);width:auto;display:block}
-  nav a{margin:0 12px;text-decoration:none;color:#111;text-transform:uppercase;font-weight:300;font-size:16px;letter-spacing:.08em}
-  .hero{max-width:960px;width:72vw;margin:80px auto;border:1px solid #eee;background:#f8f8f8;padding:12px;display:grid;place-items:center}
-  .hero img{width:100%;height:auto;display:block}
-  footer{border-top:1px solid var(--line);color:#999;text-align:center;margin-top:80px;padding:20px 0}
-</style>
-  <link rel="stylesheet" href="./styles.css?v=20251010g">
-</head>
-<body>
-  <div class="topbar">
-    <div class="container">
-      <div class="logo"><img src="./assets/images/logo.jpg" alt="FZS"></div>
-      <nav>
-        <a href="./index.html">Home</a>
-        <a href="./our-story.html">Our Story</a>
-        <a href="./blog.html">Blog</a>
-        <a href="./original-art.html">Original Art</a>
-        <a href="./art-prints.html">Art Prints</a>
-        <a href="./greeting-cards.html">Greeting Cards</a>
-        <a href="./contact.html">Contact</a>
-        <a href="./login.html">Login</a>
-      </nav>
-    </div>
+<!-- 首页主体：一个主视觉区（可换成你的主图） -->
+<section class="home-hero" style="display:grid;place-items:center;padding:40px 0;">
+  <div class="stage" style="max-width:960px;width:72vw;aspect-ratio:4/3;background:#f8f8f8;border:1px solid #eee;display:grid;place-items:center;">
+    <!-- 如果还没有主图，就先显示占位文字；有图的话把下面这一行换成 <img> 即可 -->
+    <span style="color:#bbb;letter-spacing:.1em;text-transform:uppercase;font-size:12px;">Featured Artwork</span>
+    <!-- 示例：有主图时这么写
+    <img src="{{ '/assets/images/featured.jpg' | relative_url }}" alt="Featured artwork" style="width:100%;height:auto;display:block;">
+    -->
   </div>
-
-  <main class="hero">
-    <img src="./assets/images/home-hero.jpg" alt="Featured artwork">
-  </main>
-
-  <footer>© <span id="year"></span> FZ Studio</footer>
-
-<script>document.getElementById('year').textContent = new Date().getFullYear();</script>
-</body>
-</html>
+</section>
