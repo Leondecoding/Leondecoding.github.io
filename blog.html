@@ -1,114 +1,53 @@
-<!doctype html>
-<html lang="en">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Blog — FZ Studio</title>
+---
+layout: default
+title: Blog Post
+body_class: blog
+---
 
-  <!-- 站点样式（带版本号避免缓存） -->
-  <link rel="stylesheet" href="./styles.css?v=20251010j">
-  <style>
-  /* 让副标题和 H1/预览媒体用同一左边距 */
-  :root{ --blog-gutter: 64px; }            /* 若已存在就不用再写；不够齐就改 72/80 */
+<!-- 仅本页样式：标题/媒体/日期/第一段正文与“Why …”对齐；标题字号减半 -->
+<style>
+  :root{ --blog-gutter: 64px; }  /* 不够齐可以调 72/80 */
 
-  /* 只移动第一段副标题（就是这句 Why…） */
-  .blog h3:first-of-type{
-    margin-left: var(--blog-gutter) !important;
+  .blog main, .blog .page{ max-width:1040px; margin:0 auto; padding:0 20px; }
+
+  /* 顶部日期靠齐到同一左线 */
+  .blog .date{ margin:12px 0 0 var(--blog-gutter); color:#999; }
+
+  /* 大标题缩小并右移到正文起点 */
+  .blog h1:first-of-type{
+    font-size:32px; line-height:1.2;
+    margin:20px 0 12px var(--blog-gutter);
   }
 
-  /* 手机端跟随我们给 H1 的移动值 */
+  /* 预览媒体与标题同一左线（响应式 16:9 容器） */
+  .blog .lead-media{ margin-left:var(--blog-gutter); margin-bottom:24px; }
+  .blog .lead-media .embed{ position:relative; width: min(100%, 800px); aspect-ratio:16/9; }
+  .blog .lead-media iframe{ position:absolute; inset:0; width:100%; height:100%; border:0; }
+
+  /* “Why …” 及其后的第一段正文一起靠齐 */
+  .blog h3:first-of-type{ margin-left: var(--blog-gutter); }
+  .blog h3:first-of-type + p{ margin-left: var(--blog-gutter); }
+
   @media (max-width:640px){
-    .blog h3:first-of-type{ margin-left: 20px !important; }
+    .blog h1:first-of-type{ margin-left:20px; font-size:28px; }
+    .blog .lead-media{ margin-left:20px; }
+    .blog .date, .blog h3:first-of-type, .blog h3:first-of-type + p{ margin-left:20px; }
   }
 </style>
 
-  <!-- BLOG 专用排版：标题与预览媒体对齐到正文起点；标题字号减半 -->
-  <style>
-    :root{ --blog-gutter: 64px; } /* 不够贴齐就调 72/80 */
+<p class="date">2 Jan</p>
 
-    /* 本页主容器：居中并限制行宽 */
-    .blog main, .blog .page, .blog .container, .blog section{
-      max-width: 1040px;
-      margin: 0 auto;
-      padding: 0 20px;
-    }
+<h1>WHAT I FOUND IN MAKING MY OWN WATERCOLOUR PAINT</h1>
 
-    /* 顶部大标题：缩小并向右移动到正文左边线 */
-    .blog h1:first-of-type{
-      font-size: 32px !important;      /* 标题减半 */
-      line-height: 1.2 !important;
-      margin: 20px 0 12px var(--blog-gutter) !important;
-    }
+<div class="lead-media">
+  <div class="embed">
+    <iframe
+      src="https://www.youtube.com/embed/dQw4w9WgXcQ"
+      title="YouTube video player"
+      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+      allowfullscreen></iframe>
+  </div>
+</div>
 
-    /* 预览媒体（iframe/图片/视频）与标题同一左边线 */
-    .blog .lead-media,
-    .blog iframe,
-    .blog .video,
-    .blog .embed{
-      display:block;
-      margin: 0 0 24px var(--blog-gutter) !important;
-      max-width: 100%;
-    }
-
-    /* 文章正文（小标题/段落）自然对齐到容器内边距，无需额外偏移 */
-    .blog h2, .blog h3, .blog p{ margin-left: 0; }
-
-    @media (max-width: 640px){
-      .blog h1:first-of-type{ font-size: 28px !important; margin-left: 20px !important; }
-      .blog .lead-media, .blog iframe, .blog .video, .blog .embed{ margin-left: 20px !important; }
-    }
-  </style>
-</head>
-
-<body class="blog">
-  <!-- 顶部导航（与你站点一致） -->
-  <header class="topbar">
-    <div class="container row">
-      <a class="logo" href="./index.html" aria-label="FZ Studio">
-        <img src="./assets/images/logo.jpg" alt="FZ Studio Logo">
-      </a>
-      <nav class="nav">
-        <a href="./index.html">Home</a>
-        <a href="./our-story.html">Our Story</a>
-        <a href="./blog.html">Blog</a>
-        <a href="./original-art.html">Original Art</a>
-        <a href="./art-prints.html">Art Prints</a>
-        <a href="./greeting-cards.html">Greeting Cards</a>
-        <a href="./contact.html">Contact</a>
-        <a href="./login.html">Login</a>
-      </nav>
-    </div>
-  </header>
-
-  <!-- 页面主体 -->
-  <main class="page">
-
-    <!-- 日期（可选） -->
-    <p style="margin: 12px 0 0 20px; color:#999;">2 Jan</p>
-
-    <!-- 大标题（将按样式自动右移并缩小） -->
-    <h1>WHAT I FOUND IN MAKING MY OWN WATERCOLOUR PAINT</h1>
-
-    <!-- 预览媒体（与标题同一左边线对齐） -->
-    <div class="lead-media">
-      <!-- 示例：YouTube 预览。替换为你的视频/图片即可 -->
-      <iframe width="560" height="315"
-              src="https://www.youtube.com/embed/dQw4w9WgXcQ"
-              title="YouTube video player" frameborder="0"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-              allowfullscreen></iframe>
-    </div>
-
-    <!-- 正文内容 -->
-    <h3>Why I choose to make my own watercolour?</h3>
-    <p>I always blend my own colours using natural and synthetic pigments. Then, I fill them into the tubes.</p>
-
-  </main>
-
-  <footer class="footer">© <span id="year"></span> FZ Studio</footer>
-
-  <script>
-    document.getElementById('year').textContent = new Date().getFullYear();
-  </script>
-</body>
-</html>
+<h3>Why I choose to make my own watercolour?</h3>
+<p>I always blend my own colours using natural and synthetic pigments. Then, I fill them into the tubes.</p>
