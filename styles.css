@@ -632,3 +632,11 @@ h1,h2,h3,h4,h5,h6{ color:#999 !important; }
   margin: 0 auto;
   text-align: center;
 }
+/* Topbar icons */
+.topbar .icons{ margin-left:auto; display:flex; gap:28px; align-items:center; }
+.topbar .icon{ width:28px; height:28px; display:inline-flex; align-items:center; justify-content:center; }
+.topbar .icon svg{ width:26px; height:26px; fill:none; stroke:#111; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; }
+.topbar .icon:hover{ opacity:.85; }
+
+/* 若还残留旧的文字 LOGIN 链接，隐藏它避免重复 */
+.nav a[href$="login.html"], .nav a[href$="login/"]{ display:none; }
