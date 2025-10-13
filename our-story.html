@@ -1,56 +1,50 @@
-<!DOCTYPE html><html lang='en'><head><meta charset='utf-8'/><meta name='viewport' content='width=device-width, initial-scale=1'/><title>FZ Studio — Our Story</title><link rel='stylesheet' href='./styles.css?v=160'/><link rel="stylesheet" href="./styles.css?v=20251010j">
+---
+layout: default
+title: Our Story
+body_class: our-story
+---
+
+<!-- 仅本页样式：正文居中、标题缩小到 2/3、表单改为下划线 -->
 <style>
-  /* 列表页：去掉顶部栏与列表的 20px */
-  .topbar::after{ height:0 !important; }
-  .topbar + .grid,
-  .topbar + .container,
-  .topbar + section,
-  .topbar + main { margin-top:0 !important; }
-</style>
-<style>
-  /* 文案整体置中 */
-  main, .page, .container{ text-align:center !important; }
-
-  /* 全站文字 #999（按钮文字仍保持白色可读） */
-  body, a, p, li, h1, h2, h3, h4, h5, h6{ color:#999 !important; }
-  .btn, .button{ color:#fff !important; }
-
-  /* “NEW RELEASES & MORE” 字体减到 2/3（例如 48px->32px） */
-  h2, .section-title{ font-size:32px !important; letter-spacing:.02em !important; }
-
-  /* Sign up 输入框：去边框，改下划线 */
-  form input[type="text"],
-  form input[type="email"],
-  form input[type="name"],
-  form input[type="search"]{
-    border:none !important;
-    border-bottom:1px solid #999 !important;
-    border-radius:0 !important;
-    background:transparent !important;
-    padding:6px 0 !important;
-    color:#999 !important;
+  .our-story main, .our-story .page{
+    max-width: 960px; margin: 0 auto; text-align: center; padding: 0 20px;
   }
-  form input::placeholder{ color:#999 !important; opacity:.8; }
+  .our-story h1{ margin: 24px 0 12px; }
+  .our-story h2.section-title{
+    font-size: 32px;               /* 约等于之前的 2/3 */
+    letter-spacing: .02em;
+    margin: 24px 0 12px;
+  }
+  /* 表单：去边框 → 下划线 */
+  .our-story form input[type="text"],
+  .our-story form input[type="email"],
+  .our-story form input[type="name"]{
+    border: none; border-bottom: 1px solid #999; border-radius: 0;
+    background: transparent; padding: 6px 0; color:#999;
+  }
+  .our-story form input::placeholder{ color:#999; opacity:.8; }
+  .our-story form button{
+    appearance:none; border:1px solid #111; background:#111; color:#fff;
+    height:40px; padding:0 16px; border-radius:10px; font-weight:600;
+  }
 </style>
-</head><body><header class="topbar">
-  <div class="container row a-center j-between">
-    <a class="logo" href="./index.html" aria-label="FZ Studio">
-      <img src="./assets/images/logo.jpg" alt="FZ Studio logo" />
-    </a>
-    <nav class="nav row a-center">
-      <a href="./index.html" data-nav="home">Home</a>
-      <a href="./our-story.html" data-nav="ourstory">Our Story</a>
-      <a href="./blog.html" data-nav="blog">Blog</a>
-      <a href="./original-art.html" data-nav="original">Original Art</a>
-      <a href="./art-prints.html" data-nav="prints">Art Prints</a>
-      <a href="./greeting-cards.html" data-nav="cards">Greeting Cards</a>
-      <a href="./contact.html" data-nav="contact">Contact</a>
-    </nav>
-    <div class="right">
-      <a href="#" aria-label="Login">Login</a>
-      <button id="cartBtn" class="icon-btn badge" data-count="0" title="Cart" aria-label="Cart">
-        <svg viewBox="0 0 24 24"><path d="M3 3h2l.6 3M7 13h10l3-8H6l1 8zm-1 0l-2 8m14-8l2 8M10 21a1 1 0 110-2 1 1 0 010 2m8 0a1 1 0 110-2 1 1 0 010 2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      </button>
-    </div>
-  </div>
-</header><main><section class='prose container'><p class='kicker'>Hi, we are FZ Studio, an architectural designer and an artist, currently based in London, UK.</p><p>We enjoy creating art by meditating and experimenting through drawing, painting, photographing and crafting. We love nature and wildlife. In our spare time, hiking and diving always refresh our mind for creativity.</p><p>We also post arts and stories related to nature and life via our <a href='#' target='_blank'>Youtube</a> and <a href='#' target='_blank'>Instagram</a>.</p><p>Currently we are introducing our first collection of watercolour greeting cards and art prints. We believe watercolour captures the atmosphere of nature and the unpredictable feature of watercolour makes it suitable for intuitive creation.</p></section><section class='nl container'><h2>NEW RELEASES &amp; MORE</h2><p>Sign up with your email address to receive updates for our new art releases, ideas from our craft and much more !</p><div class='inputs'><input placeholder='First Name' /><input placeholder='Last Name' /><input placeholder='Email Address' /></div><button>SIGN UP</button><div style='margin-top:14px;color:#aaa;font-size:14px'>100% spam free. Unsubscribe at any time. We respect your privacy.</div></section></main><footer class="footer"><div class="container">&copy; <span id="year"></span> FZ Studio</div></footer><script src='./app.js'></script></body></html>
+
+<h1>Our Story</h1>
+
+<p>Hi, we are FZ Studio, an architectural designer and an artist, currently based in London, UK.</p>
+<p>We enjoy creating art by meditating and experimenting through drawing, painting, photographing and crafting. We love nature and wildlife. In our spare time, hiking and diving always refresh our mind for creativity.</p>
+<p>We also post arts and stories related to nature and life via our <a href="#">Youtube</a> and <a href="#">Instagram</a>.</p>
+
+<h2 class="section-title">NEW RELEASES &amp; MORE</h2>
+
+<p>Sign up with your email address to receive updates for our new art releases, ideas from our craft and much more!</p>
+
+<form>
+  <p>
+    <input type="text" placeholder="First Name" style="width:240px; margin:0 8px;">
+    <input type="text" placeholder="Last Name"  style="width:240px; margin:0 8px;">
+    <input type="email" placeholder="Email Address" style="width:280px; margin:0 8px;">
+  </p>
+  <p><button type="submit">SIGN UP</button></p>
+  <p style="color:#999;">100% spam free. Unsubscribe at any time. We respect your privacy.</p>
+</form>
