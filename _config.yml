@@ -1,5 +1,27 @@
 title: FZ Studio
+description: Watercolour originals, art prints & greeting cards
 url: https://leondecoding.github.io
-baseurl: ""         # 用户主页仓库保持空字符串
+baseurl: ""
 markdown: kramdown
 permalink: pretty
+
+collections:
+  artprints:
+    output: true
+    permalink: /art-prints/:name/
+  originals:
+    output: true
+    permalink: /original-art/:name/
+  cards:
+    output: true
+    permalink: /greeting-cards/:name/
+
+defaults:
+  - scope: { path: "", type: "posts" }
+    values: { layout: post }
+  - scope: { path: "", type: "artprints" }
+    values: { layout: product, category: "Art Print" }
+  - scope: { path: "", type: "originals" }
+    values: { layout: product, category: "Original" }
+  - scope: { path: "", type: "cards" }
+    values: { layout: product, category: "Greeting Card" }
