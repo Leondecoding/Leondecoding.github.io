@@ -1,0 +1,99 @@
+<!-- 文件：_layouts/product.html -->
+---
+layout: default
+---
+
+{% assign imgs = page.images | default: nil %}
+{% assign currency = page.currency | default: 'GBP' %}
+{% capture currency_symbol %}
+  {% case currency %}{% when 'GBP' %}£{% when 'USD' %}${% when 'EUR' %}€{% else %}{{ currency }} {% endcase %}
+{% endcapture %}
+
+<main class="fz-product">
+  <!-- 左：主图 + 缩略图 -->
+  <section>
+    <div class="fz-hero">
+      {% if imgs and imgs.size > 0 %}
+        <img id="fz-hero-img" src="{{ imgs[0] | relative_url }}" alt="{{ page.title }}">
+      {% else %}
+        <img id="fz-hero-img" src="https://via.placeholder.com/900x900?text=Artwork" alt="{{ page.title }}">
+      {% endif %}
+    </div>
+
+    {% if imgs and imgs.size > 1 %}
+      <div class="fz-thumbs" id="fz-thumbs">
+        {% for p in imgs %}
+          <img src="{{ p | relative_url }}" alt="{{ page.title }} thumb {{ forloop.index }}"
+               data-hero="{{ p | relative_url }}">
+        {% endfor %}
+      </div>
+    {% endif %}
+  </section>
+
+  <!-- 右：信息区 -->
+  <aside>
+    <h1>{{ page.title }}</h1>
+
+    {% if page.price %}
+      <p class="fz-prop"><strong class="fz-price">{{ currency_symbol | strip }}{{ page.price }}</strong></p>
+    {% endif %}
+
+    {% if page.dimensions %}<p class="fz-prop">Dimensions: {{ page.dimensions }}</p>{% endif %}
+    {% if page.size %}<p class="fz-prop">Size: {{ page.size }}</p>{% endif %}
+    {% if page.paper %}<p class="fz-prop">Paper: {{ page.paper }}</p>{% endif %}
+    {% if page.medium %}<p class="fz-prop">Medium: {{ page.medium }}</p>{% endif %}
+    {% if page.edition %}<p class="fz-prop">Edition: {{ page.edition }}</p>{% endif %}
+    {% if page.year %}<p class="fz-prop">Year: {{ page.year }}</p>{% endif %}
+    {% if page.availability %}<p class="fz-prop">Availability: {{ page.availability | replace: '_',' ' | capitalize }}</p>{% endif %}
+    {% if page.sku %}<p class="fz-prop">SKU: {{ page.sku }}</p>{% endif %}
+
+    {% if page.description %}
+      <div class="fz-prop">{{ page.description }}</div>
+    {% endif %}
+
+    <div class="fz-buy">
+      <!-- PayPal（请在 _config.yml 里设置 site.paypal_business_id） -->
+      {% if site.paypal_business_id and page.price %}
+      <form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_blank">
+        <input type="hidden" name="cmd" value="_xclick">
+        <input type="hidden" name="business" value="{{ site.paypal_business_id }}">
+        <input type="hidden" name="item_name" value="{{ page.title }}{% if page.sku %} ({{ page.sku }}){% endif %}">
+        <input type="hidden" name="amount" value="{{ page.price }}">
+        <input type="hidden" name="currency_code" value="{{ currency }}">
+        <button type="submit" class="fz-btn fz-btn--primary">Pay via PayPal</button>
+      </form>
+      {% else %}
+      <a class="fz-btn fz-btn--primary" href="https://www.paypal.com" target="_blank" rel="noopener">Pay via PayPal</a>
+      {% endif %}
+
+      <!-- 添加到购物篮（占位，前端本地存储） -->
+      <button class="fz-btn js-add-to-cart"
+        data-sku="{{ page.sku | default: page.slug | default: page.title | slugify }}"
+        data-title="{{ page.title | escape }}"
+        data-price="{{ page.price | default: 0 }}"
+        data-currency="{{ currency | escape }}"
+        data-image="{{ imgs[0] | default: '' | relative_url }}"
+      >Add to Cart</button>
+    </div>
+  </aside>
+</main>
+
+<!-- 正文（可选） -->
+{% if content %}
+  <section class="fz-product" style="grid-template-columns:1fr;">
+    <div>{{ content }}</div>
+  </section>
+{% endif %}
+
+<script>
+// 详情页小交互：切换主图
+document.addEventListener('DOMContentLoaded', function(){
+  var hero = document.getElementById('fz-hero-img');
+  var thumbs = document.getElementById('fz-thumbs');
+  if(thumbs && hero){
+    thumbs.addEventListener('click', function(e){
+      if(e.target && e.target.dataset.hero){ hero.src = e.target.dataset.hero; }
+    });
+  }
+});
+</script>
