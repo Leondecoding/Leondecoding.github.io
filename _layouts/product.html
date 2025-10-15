@@ -30,4 +30,135 @@ layout: default
 
 {% assign imgs = page.images | default: nil %}
 {% assign currency = page.currency | default: site.default_currency | default: 'GBP' %}
-{% capture currency_symb_
+{% capture currency_symbol %}{% case currency %}{% when 'GBP' %}£{% when 'USD' %}${% when 'EUR' %}€{% else %}{{ currency }}{% endcase %}{% endcapture %}
+
+<main class="fz-product">
+  <!-- 左：主图 + 缩略图 -->
+  <section>
+    <div class="fz-hero">
+      {% if imgs and imgs.size > 0 %}
+        <img id="fz-hero-img" src="{{ imgs[0] | relative_url }}" alt="{{ page.title }}">
+      {% else %}
+        <img id="fz-hero-img" src="https://via.placeholder.com/900x900?text=Artwork" alt="{{ page.title }}">
+      {% endif %}
+    </div>
+    {% if imgs and imgs.size > 1 %}
+      <div class="fz-thumbs" id="fz-thumbs">
+        {% for p in imgs %}
+          <img src="{{ p | relative_url }}" alt="{{ page.title }} thumb {{ forloop.index }}" data-hero="{{ p | relative_url }}">
+        {% endfor %}
+      </div>
+    {% endif %}
+  </section>
+
+  <!-- 右：信息（严格按你要的顺序） -->
+  <aside>
+    <h1 class="fz-title">{{ page.title }}</h1>
+
+    {% if page.price %}
+      <p class="fz-price-line">{{ currency_symbol | strip }}{{ page.price }}</p>
+      <p class="fz-tax">Taxes included.</p>
+    {% endif %}
+
+    <!-- Size：A5 / A4 -->
+    <div class="fz-field">
+      <div class="fz-field__label">Size</div>
+      <div class="fz-pills" id="fz-size-pills">
+        <input class="fz-pill-input" type="radio" name="size" id="size-a5" value="A5" checked>
+        <label class="fz-pill" for="size-a5">A5</label>
+        <input class="fz-pill-input" type="radio" name="size" id="size-a4" value="A4">
+        <label class="fz-pill" for="size-a4">A4</label>
+      </div>
+    </div>
+
+    <div class="fz-buy">
+      <!-- Pay via PayPal（携带所选尺寸） -->
+      {% if site.paypal_business_id and page.price %}
+      <form id="fz-paypal-form" action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_blank">
+        <input type="hidden" name="cmd" value="_xclick">
+        <input type="hidden" name="business" value="{{ site.paypal_business_id }}">
+        <input type="hidden" id="pp_item_name" name="item_name" value="{{ page.title }}{% if page.sku %} ({{ page.sku }}){% endif %}">
+        <input type="hidden" name="amount" value="{{ page.price }}">
+        <input type="hidden" name="currency_code" value="{{ currency }}">
+        <button type="submit" class="fz-btn fz-btn--primary">Pay via PayPal</button>
+      </form>
+      {% else %}
+      <a class="fz-btn fz-btn--primary" href="https://www.paypal.com" target="_blank" rel="noopener">Pay via PayPal</a>
+      {% endif %}
+
+      <!-- Add to Cart（携带所选尺寸） -->
+      <button class="fz-btn js-add-to-cart"
+        data-sku="{{ page.sku | default: page.slug | default: page.title | slugify }}"
+        data-title="{{ page.title | escape }}"
+        data-price="{{ page.price | default: 0 }}"
+        data-currency="{{ currency | escape }}"
+        data-image="{{ imgs[0] | default: '' | relative_url }}"
+        data-option-name="Size"
+        data-option-input="size"
+      >Add to Cart</button>
+    </div>
+
+    <!-- 作品介绍 -->
+    {% if page.description %}
+      <div class="fz-prop" style="margin-top:14px;">{{ page.description }}</div>
+    {% endif %}
+  </aside>
+</main>
+
+<!-- 可选正文 -->
+{% if content %}
+  <section class="fz-product" style="grid-template-columns:1fr;">
+    <div>{{ content }}</div>
+  </section>
+{% endif %}
+
+<script>
+// 缩略图切换主图
+document.addEventListener('DOMContentLoaded', function(){
+  var thumbs = document.getElementById('fz-thumbs');
+  var hero = document.getElementById('fz-hero-img');
+  thumbs && hero && thumbs.addEventListener('click', function(e){
+    var t = e.target; if(t && t.dataset.hero){ hero.src = t.dataset.hero; }
+  });
+
+  // PayPal item_name 加上尺寸
+  function getSize(){ var c=document.querySelector('input[name="size"]:checked'); return c?c.value:''; }
+  function updatePaypal(){
+    var base = "{{ page.title | escape }}{% if page.sku %} ({{ page.sku }}){% endif %}";
+    var el = document.getElementById('pp_item_name'); if(el){ el.value = getSize()? base + " - " + getSize() : base; }
+  }
+  document.getElementById('fz-size-pills')?.addEventListener('change', updatePaypal);
+  updatePaypal();
+
+  // Add to Cart 携带尺寸（占位购物篮）
+  (function(){
+    const btn = document.querySelector('.js-add-to-cart');
+    if(!btn) return;
+    const storeKey='fz_cart';
+    function getCart(){ try{return JSON.parse(localStorage.getItem(storeKey)||'[]');}catch(e){return[];} }
+    function setCart(arr){ localStorage.setItem(storeKey, JSON.stringify(arr)); }
+    function updateBadge(){
+      const cnt = getCart().reduce((n,i)=>n+(i.qty||1),0);
+      const b = document.getElementById('fz-cart-count'); if(!b) return;
+      b.hidden = cnt<=0; b.textContent = String(cnt);
+    }
+    btn.addEventListener('click', ()=>{
+      const opt = getSize();
+      const sku = (btn.dataset.sku||'item') + (opt?`-${opt}`:'');
+      const title = (btn.dataset.title||'') + (opt?` - ${opt}`:'');
+      const item = {
+        sku, title,
+        price: parseFloat(btn.dataset.price||'0'),
+        currency: btn.dataset.currency||'',
+        image: btn.dataset.image||'',
+        qty:1, options: opt?[{name:'Size', value:opt}]:[]
+      };
+      const cart = getCart();
+      const exist = cart.find(x=>x.sku===item.sku);
+      if(exist){ exist.qty=(exist.qty||1)+1; } else { cart.push(item); }
+      setCart(cart); updateBadge();
+    });
+    updateBadge();
+  })();
+});
+</script>
