@@ -4,18 +4,26 @@ title: Original Art
 permalink: /original-art/
 ---
 
-{% capture currency_symbol %}{% case site.default_currency %}{% when 'USD' %}${% when 'EUR' %}€{% else %}£{% endcase %}{% endcapture %}
-<main class="fz-grid">
-  {% assign items = site.originals | sort: 'date' | reverse %}
+<main class="fz-grid fz-grid--4">
+  {% assign items = site.originals | sort: 'date' | reverse | slice: 0, 8 %}
   {% for item in items %}
     <a class="fz-card" href="{{ item.url | relative_url }}">
       <div class="fz-card__img">
         {% assign img = item.images | first %}
-        {% if img %}<img src="{{ img | relative_url }}" alt="{{ item.title }}">{% endif %}
+        {% if img %}
+          <img src="{{ img | relative_url }}" alt="{{ item.title }}">
+        {% else %}
+          <img src="https://via.placeholder.com/800x800?text=Artwork" alt="{{ item.title }}">
+        {% endif %}
       </div>
       <div class="fz-card__meta">
         <span>{{ item.title }}</span>
-        {% if item.price %}<span class="fz-price">{{ item.currency | default: 'GBP' | replace: 'GBP','£' | replace:'USD','$' | replace:'EUR','€' }}{{ item.price }}</span>{% endif %}
+        {% if item.price %}
+          {% assign c = item.currency | default: 'GBP' %}
+          <span class="fz-price">
+            {% case c %}{% when 'USD' %}${% when 'EUR' %}€{% else %}£{% endcase %}{{ item.price }}
+          </span>
+        {% endif %}
       </div>
     </a>
   {% endfor %}
