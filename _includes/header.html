@@ -1,46 +1,45 @@
 <!-- 文件：_includes/header.html -->
 <header class="fz-site-header">
   <div class="fz-header-inner">
-    <!-- 左：FZS Logo（优先 site.logo，没有则用 /assets/images/logo-fzs.svg） -->
+    <!-- 左：FZS Logo（按参考图②尺寸；优先 site.logo，没有则 /assets/images/logo-fzs.svg） -->
     <a class="fz-logo" href="{{ '/' | relative_url }}" aria-label="FZ Studio Home">
       {% assign _logo = site.logo | default: '/assets/images/logo-fzs.svg' %}
       <img src="{{ _logo | relative_url }}" alt="{{ site.title | default: 'FZ Studio' }}">
     </a>
 
-    <!-- 中：主导航（顺序固定） -->
+    <!-- 中：主导航（顺序固定，全部大写） -->
     {% assign _url = page.url | default: '' %}
     {% assign is_original = _url contains '/original-art/' or page.collection == 'originals' %}
     {% assign is_prints   = _url contains '/art-prints/'  or page.collection == 'artprints' %}
     {% assign is_cards    = _url contains '/greeting-cards/' or page.collection == 'cards' %}
     {% assign is_blog     = _url contains '/blog/' or page.collection == 'posts' %}
-
     <nav class="fz-nav" aria-label="Primary">
-      <a href="{{ '/' | relative_url }}" class="fz-nav__link{% if _url == '/' %} is-active{% endif %}">Home</a>
-      <a href="{{ '/our-story/' | relative_url }}" class="fz-nav__link{% if _url contains '/our-story/' %} is-active{% endif %}">Our Story</a>
-      <a href="{{ '/original-art/' | relative_url }}" class="fz-nav__link{% if is_original %} is-active{% endif %}">Original Art</a>
-      <a href="{{ '/art-prints/' | relative_url }}" class="fz-nav__link{% if is_prints %} is-active{% endif %}">Art Prints</a>
-      <a href="{{ '/greeting-cards/' | relative_url }}" class="fz-nav__link{% if is_cards %} is-active{% endif %}">Greeting Cards</a>
-      <a href="{{ '/blog/' | relative_url }}" class="fz-nav__link{% if is_blog %} is-active{% endif %}">Blog</a>
-      <a href="{{ '/contact/' | relative_url }}" class="fz-nav__link{% if _url contains '/contact/' %} is-active{% endif %}">Contact</a>
+      <a href="{{ '/' | relative_url }}" class="fz-nav__link{% if _url == '/' %} is-active{% endif %}">HOME</a>
+      <a href="{{ '/our-story/' | relative_url }}" class="fz-nav__link{% if _url contains '/our-story/' %} is-active{% endif %}">OUR STORY</a>
+      <a href="{{ '/blog/' | relative_url }}" class="fz-nav__link{% if is_blog %} is-active{% endif %}">BLOG</a>
+      <a href="{{ '/original-art/' | relative_url }}" class="fz-nav__link{% if is_original %} is-active{% endif %}">ORIGINAL ART</a>
+      <a href="{{ '/art-prints/' | relative_url }}" class="fz-nav__link{% if is_prints %} is-active{% endif %}">ART PRINTS</a>
+      <a href="{{ '/greeting-cards/' | relative_url }}" class="fz-nav__link{% if is_cards %} is-active{% endif %}">GREETING CARDS</a>
+      <a href="{{ '/contact/' | relative_url }}" class="fz-nav__link{% if _url contains '/contact/' %} is-active{% endif %}">CONTACT</a>
     </nav>
 
-    <!-- 右：搜索 / 登录 / 购物篮（保持现状） -->
+    <!-- 右：搜索 / 登录 / 购物篮（保持现状样式与交互） -->
     <div class="fz-actions">
       <button class="fz-icon-btn" id="fz-search-btn" aria-label="搜索" aria-haspopup="dialog" aria-controls="fz-search-panel">
-        <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M11 4a7 7 0 015.52 11.37l3.56 3.56-1.42 1.42-3.56-3.56A7 7 0 1111 4zm0 2a5 5 0 100 10 5 5 0 000-10z"/></svg>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M11 4a7 7 0 015.52 11.37l3.56 3.56-1.42 1.42-3.56-3.56A7 7 0 1111 4zm0 2a5 5 0 100 10 5 5 0 000-10z"/></svg>
       </button>
       <button class="fz-icon-btn" id="fz-login-btn" aria-label="登录" aria-haspopup="menu" aria-controls="fz-login-menu" aria-expanded="false">
-        <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M12 12a5 5 0 10-5-5 5 5 0 005 5zm0 2c-4.42 0-8 2.24-8 5v1h16v-1c0-2.76-3.58-5-8-5z"/></svg>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 12a5 5 0 10-5-5 5 5 0 005 5zm0 2c-4.42 0-8 2.24-8 5v1h16v-1c0-2.76-3.58-5-8-5z"/></svg>
       </button>
       <button class="fz-icon-btn" id="fz-cart-btn" aria-label="购物篮" aria-haspopup="dialog" aria-controls="fz-cart-drawer">
-        <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M7 18a2 2 0 102 2 2 2 0 00-2-2zm8 0a2 2 0 102 2 2 2 0 00-2-2zM7.2 6l.6 3h9.9l1.3-5H6.4L6 2H3v2h2l2.2 10H19v-2H8.8l-.3-2h9.6v0"/></svg>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 18a2 2 0 102 2 2 2 0 00-2-2zm8 0a2 2 0 102 2 2 2 0 00-2-2zM7.2 6l.6 3h9.9l1.3-5H6.4L6 2H3v2h2l2.2 10H19v-2H8.8l-.3-2h9.6v0"/></svg>
         <span class="fz-badge" id="fz-cart-count" hidden>0</span>
       </button>
     </div>
   </div>
 </header>
 
-<!-- 以下面板与抽屉维持现状（无需改动逻辑，仅保留占位） -->
+<!-- 以下保留占位（逻辑不变） -->
 <div class="fz-panel" id="fz-search-panel" role="dialog" aria-modal="true" aria-labelledby="fz-search-title" hidden>
   <div class="fz-panel__backdrop" data-close="fz-search-panel"></div>
   <div class="fz-panel__body" role="document">
@@ -69,3 +68,13 @@
       <h2 id="fz-cart-title">购物篮</h2>
       <button class="fz-close" data-close="fz-cart-drawer" aria-label="关闭购物篮">×</button>
     </header>
+    <div class="fz-drawer__content" id="fz-cart-content">
+      <p>当前为空（占位）。</p>
+    </div>
+    <footer class="fz-drawer__footer">
+      <a class="fz-btn fz-btn--primary" href="#">去结算（占位）</a>
+    </footer>
+  </div>
+</aside>
+
+<script defer src="{{ '/assets/js/fz-ui.js' | relative_url }}"></script>
