@@ -9,9 +9,9 @@ permalink: /original-art/
   {% for item in items %}
     <a class="fz-card" href="{{ item.url | relative_url }}">
       <div class="fz-card__img">
-        {% assign img = item.images | first %}
-        {% if img %}
-          <img src="{{ img | relative_url }}" alt="{{ item.title }}">
+        {% assign cover = item.image | default: item.images | first %}
+        {% if cover %}
+          <img src="{{ cover | relative_url }}" alt="{{ item.title }}">
         {% else %}
           <img src="https://via.placeholder.com/800x800?text=Artwork" alt="{{ item.title }}">
         {% endif %}
