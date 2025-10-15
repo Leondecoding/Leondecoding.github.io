@@ -4,10 +4,14 @@ layout: default
 ---
 
 {% assign imgs = page.images | default: nil %}
-{% assign currency = page.currency | default: 'GBP' %}
-{% capture currency_symbol %}
-  {% case currency %}{% when 'GBP' %}£{% when 'USD' %}${% when 'EUR' %}€{% else %}{{ currency }} {% endcase %}
-{% endcapture %}
+{% assign currency = page.currency | default: site.default_currency | default: 'GBP' %}
+{% capture currency_symbol -%}
+  {%- case currency -%}
+    {%- when 'GBP' -%}£
+    {%- when 'USD' -%}${%- when 'EUR' -%}€
+    {%- else -%}{{ currency }} 
+  {%- endcase -%}
+{%- endcapture %}
 
 <main class="fz-product">
   <!-- 左：主图 + 缩略图 -->
@@ -30,13 +34,25 @@ layout: default
     {% endif %}
   </section>
 
-  <!-- 右：信息区 -->
+  <!-- 右：信息 -->
   <aside>
     <h1>{{ page.title }}</h1>
 
     {% if page.price %}
       <p class="fz-prop"><strong class="fz-price">{{ currency_symbol | strip }}{{ page.price }}</strong></p>
+      <p class="fz-prop" style="color:#888;">Taxes included.</p>
     {% endif %}
+
+    <!-- 尺寸选项：A5 / A4（按你要求固定；如需自定义，后续可改为 page.variants） -->
+    <div class="fz-field">
+      <div class="fz-field__label">Size</div>
+      <div class="fz-pills" id="fz-size-pills">
+        <input class="fz-pill-input" type="radio" name="size" id="size-a5" value="A5" checked>
+        <label class="fz-pill" for="size-a5">A5</label>
+        <input class="fz-pill-input" type="radio" name="size" id="size-a4" value="A4">
+        <label class="fz-pill" for="size-a4">A4</label>
+      </div>
+    </div>
 
     {% if page.dimensions %}<p class="fz-prop">Dimensions: {{ page.dimensions }}</p>{% endif %}
     {% if page.size %}<p class="fz-prop">Size: {{ page.size }}</p>{% endif %}
@@ -44,7 +60,7 @@ layout: default
     {% if page.medium %}<p class="fz-prop">Medium: {{ page.medium }}</p>{% endif %}
     {% if page.edition %}<p class="fz-prop">Edition: {{ page.edition }}</p>{% endif %}
     {% if page.year %}<p class="fz-prop">Year: {{ page.year }}</p>{% endif %}
-    {% if page.availability %}<p class="fz-prop">Availability: {{ page.availability | replace: '_',' ' | capitalize }}</p>{% endif %}
+    {% if page.availability %}<p class="fz-prop">Availability: {{ page.availability | replace:'_',' ' | capitalize }}</p>{% endif %}
     {% if page.sku %}<p class="fz-prop">SKU: {{ page.sku }}</p>{% endif %}
 
     {% if page.description %}
@@ -52,13 +68,13 @@ layout: default
     {% endif %}
 
     <div class="fz-buy">
-      <!-- PayPal（请在 _config.yml 里设置 site.paypal_business_id） -->
+      <!-- PayPal（用 JS 把尺寸追加到 item_name） -->
       {% if site.paypal_business_id and page.price %}
-      <form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_blank">
+      <form id="fz-paypal-form" action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_blank">
         <input type="hidden" name="cmd" value="_xclick">
         <input type="hidden" name="business" value="{{ site.paypal_business_id }}">
-        <input type="hidden" name="item_name" value="{{ page.title }}{% if page.sku %} ({{ page.sku }}){% endif %}">
-        <input type="hidden" name="amount" value="{{ page.price }}">
+        <input type="hidden" name="item_name" id="pp_item_name" value="{{ page.title }}{% if page.sku %} ({{ page.sku }}){% endif %}">
+        <input type="hidden" name="amount" id="pp_amount" value="{{ page.price }}">
         <input type="hidden" name="currency_code" value="{{ currency }}">
         <button type="submit" class="fz-btn fz-btn--primary">Pay via PayPal</button>
       </form>
@@ -66,13 +82,15 @@ layout: default
       <a class="fz-btn fz-btn--primary" href="https://www.paypal.com" target="_blank" rel="noopener">Pay via PayPal</a>
       {% endif %}
 
-      <!-- 添加到购物篮（占位，前端本地存储） -->
+      <!-- Add to Cart：会把所选尺寸带进购物篮 -->
       <button class="fz-btn js-add-to-cart"
         data-sku="{{ page.sku | default: page.slug | default: page.title | slugify }}"
         data-title="{{ page.title | escape }}"
         data-price="{{ page.price | default: 0 }}"
         data-currency="{{ currency | escape }}"
         data-image="{{ imgs[0] | default: '' | relative_url }}"
+        data-option-name="Size"
+        data-option-input="size"
       >Add to Cart</button>
     </div>
   </aside>
@@ -86,7 +104,7 @@ layout: default
 {% endif %}
 
 <script>
-// 详情页小交互：切换主图
+// 详情页小交互：缩略图切换主图 & 选项驱动 PayPal item_name
 document.addEventListener('DOMContentLoaded', function(){
   var hero = document.getElementById('fz-hero-img');
   var thumbs = document.getElementById('fz-thumbs');
@@ -95,5 +113,18 @@ document.addEventListener('DOMContentLoaded', function(){
       if(e.target && e.target.dataset.hero){ hero.src = e.target.dataset.hero; }
     });
   }
+
+  function currentSize(){
+    var checked = document.querySelector('input[name="size"]:checked');
+    return checked ? checked.value : '';
+  }
+  function updatePaypalName(){
+    var base = "{{ page.title | escape }}{% if page.sku %} ({{ page.sku }}){% endif %}";
+    var s = currentSize();
+    var el = document.getElementById('pp_item_name');
+    if(el){ el.value = s ? base + " - " + s : base; }
+  }
+  document.getElementById('fz-size-pills')?.addEventListener('change', updatePaypalName);
+  updatePaypalName();
 });
 </script>
