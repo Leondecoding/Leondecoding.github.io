@@ -1,23 +1,26 @@
 <!-- 文件：_includes/header.html -->
 <header class="fz-site-header">
   <div class="fz-header-inner">
-    <a class="fz-logo" href="{{ '/' | relative_url }}">FZ Studio</a>
-
-    <!-- 主导航（按你现有的数据源渲染） -->
-    <nav class="fz-nav" aria-label="Primary">
-      {% if site.data.nav %}
-        {% for item in site.data.nav %}
-          <a href="{{ item.url | relative_url }}" class="fz-nav__link{% if page.url == item.url %} is-active{% endif %}">{{ item.title }}</a>
-        {% endfor %}
+    <!-- Logo：优先使用 _config.yml 的 site.logo，否则用站点标题或 FZ Studio -->
+    <a class="fz-logo" href="{{ '/' | relative_url }}" aria-label="FZ Studio Home">
+      {% if site.logo %}
+        <img src="{{ site.logo | relative_url }}" alt="{{ site.title | default: 'FZ Studio' }}" style="height:28px; vertical-align:middle;">
       {% else %}
-        <a href="{{ '/original-art/' | relative_url }}" class="fz-nav__link{% if page.url == '/original-art/' %} is-active{% endif %}">Original Art</a>
-        <a href="{{ '/art-prints/' | relative_url }}" class="fz-nav__link{% if page.url == '/art-prints/' %} is-active{% endif %}">Art Prints</a>
-        <a href="{{ '/greeting-cards/' | relative_url }}" class="fz-nav__link{% if page.url == '/greeting-cards/' %} is-active{% endif %}">Greeting Cards</a>
-        <a href="{{ '/blog/' | relative_url }}" class="fz-nav__link{% if page.url == '/blog/' %} is-active{% endif %}">Blog</a>
+        {{ site.title | default: 'FZ Studio' }}
       {% endif %}
+    </a>
+
+    <!-- 主导航 -->
+    <nav class="fz-nav" aria-label="Primary">
+      <a href="{{ '/' | relative_url }}" class="fz-nav__link{% if page.url == '/' %} is-active{% endif %}">Home</a>
+      <a href="{{ '/our-story/' | relative_url }}" class="fz-nav__link{% if page.url == '/our-story/' %} is-active{% endif %}">Our Story</a>
+      <a href="{{ '/original-art/' | relative_url }}" class="fz-nav__link{% if page.url == '/original-art/' %} is-active{% endif %}">Original Art</a>
+      <a href="{{ '/art-prints/' | relative_url }}" class="fz-nav__link{% if page.url == '/art-prints/' %} is-active{% endif %}">Art Prints</a>
+      <a href="{{ '/greeting-cards/' | relative_url }}" class="fz-nav__link{% if page.url == '/greeting-cards/' %} is-active{% endif %}">Greeting Cards</a>
+      <a href="{{ '/contact/' | relative_url }}" class="fz-nav__link{% if page.url == '/contact/' %} is-active{% endif %}">Contact</a>
     </nav>
 
-    <!-- 右侧动作区：搜索 / 登录 / 购物篮 -->
+    <!-- 右侧：搜索 / 登录 / 购物篮 -->
     <div class="fz-actions">
       <!-- 搜索 -->
       <button class="fz-icon-btn" id="fz-search-btn" aria-label="搜索" aria-haspopup="dialog" aria-controls="fz-search-panel">
@@ -77,8 +80,6 @@
     </footer>
   </div>
 </aside>
-<link rel="stylesheet" href="{{ '/assets/css/main.css' | relative_url }}">
 
-
-<!-- 交互脚本 -->
+<!-- 交互脚本（确保已存在 assets/js/fz-ui.js） -->
 <script defer src="{{ '/assets/js/fz-ui.js' | relative_url }}"></script>
