@@ -1,29 +1,22 @@
 ---
 layout: default
 title: Original Art
+permalink: /original-art/
 ---
 
-<!-- 列表：横线下与网格之间 20px；三列自适应 -->
-<style>
-  .list-wrap{max-width:1200px;margin:0 auto;padding:0 20px;}
-  .list-wrap .grid{margin-top:20px;display:grid;grid-template-columns:repeat(3,1fr);gap:60px;}
-  @media (max-width:1000px){ .list-wrap .grid{grid-template-columns:repeat(2,1fr);} }
-  @media (max-width:640px){ .list-wrap .grid{grid-template-columns:1fr;gap:36px;} }
-</style>
-
-<div class="list-wrap">
-  <h1 style="margin:0 0 12px;">Original Art</h1>
-  <div class="grid">
-    {% for p in site.originals %}
-    <a href="{{ p.url | relative_url }}" style="text-decoration:none;color:inherit;">
-      <figure style="margin:0;">
-        <img src="{{ p.image | relative_url }}" alt="{{ p.title }}" style="width:100%;height:auto;display:block;background:#f8f8f8;">
-      </figure>
-      <figcaption style="display:flex;justify-content:space-between;margin-top:12px;">
-        <span>{{ p.title }}</span>
-        <span class="meta">£{{ p.price }} {{ p.currency }}</span>
-      </figcaption>
+{% capture currency_symbol %}{% case site.default_currency %}{% when 'USD' %}${% when 'EUR' %}€{% else %}£{% endcase %}{% endcapture %}
+<main class="fz-grid">
+  {% assign items = site.originals | sort: 'date' | reverse %}
+  {% for item in items %}
+    <a class="fz-card" href="{{ item.url | relative_url }}">
+      <div class="fz-card__img">
+        {% assign img = item.images | first %}
+        {% if img %}<img src="{{ img | relative_url }}" alt="{{ item.title }}">{% endif %}
+      </div>
+      <div class="fz-card__meta">
+        <span>{{ item.title }}</span>
+        {% if item.price %}<span class="fz-price">{{ item.currency | default: 'GBP' | replace: 'GBP','£' | replace:'USD','$' | replace:'EUR','€' }}{{ item.price }}</span>{% endif %}
+      </div>
     </a>
-    {% endfor %}
-  </div>
-</div>
+  {% endfor %}
+</main>
