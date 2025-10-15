@@ -78,3 +78,43 @@
 @media (max-width: 900px) {
   .fz-nav { display:none; } /* 移动端先隐藏主导航（后续可做汉堡菜单） */
 }
+/* ===== Header Restore/Override (safe) ===== */
+.fz-site-header {
+  position: sticky; top: 0; z-index: 50;
+  background: #fff; border-bottom: 1px solid #eee;
+}
+.fz-header-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 14px 24px;              /* 参考图②的上下留白与左右内边距 */
+  display: flex; align-items: center;
+  gap: 0;
+}
+.fz-logo { display: inline-flex; align-items: center; margin-right: 32px; }
+.fz-logo img { height: 28px; width: auto; display: block; } /* 参考图② logo 尺寸 */
+
+.fz-nav { display: flex; gap: 28px; }
+.fz-nav__link {
+  text-decoration: none;
+  color: #9a9a9a;                  /* 参考图②的灰度 */
+  font-weight: 500;
+  padding: 10px 14px;
+  border-radius: 12px;             /* 活动态为圆角胶囊 */
+}
+.fz-nav__link:hover { color: #333; }
+.fz-nav__link.is-active {
+  background: #eee; color: #333;
+}
+
+.fz-actions { margin-left: auto; display: flex; gap: 12px; }
+.fz-icon-btn {
+  width: 40px; height: 40px; border-radius: 999px;
+  border: 1px solid #e6e6e6; background: #fff; cursor: pointer;
+  display: inline-grid; place-items: center;
+}
+.fz-icon-btn:hover { background: #f8f8f8; }
+.fz-icon-btn svg { width: 22px; height: 22px; }
+.fz-badge { transform: translate(10px, -10px); }
+
+/* 可选：小屏时暂不隐藏主导航；如需隐藏，去掉下面注释 */
+// @media (max-width: 900px) { .fz-nav { display: none; } }
