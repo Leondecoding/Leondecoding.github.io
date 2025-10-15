@@ -3,33 +3,41 @@ layout: default
 ---
 
 <style>
-/* 仅此页：左图右信息排版与按钮统一外观 */
+/* 仅此页：左图右信息 + 同宽按钮 */
 .fz-product{max-width:1100px;margin:32px auto;display:grid;grid-template-columns:1.1fr .9fr;gap:36px}
 @media (max-width:900px){.fz-product{grid-template-columns:1fr;gap:22px}}
 .fz-hero{border:1px solid #eee;background:#fafafa;border-radius:10px;overflow:hidden}
 .fz-hero img{width:100%;height:auto;display:block}
 .fz-thumbs{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap}
 .fz-thumbs img{width:80px;height:80px;object-fit:cover;border:1px solid #eee;border-radius:6px;cursor:pointer}
-
 .fz-title{margin:0 0 .4rem 0;font-size:2rem;font-weight:700}
 .fz-price-line{margin:.1rem 0 0 0;font-size:1.125rem;font-weight:600}
 .fz-tax{margin:.25rem 0 1rem 0;color:#888;font-size:.95rem}
 .fz-prop{margin:.35rem 0;color:#555}
-
 .fz-field{margin:12px 0 10px}
 .fz-field__label{font-weight:600;margin-bottom:6px}
 .fz-pills{display:flex;gap:10px}
 .fz-pill-input{position:absolute;opacity:0;pointer-events:none}
 .fz-pill{display:inline-flex;align-items:center;justify-content:center;padding:10px 16px;border:1.5px solid #111;border-radius:999px;cursor:pointer;min-width:56px}
 .fz-pill-input:checked+label.fz-pill{background:#111;color:#fff}
-
-/* 按钮：上下堆叠、外框/字体一致、全宽 */
 .fz-buy{display:flex;flex-direction:column;gap:12px;margin-top:14px}
-.fz-btn{display:inline-flex;align-items:center;justify-content:center;height:48px;border:1.5px solid #111;border-radius:12px;background:#fff;color:#111;font-size:1rem;cursor:pointer}
+.fz-btn{display:inline-flex;align-items:center;justify-content:center;height:48px;border:1.5px solid #111;border-radius:12px;background:#fff;color:#111;font-size:1rem;cursor:pointer;width:100%}
 .fz-btn--primary{background:#111;color:#fff;border-color:#111}
 </style>
 
-{% assign imgs = page.images | default: nil %}
+{% comment %}
+  取封面：优先 page.image；若无则取 page.images 的第一张（兼容旧写法）
+{% endcomment %}
+{% assign hero = page.image | default: '' %}
+{% if hero == '' and page.images %}
+  {% assign hero = page.images | first %}
+{% endif %}
+
+{% assign more_imgs = page.images %}
+{% if more_imgs and hero != '' %}
+  {%- assign more_imgs = more_imgs | where_exp: "i","i != hero" -%}
+{% endif %}
+
 {% assign currency = page.currency | default: site.default_currency | default: 'GBP' %}
 {% capture currency_symbol %}{% case currency %}{% when 'GBP' %}£{% when 'USD' %}${% when 'EUR' %}€{% else %}{{ currency }}{% endcase %}{% endcapture %}
 
@@ -37,120 +45,47 @@ layout: default
   <!-- 左：主图 + 缩略图 -->
   <section>
     <div class="fz-hero">
-      {% if imgs and imgs.size > 0 %}
-        <img id="fz-hero-img" src="{{ imgs[0] | relative_url }}" alt="{{ page.title }}">
+      {% if hero != '' %}
+        <img id="fz-hero-img" src="{{ hero | relative_url }}" alt="{{ page.title }}">
       {% else %}
         <img id="fz-hero-img" src="https://via.placeholder.com/900x900?text=Artwork" alt="{{ page.title }}">
       {% endif %}
     </div>
-    {% if imgs and imgs.size > 1 %}
+
+    {% if more_imgs and more_imgs.size > 0 %}
       <div class="fz-thumbs" id="fz-thumbs">
-        {% for p in imgs %}
+        {% if hero != '' %}<img src="{{ hero | relative_url }}" alt="{{ page.title }} thumb 0" data-hero="{{ hero | relative_url }}">{% endif %}
+        {% for p in more_imgs %}
           <img src="{{ p | relative_url }}" alt="{{ page.title }} thumb {{ forloop.index }}" data-hero="{{ p | relative_url }}">
         {% endfor %}
       </div>
     {% endif %}
   </section>
 
-  <!-- 右：信息（严格顺序） -->
+  <!-- 右：信息（顺序固定） -->
   <aside>
     <h1 class="fz-title">{{ page.title }}</h1>
 
     {% if page.price %}
-      <p class="fz-price-line">{{ currency_symbol | strip }}{{ page.price }}</p>
+      <p class="fz-price-line">{{ currency_symbol | strip }}{{ page.price }}{% if currency == 'GBP' %} GBP{% endif %}</p>
       <p class="fz-tax">Taxes included.</p>
     {% endif %}
 
-    <!-- Size：A5 / A4 -->
-    <div class="fz-field">
-      <div class="fz-field__label">Size</div>
-      <div class="fz-pills" id="fz-size-pills">
-        <input class="fz-pill-input" type="radio" name="size" id="size-a5" value="A5" checked>
-        <label class="fz-pill" for="size-a5">A5</label>
-        <input class="fz-pill-input" type="radio" name="size" id="size-a4" value="A4">
-        <label class="fz-pill" for="size-a4">A4</label>
+    {% if page.sizes %}
+      <div class="fz-field">
+        <div class="fz-field__label">Size</div>
+        <div class="fz-pills" id="fz-size-pills">
+          {% for s in page.sizes %}
+            <input class="fz-pill-input" type="radio" name="size" id="size-{{ s | downcase | replace: ' ', '-' }}" value="{{ s }}"{% if forloop.first %} checked{% endif %}>
+            <label class="fz-pill" for="size-{{ s | downcase | replace: ' ', '-' }}">{{ s }}</label>
+          {% endfor %}
+        </div>
       </div>
-    </div>
+    {% endif %}
 
-    <!-- 按钮：上 PayPal、下 Add to Cart（外观一致） -->
     <div class="fz-buy">
       {% if site.paypal_business_id and page.price %}
-      <form id="fz-paypal-form" action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_blank">
+      <form id="fz-paypal-form" action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_blank" style="width:100%;">
         <input type="hidden" name="cmd" value="_xclick">
         <input type="hidden" name="business" value="{{ site.paypal_business_id }}">
-        <input type="hidden" id="pp_item_name" name="item_name" value="{{ page.title }}{% if page.sku %} ({{ page.sku }}){% endif %}">
-        <input type="hidden" name="amount" value="{{ page.price }}">
-        <input type="hidden" name="currency_code" value="{{ currency }}">
-        <button type="submit" class="fz-btn fz-btn--primary">Pay via PayPal</button>
-      </form>
-      {% else %}
-      <a class="fz-btn fz-btn--primary" href="https://www.paypal.com" target="_blank" rel="noopener">Pay via PayPal</a>
-      {% endif %}
-
-      <button class="fz-btn js-add-to-cart"
-        data-sku="{{ page.sku | default: page.slug | default: page.title | slugify }}"
-        data-title="{{ page.title | escape }}"
-        data-price="{{ page.price | default: 0 }}"
-        data-currency="{{ currency | escape }}"
-        data-image="{{ imgs[0] | default: '' | relative_url }}"
-        data-option-name="Size"
-        data-option-input="size"
-      >Add to Cart</button>
-    </div>
-
-    <!-- 作品介绍：放在右栏按钮下面 -->
-    {% if page.description %}
-      <div class="fz-prop" style="margin-top:14px;">{{ page.description }}</div>
-    {% endif %}
-    {% if content %}
-      <div class="fz-prop" style="margin-top:6px;">{{ content }}</div>
-    {% endif %}
-  </aside>
-</main>
-
-<script>
-/* 缩略图切换主图 + PayPal item_name 附带尺寸 + 购物车附带尺寸 */
-document.addEventListener('DOMContentLoaded', function(){
-  var thumbs = document.getElementById('fz-thumbs');
-  var hero = document.getElementById('fz-hero-img');
-  thumbs && hero && thumbs.addEventListener('click', function(e){
-    var t=e.target; if(t && t.dataset.hero){ hero.src=t.dataset.hero; }
-  });
-
-  function getSize(){ var c=document.querySelector('input[name="size"]:checked'); return c?c.value:''; }
-
-  (function paypalName(){
-    var el=document.getElementById('pp_item_name'); if(!el) return;
-    var base="{{ page.title | escape }}{% if page.sku %} ({{ page.sku }}){% endif %}";
-    function update(){ el.value=getSize()? base + " - " + getSize() : base; }
-    document.getElementById('fz-size-pills')?.addEventListener('change', update);
-    update();
-  })();
-
-  (function addToCart(){
-    const btn=document.querySelector('.js-add-to-cart'); if(!btn) return;
-    const key='fz_cart';
-    const get=()=>{try{return JSON.parse(localStorage.getItem(key)||'[]')}catch(e){return[]}};
-    const set=(x)=>localStorage.setItem(key, JSON.stringify(x));
-    const badge=document.getElementById('fz-cart-count');
-    const badgeUpdate=()=>{const n=get().reduce((s,i)=>s+(i.qty||1),0); if(badge){badge.hidden=n<=0; badge.textContent=String(n);}};
-
-    btn.addEventListener('click', ()=>{
-      const opt=getSize();
-      const item={
-        sku:(btn.dataset.sku||'item')+(opt?`-${opt}`:''),
-        title:(btn.dataset.title||'')+(opt?` - ${opt}`:''),
-        price:parseFloat(btn.dataset.price||'0'),
-        currency:btn.dataset.currency||'',
-        image:btn.dataset.image||'',
-        qty:1, options:opt?[{name:'Size',value:opt}]:[]
-      };
-      const cart=get();
-      const ex=cart.find(x=>x.sku===item.sku);
-      if(ex){ex.qty=(ex.qty||1)+1}else{cart.push(item)}
-      set(cart); badgeUpdate();
-    });
-    badgeUpdate();
-  })();
-});
-</script>
+        <input type="hidden" id="
