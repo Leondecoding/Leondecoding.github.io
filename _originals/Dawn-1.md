@@ -1,6 +1,6 @@
 ---
 layout: product
-title: "The Dome"
+title: "Dawn-1"
 price: 470
 currency: GBP
 image: /assets/images/originals/Dawn-1.jpg
