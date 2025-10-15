@@ -25,3 +25,5 @@ defaults:
     values: { layout: product, category: "Original" }
   - scope: { path: "", type: "cards" }
     values: { layout: product, category: "Greeting Card" }
+title: FZ Studio
+logo: /assets/images/logo.svg   # 或 .png
