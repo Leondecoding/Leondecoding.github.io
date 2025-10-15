@@ -27,3 +27,7 @@ defaults:
     values: { layout: product, category: "Greeting Card" }
 title: FZ Studio
 logo: /assets/images/logo.svg   # 或 .png
+title: FZ Studio
+logo: /assets/images/logo-fzs.svg     # 你的 FZS 图标路径
+default_currency: GBP                 # 用于列表页符号（£/$/€）
+paypal_business_id: ""                # 若要启用表单，请填你的 PayPal 商业账号（email 或商户ID）
