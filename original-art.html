@@ -7,14 +7,17 @@ permalink: /original-art/
 <main class="fz-grid fz-grid--4">
   {% assign items = site.originals | sort: 'date' | reverse | slice: 0, 8 %}
   {% for item in items %}
+    {% assign cover = item.image | default: item.images | first %}
+    {% if cover and cover | slice: 0, 1 != '/' and (cover contains '://') == false %}
+      {% assign cover = '/' | append: cover %}
+    {% endif %}
+
     <a class="fz-card" href="{{ item.url | relative_url }}">
       <div class="fz-card__img">
-        {% assign cover = item.image | default: item.images | first %}
-        {% if cover %}
-          <img src="{{ cover | relative_url }}" alt="{{ item.title }}">
-        {% else %}
-          <img src="https://via.placeholder.com/800x800?text=Artwork" alt="{{ item.title }}">
-        {% endif %}
+        <img
+          src="{{ cover | default: 'https://via.placeholder.com/800x800?text=Artwork' | relative_url }}"
+          alt="{{ item.title }}"
+          onerror="this.onerror=null;this.src='https://via.placeholder.com/800x800?text=Artwork';">
       </div>
       <div class="fz-card__meta">
         <span>{{ item.title }}</span>
