@@ -8,19 +8,24 @@ permalink: /original-art/
   {% assign items = site.originals | sort: 'date' | reverse | slice: 0, 8 %}
   {% for item in items %}
     {%- comment -%}
-      安全取封面：
-      1) 优先 front matter: image
-      2) 其次 images 数组第一张
-      3) 不对占位图使用 relative_url（避免生成 /https://...）
+      1) 优先从常见单图字段取
+      2) 再退回到数组第一张
+      3) 绝不对绝对URL套 relative_url
+      4) 自动补 "/" 前缀
     {%- endcomment -%}
-    {% assign cover = item.image | default: item.images | first | default: item.cover %}
+    {% assign _keys = "image,featured_image,cover,hero,thumbnail,thumb,picture,photo" | split: "," %}
+    {% assign cover = nil %}
+    {% for k in _keys %}
+      {% if cover == nil and item[k] %}{% assign cover = item[k] %}{% endif %}
+    {% endfor %}
+    {% if cover == nil and item.images %}{% assign cover = item.images | first %}{% endif %}
+    {% if cover == nil and item.photos %}{% assign cover = item.photos | first %}{% endif %}
+
     {% if cover %}
       {% if cover contains '://' %}
         {% assign img_src = cover %}
       {% else %}
-        {% if cover | slice: 0, 1 != '/' %}
-          {% assign cover = '/' | append: cover %}
-        {% endif %}
+        {% if cover | slice: 0, 1 != '/' %}{% assign cover = '/' | append: cover %}{% endif %}
         {% assign img_src = cover | relative_url %}
       {% endif %}
     {% else %}
