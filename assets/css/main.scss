@@ -1,85 +1,11 @@
----
----
-
-@charset "utf-8";
-
-/* ===== Reset bits ===== */
-* { box-sizing: border-box; }
-a { text-decoration: none; color: inherit; }
-
-/* ===== Buttons & inputs (占位) ===== */
-.fz-btn {
-  display:inline-flex; align-items:center; justify-content:center;
-  padding:.6rem 1rem; border:1px solid #222; border-radius:999px;
-  background:#fff; font-size:.95rem; line-height:1.2; cursor:pointer;
+/* === 选项：A5/A4 药丸按钮 === */
+.fz-field { margin: 12px 0 8px; }
+.fz-field__label { font-weight: 600; margin-bottom: 6px; }
+.fz-pills { display: flex; gap: 10px; }
+.fz-pill-input { position: absolute; opacity: 0; pointer-events: none; }
+.fz-pill {
+  display: inline-flex; align-items: center; justify-content: center;
+  padding: 10px 16px; border: 1.5px solid #111; border-radius: 999px; cursor: pointer;
+  min-width: 56px; user-select: none;
 }
-.fz-btn--primary { background:#111; color:#fff; border-color:#111; }
-.fz-input { width:100%; padding:.7rem .9rem; border:1px solid #ccc; border-radius:.6rem; font-size:1rem; }
-[hidden] { display:none !important; }
-
-/* ===== Header（按参考图②） ===== */
-.fz-site-header { position:sticky; top:0; z-index:50; background:#fff; border-bottom:1px solid #eee; }
-.fz-header-inner {
-  max-width:1280px; margin:0 auto; padding:18px 28px;
-  display:grid; grid-template-columns:auto 1fr auto; align-items:center;
-}
-.fz-logo { display:inline-flex; align-items:center; }
-.fz-logo img { height:30px; width:auto; display:block; }
-
-.fz-nav { justify-self:center; display:flex; gap:48px; }
-.fz-nav__link {
-  color:#111; font-weight:600; letter-spacing:.04em;
-  padding-bottom:6px; border-bottom:2px solid transparent;
-}
-.fz-nav__link:hover { border-bottom-color:#111; }
-.fz-nav__link.is-active { border-bottom-color:#111; }
-
-.fz-actions { justify-self:end; display:flex; gap:14px; }
-.fz-icon-btn {
-  display:inline-grid; place-items:center;
-  width:40px; height:40px; border:1px solid #e6e6e6; border-radius:999px; background:#fff; cursor:pointer;
-}
-.fz-badge { position:absolute; transform:translate(10px,-10px); min-width:18px; height:18px; padding:0 5px; border-radius:999px; font-size:.75rem; line-height:18px; text-align:center; color:#fff; background:#111; }
-
-/* ===== 弹窗/抽屉占位 ===== */
-.fz-panel,.fz-drawer{ position:fixed; inset:0; display:block; }
-.fz-panel__backdrop,.fz-drawer__backdrop{ position:absolute; inset:0; background:rgba(0,0,0,.35); }
-.fz-panel__body{
-  position:relative; z-index:1; width:min(680px,92vw); margin:10vh auto 0; background:#fff;
-  border-radius:1rem; padding:1.2rem; box-shadow:0 10px 30px rgba(0,0,0,.15);
-}
-.fz-close{ position:absolute; top:.6rem; right:.6rem; width:36px; height:36px; border:1px solid #eee; border-radius:999px; background:#fff; }
-.fz-menu{
-  position:absolute; right:1rem; top:64px; z-index:60; background:#fff; border:1px solid #eee; border-radius:.8rem;
-  box-shadow:0 10px 24px rgba(0,0,0,.12); min-width:180px; padding:.4rem;
-}
-.fz-menu a{ display:block; padding:.6rem .8rem; border-radius:.6rem; }
-.fz-menu a:hover{ background:#f7f7f7; }
-.fz-drawer__panel{ position:absolute; right:0; top:0; bottom:0; width:min(420px,92vw); background:#fff; box-shadow:-8px 0 24px rgba(0,0,0,.15); display:flex; flex-direction:column; }
-.fz-drawer__header{ padding:1rem; border-bottom:1px solid #eee; display:flex; align-items:center; justify-content:space-between; }
-.fz-drawer__content{ padding:1rem; overflow:auto; flex:1; }
-.fz-drawer__footer{ padding:1rem; border-top:1px solid #eee; }
-
-/* ===== 列表页：4 列网格（上4下4） ===== */
-.fz-grid { max-width:1200px; margin:28px auto 48px; display:grid; gap:28px; }
-.fz-grid--4 { grid-template-columns:repeat(4, minmax(0,1fr)); }
-@media (max-width:1100px){ .fz-grid--4 { grid-template-columns:repeat(3,1fr); } }
-@media (max-width:760px){ .fz-grid--4 { grid-template-columns:repeat(2,1fr); } }
-@media (max-width:480px){ .fz-grid--4 { grid-template-columns:1fr; } }
-
-.fz-card{ display:block; color:#111; }
-.fz-card__img{ aspect-ratio:1/1; background:#fafafa; border:1px solid #eee; border-radius:10px; overflow:hidden; }
-.fz-card__img img{ width:100%; height:100%; object-fit:cover; display:block; }
-.fz-card__meta{ display:flex; justify-content:space-between; align-items:center; gap:12px; margin-top:10px; }
-.fz-price{ color:#666; }
-
-/* ===== 详情页：左图右信息 ===== */
-.fz-product{ max-width:1100px; margin:32px auto; display:grid; grid-template-columns:1.1fr .9fr; gap:36px; }
-@media (max-width:900px){ .fz-product{ grid-template-columns:1fr; gap:22px; } }
-.fz-hero{ border:1px solid #eee; background:#fafafa; border-radius:10px; overflow:hidden; }
-.fz-hero img{ width:100%; height:auto; display:block; }
-.fz-thumbs{ display:flex; gap:8px; margin-top:8px; flex-wrap:wrap; }
-.fz-thumbs img{ width:82px; height:82px; object-fit:cover; border:1px solid #eee; border-radius:6px; cursor:pointer; }
-.fz-prop{ margin:.25rem 0; color:#555; }
-.fz-buy{ display:flex; gap:10px; flex-wrap:wrap; margin-top:14px; }
-.fz-buy .fz-btn{ min-width:160px; }
+.fz-pill-input:checked + .fz-pill { background: #111; color: #fff; }
