@@ -1,10 +1,9 @@
-<!-- 文件：_layouts/product.html -->
 ---
 layout: default
 ---
 
 <style>
-/* 仅此页：保证“左图右信息”与右侧信息的排列与字号 */
+/* 仅此页：左图右信息排版与按钮统一外观 */
 .fz-product{max-width:1100px;margin:32px auto;display:grid;grid-template-columns:1.1fr .9fr;gap:36px}
 @media (max-width:900px){.fz-product{grid-template-columns:1fr;gap:22px}}
 .fz-hero{border:1px solid #eee;background:#fafafa;border-radius:10px;overflow:hidden}
@@ -24,8 +23,10 @@ layout: default
 .fz-pill{display:inline-flex;align-items:center;justify-content:center;padding:10px 16px;border:1.5px solid #111;border-radius:999px;cursor:pointer;min-width:56px}
 .fz-pill-input:checked+label.fz-pill{background:#111;color:#fff}
 
-.fz-buy{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
-.fz-buy .fz-btn{min-width:160px}
+/* 按钮：上下堆叠、外框/字体一致、全宽 */
+.fz-buy{display:flex;flex-direction:column;gap:12px;margin-top:14px}
+.fz-btn{display:inline-flex;align-items:center;justify-content:center;height:48px;border:1.5px solid #111;border-radius:12px;background:#fff;color:#111;font-size:1rem;cursor:pointer}
+.fz-btn--primary{background:#111;color:#fff;border-color:#111}
 </style>
 
 {% assign imgs = page.images | default: nil %}
@@ -51,7 +52,7 @@ layout: default
     {% endif %}
   </section>
 
-  <!-- 右：信息（严格按你要的顺序） -->
+  <!-- 右：信息（严格顺序） -->
   <aside>
     <h1 class="fz-title">{{ page.title }}</h1>
 
@@ -71,8 +72,8 @@ layout: default
       </div>
     </div>
 
+    <!-- 按钮：上 PayPal、下 Add to Cart（外观一致） -->
     <div class="fz-buy">
-      <!-- Pay via PayPal（携带所选尺寸） -->
       {% if site.paypal_business_id and page.price %}
       <form id="fz-paypal-form" action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_blank">
         <input type="hidden" name="cmd" value="_xclick">
@@ -86,7 +87,6 @@ layout: default
       <a class="fz-btn fz-btn--primary" href="https://www.paypal.com" target="_blank" rel="noopener">Pay via PayPal</a>
       {% endif %}
 
-      <!-- Add to Cart（携带所选尺寸） -->
       <button class="fz-btn js-add-to-cart"
         data-sku="{{ page.sku | default: page.slug | default: page.title | slugify }}"
         data-title="{{ page.title | escape }}"
@@ -98,67 +98,59 @@ layout: default
       >Add to Cart</button>
     </div>
 
-    <!-- 作品介绍 -->
+    <!-- 作品介绍：放在右栏按钮下面 -->
     {% if page.description %}
       <div class="fz-prop" style="margin-top:14px;">{{ page.description }}</div>
+    {% endif %}
+    {% if content %}
+      <div class="fz-prop" style="margin-top:6px;">{{ content }}</div>
     {% endif %}
   </aside>
 </main>
 
-<!-- 可选正文 -->
-{% if content %}
-  <section class="fz-product" style="grid-template-columns:1fr;">
-    <div>{{ content }}</div>
-  </section>
-{% endif %}
-
 <script>
-// 缩略图切换主图
+/* 缩略图切换主图 + PayPal item_name 附带尺寸 + 购物车附带尺寸 */
 document.addEventListener('DOMContentLoaded', function(){
   var thumbs = document.getElementById('fz-thumbs');
   var hero = document.getElementById('fz-hero-img');
   thumbs && hero && thumbs.addEventListener('click', function(e){
-    var t = e.target; if(t && t.dataset.hero){ hero.src = t.dataset.hero; }
+    var t=e.target; if(t && t.dataset.hero){ hero.src=t.dataset.hero; }
   });
 
-  // PayPal item_name 加上尺寸
   function getSize(){ var c=document.querySelector('input[name="size"]:checked'); return c?c.value:''; }
-  function updatePaypal(){
-    var base = "{{ page.title | escape }}{% if page.sku %} ({{ page.sku }}){% endif %}";
-    var el = document.getElementById('pp_item_name'); if(el){ el.value = getSize()? base + " - " + getSize() : base; }
-  }
-  document.getElementById('fz-size-pills')?.addEventListener('change', updatePaypal);
-  updatePaypal();
 
-  // Add to Cart 携带尺寸（占位购物篮）
-  (function(){
-    const btn = document.querySelector('.js-add-to-cart');
-    if(!btn) return;
-    const storeKey='fz_cart';
-    function getCart(){ try{return JSON.parse(localStorage.getItem(storeKey)||'[]');}catch(e){return[];} }
-    function setCart(arr){ localStorage.setItem(storeKey, JSON.stringify(arr)); }
-    function updateBadge(){
-      const cnt = getCart().reduce((n,i)=>n+(i.qty||1),0);
-      const b = document.getElementById('fz-cart-count'); if(!b) return;
-      b.hidden = cnt<=0; b.textContent = String(cnt);
-    }
+  (function paypalName(){
+    var el=document.getElementById('pp_item_name'); if(!el) return;
+    var base="{{ page.title | escape }}{% if page.sku %} ({{ page.sku }}){% endif %}";
+    function update(){ el.value=getSize()? base + " - " + getSize() : base; }
+    document.getElementById('fz-size-pills')?.addEventListener('change', update);
+    update();
+  })();
+
+  (function addToCart(){
+    const btn=document.querySelector('.js-add-to-cart'); if(!btn) return;
+    const key='fz_cart';
+    const get=()=>{try{return JSON.parse(localStorage.getItem(key)||'[]')}catch(e){return[]}};
+    const set=(x)=>localStorage.setItem(key, JSON.stringify(x));
+    const badge=document.getElementById('fz-cart-count');
+    const badgeUpdate=()=>{const n=get().reduce((s,i)=>s+(i.qty||1),0); if(badge){badge.hidden=n<=0; badge.textContent=String(n);}};
+
     btn.addEventListener('click', ()=>{
-      const opt = getSize();
-      const sku = (btn.dataset.sku||'item') + (opt?`-${opt}`:'');
-      const title = (btn.dataset.title||'') + (opt?` - ${opt}`:'');
-      const item = {
-        sku, title,
-        price: parseFloat(btn.dataset.price||'0'),
-        currency: btn.dataset.currency||'',
-        image: btn.dataset.image||'',
-        qty:1, options: opt?[{name:'Size', value:opt}]:[]
+      const opt=getSize();
+      const item={
+        sku:(btn.dataset.sku||'item')+(opt?`-${opt}`:''),
+        title:(btn.dataset.title||'')+(opt?` - ${opt}`:''),
+        price:parseFloat(btn.dataset.price||'0'),
+        currency:btn.dataset.currency||'',
+        image:btn.dataset.image||'',
+        qty:1, options:opt?[{name:'Size',value:opt}]:[]
       };
-      const cart = getCart();
-      const exist = cart.find(x=>x.sku===item.sku);
-      if(exist){ exist.qty=(exist.qty||1)+1; } else { cart.push(item); }
-      setCart(cart); updateBadge();
+      const cart=get();
+      const ex=cart.find(x=>x.sku===item.sku);
+      if(ex){ex.qty=(ex.qty||1)+1}else{cart.push(item)}
+      set(cart); badgeUpdate();
     });
-    updateBadge();
+    badgeUpdate();
   })();
 });
 </script>
