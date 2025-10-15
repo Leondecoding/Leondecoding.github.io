@@ -4,123 +4,30 @@ layout: default
 ---
 
 <style>
-/* 仅此页使用：保证左图右信息 */
+/* 仅此页：保证“左图右信息”与右侧信息的排列与字号 */
 .fz-product{max-width:1100px;margin:32px auto;display:grid;grid-template-columns:1.1fr .9fr;gap:36px}
 @media (max-width:900px){.fz-product{grid-template-columns:1fr;gap:22px}}
 .fz-hero{border:1px solid #eee;background:#fafafa;border-radius:10px;overflow:hidden}
 .fz-hero img{width:100%;height:auto;display:block}
 .fz-thumbs{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap}
 .fz-thumbs img{width:80px;height:80px;object-fit:cover;border:1px solid #eee;border-radius:6px;cursor:pointer}
-.fz-prop{margin:.25rem 0;color:#555}
+
+.fz-title{margin:0 0 .4rem 0;font-size:2rem;font-weight:700}
+.fz-price-line{margin:.1rem 0 0 0;font-size:1.125rem;font-weight:600}
+.fz-tax{margin:.25rem 0 1rem 0;color:#888;font-size:.95rem}
+.fz-prop{margin:.35rem 0;color:#555}
+
+.fz-field{margin:12px 0 10px}
+.fz-field__label{font-weight:600;margin-bottom:6px}
+.fz-pills{display:flex;gap:10px}
+.fz-pill-input{position:absolute;opacity:0;pointer-events:none}
+.fz-pill{display:inline-flex;align-items:center;justify-content:center;padding:10px 16px;border:1.5px solid #111;border-radius:999px;cursor:pointer;min-width:56px}
+.fz-pill-input:checked+label.fz-pill{background:#111;color:#fff}
+
 .fz-buy{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
 .fz-buy .fz-btn{min-width:160px}
-/* 可选：A5/A4 选项（若不需要可忽略） */
-.fz-pills{display:flex;gap:10px;margin:8px 0}
-.fz-pill{padding:8px 14px;border:1.5px solid #111;border-radius:999px;cursor:pointer}
-.fz-pill.is-active{background:#111;color:#fff}
 </style>
 
 {% assign imgs = page.images | default: nil %}
 {% assign currency = page.currency | default: site.default_currency | default: 'GBP' %}
-{% capture currency_symbol %}{% case currency %}{% when 'GBP' %}£{% when 'USD' %}${% when 'EUR' %}€{% else %}{{ currency }}{% endcase %}{% endcapture %}
-
-<main class="fz-product">
-  <!-- 左：主图 + 缩略图 -->
-  <section>
-    <div class="fz-hero">
-      {% if imgs and imgs.size > 0 %}
-        <img id="fz-hero-img" src="{{ imgs[0] | relative_url }}" alt="{{ page.title }}">
-      {% endif %}
-    </div>
-    {% if imgs and imgs.size > 1 %}
-      <div class="fz-thumbs" id="fz-thumbs">
-        {% for p in imgs %}
-          <img src="{{ p | relative_url }}" alt="{{ page.title }} thumb {{ forloop.index }}" data-hero="{{ p | relative_url }}">
-        {% endfor %}
-      </div>
-    {% endif %}
-  </section>
-
-  <!-- 右：信息 -->
-  <aside>
-    <h1>{{ page.title }}</h1>
-    {% if page.price %}<p class="fz-prop"><strong>{{ currency_symbol | strip }}{{ page.price }}</strong></p>{% endif %}
-    {% if page.dimensions %}<p class="fz-prop">Dimensions: {{ page.dimensions }}</p>{% endif %}
-    {% if page.paper %}<p class="fz-prop">Paper: {{ page.paper }}</p>{% endif %}
-    {% if page.medium %}<p class="fz-prop">Medium: {{ page.medium }}</p>{% endif %}
-    {% if page.year %}<p class="fz-prop">Year: {{ page.year }}</p>{% endif %}
-    {% if page.availability %}<p class="fz-prop">Availability: {{ page.availability | replace:'_',' ' | capitalize }}</p>{% endif %}
-    {% if page.sku %}<p class="fz-prop">SKU: {{ page.sku }}</p>{% endif %}
-
-    {% comment %} 如果该作品需要尺寸选项（如 A5/A4），在 front matter 加 sizes: [A5, A4] {% endcomment %}
-    {% if page.sizes %}
-      <div class="fz-field">
-        <div class="fz-prop" style="font-weight:600;margin-top:8px;">Size</div>
-        <div class="fz-pills" id="fz-size-pills">
-          {% for s in page.sizes %}
-            <button type="button" class="fz-pill{% if forloop.first %} is-active{% endif %}" data-size="{{ s }}">{{ s }}</button>
-          {% endfor %}
-        </div>
-      </div>
-    {% endif %}
-
-    {% if page.description %}<div class="fz-prop">{{ page.description }}</div>{% endif %}
-
-    <div class="fz-buy">
-      {% if site.paypal_business_id and page.price %}
-      <form id="fz-paypal-form" action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_blank">
-        <input type="hidden" name="cmd" value="_xclick">
-        <input type="hidden" name="business" value="{{ site.paypal_business_id }}">
-        <input type="hidden" id="pp_item_name" name="item_name" value="{{ page.title }}{% if page.sku %} ({{ page.sku }}){% endif %}">
-        <input type="hidden" name="amount" value="{{ page.price }}">
-        <input type="hidden" name="currency_code" value="{{ currency }}">
-        <button type="submit" class="fz-btn fz-btn--primary">Pay via PayPal</button>
-      </form>
-      {% endif %}
-
-      <button class="fz-btn js-add-to-cart"
-        data-sku="{{ page.sku | default: page.slug | default: page.title | slugify }}"
-        data-title="{{ page.title | escape }}"
-        data-price="{{ page.price | default: 0 }}"
-        data-currency="{{ currency | escape }}"
-        data-image="{{ imgs[0] | default: '' | relative_url }}"
-      >Add to Cart</button>
-    </div>
-  </aside>
-</main>
-
-{% if content %}
-  <section class="fz-product" style="grid-template-columns:1fr;">
-    <div>{{ content }}</div>
-  </section>
-{% endif %}
-
-<script>
-// 缩略图切换主图 + （可选）尺寸 pills
-document.addEventListener('DOMContentLoaded', function(){
-  var thumbs = document.getElementById('fz-thumbs');
-  var hero = document.getElementById('fz-hero-img');
-  thumbs && hero && thumbs.addEventListener('click', function(e){
-    var t = e.target; if(t && t.dataset.hero){ hero.src = t.dataset.hero; }
-  });
-
-  var pills = document.getElementById('fz-size-pills');
-  function currentSize(){
-    var a = pills ? pills.querySelector('.fz-pill.is-active') : null;
-    return a ? a.dataset.size : '';
-  }
-  function updatePaypal(){
-    var el = document.getElementById('pp_item_name');
-    if(!el) return;
-    var base = "{{ page.title | escape }}{% if page.sku %} ({{ page.sku }}){% endif %}";
-    var s = currentSize();
-    el.value = s ? base + " - " + s : base;
-  }
-  pills && pills.addEventListener('click', function(e){
-    var btn = e.target.closest('.fz-pill'); if(!btn) return;
-    pills.querySelectorAll('.fz-pill').forEach(b=>b.classList.remove('is-active'));
-    btn.classList.add('is-active'); updatePaypal();
-  });
-  updatePaypal();
-});
-</script>
+{% capture currency_symb_
