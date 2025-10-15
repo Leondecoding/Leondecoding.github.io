@@ -31,15 +31,12 @@ layout: default
 </style>
 
 {% comment %}
-  兼容两种写法：
-  - 标准：image: /assets/images/.../file.jpg  ← 项目规范（推荐）  :contentReference[oaicite:1]{index=1}
-  - 可选：images: [ ... ]  （多图时用于缩略图）
+  HERO 图兼容两种写法：优先 page.image；否则 page.images[0]
+  并修正没有 "/" 前缀的相对路径。
 {% endcomment %}
-{% assign _hero = nil %}
-{% if page.image %}
-  {% assign _hero = page.image %}
-{% elsif page.images and page.images.size > 0 %}
-  {% assign _hero = page.images | first %}
+{% assign _hero = page.image | default: page.images | first %}
+{% if _hero and _hero | slice: 0, 1 != '/' and (_hero contains '://' ) == false %}
+  {% assign _hero = '/' | append: _hero %}
 {% endif %}
 
 {% assign _thumbs = nil %}
@@ -54,16 +51,22 @@ layout: default
   <!-- 左：主图 + 缩略图（有多图时显示） -->
   <section>
     <div class="fz-hero">
-      {% if _hero %}
-        <img id="fz-hero-img" src="{{ _hero | relative_url }}" alt="{{ page.title }}">
-      {% else %}
-        <img id="fz-hero-img" src="https://via.placeholder.com/900x900?text=Artwork" alt="{{ page.title }}">
-      {% endif %}
+      <img id="fz-hero-img"
+           src="{{ _hero | default: 'https://via.placeholder.com/900x900?text=Artwork' | relative_url }}"
+           alt="{{ page.title }}"
+           onerror="this.onerror=null;this.src='https://via.placeholder.com/900x900?text=Artwork';">
     </div>
     {% if _thumbs %}
       <div class="fz-thumbs" id="fz-thumbs">
         {% for p in _thumbs %}
-          <img src="{{ p | relative_url }}" alt="{{ page.title }} thumb {{ forloop.index }}" data-hero="{{ p | relative_url }}">
+          {% assign t = p %}
+          {% if t and t | slice: 0, 1 != '/' and (t contains '://') == false %}
+            {% assign t = '/' | append: t %}
+          {% endif %}
+          <img src="{{ t | relative_url }}"
+               alt="{{ page.title }} thumb {{ forloop.index }}"
+               data-hero="{{ t | relative_url }}"
+               onerror="this.onerror=null;this.style.display='none';">
         {% endfor %}
       </div>
     {% endif %}
@@ -78,18 +81,16 @@ layout: default
       <p class="fz-tax">Taxes included.</p>
     {% endif %}
 
-    <!-- 仅当 front matter 有 sizes: [A5, A4] 才显示尺寸选择（符合规范 C） :contentReference[oaicite:2]{index=2} -->
-    {% if page.sizes %}
-      <div class="fz-field">
-        <div class="fz-field__label">Size</div>
-        <div class="fz-pills" id="fz-size-pills">
-          {% for s in page.sizes %}
-            <input class="fz-pill-input" type="radio" name="size" id="size-{{ s | downcase | replace: ' ', '-' }}" value="{{ s }}" {% if forloop.first %}checked{% endif %}>
-            <label class="fz-pill" for="size-{{ s | downcase | replace: ' ', '-' }}">{{ s }}</label>
-          {% endfor %}
-        </div>
+    <!-- 永久显示 Size：A5 / A4（按你要求） -->
+    <div class="fz-field">
+      <div class="fz-field__label">Size</div>
+      <div class="fz-pills" id="fz-size-pills">
+        <input class="fz-pill-input" type="radio" name="size" id="size-a5" value="A5" checked>
+        <label class="fz-pill" for="size-a5">A5</label>
+        <input class="fz-pill-input" type="radio" name="size" id="size-a4" value="A4">
+        <label class="fz-pill" for="size-a4">A4</label>
       </div>
-    {% endif %}
+    </div>
 
     <!-- 上：PayPal；下：Add to Cart（同宽） -->
     <div class="fz-buy">
@@ -111,13 +112,13 @@ layout: default
         data-title="{{ page.title | escape }}"
         data-price="{{ page.price | default: 0 }}"
         data-currency="{{ currency | escape }}"
-        data-image="{{ _hero | default: '' | relative_url }}"
+        data-image="{{ _hero | relative_url }}"
         data-option-name="Size"
         data-option-input="size"
       >Add to Cart</button>
     </div>
 
-    <!-- 作品介绍与正文：都放在右侧按钮下面 -->
+    <!-- 作品介绍与正文：放在按钮下面 -->
     {% if page.description %}
       <div class="fz-prop" style="margin-top:14px;">{{ page.description }}</div>
     {% endif %}
@@ -136,15 +137,14 @@ document.addEventListener('DOMContentLoaded', function(){
     var t=e.target; if(t && t.dataset.hero){ hero.src=t.dataset.hero; }
   });
 
-  // PayPal item_name 附带尺寸（仅 sizes 存在时）
+  // PayPal item_name 附带尺寸
   (function(){
-    var pills=document.getElementById('fz-size-pills');
-    var el=document.getElementById('pp_item_name');
-    if(!pills || !el) return;
+    var el=document.getElementById('pp_item_name'); if(!el) return;
     var base="{{ page.title | escape }}{% if page.sku %} ({{ page.sku }}){% endif %}";
-    function sel(){ var c=document.querySelector('input[name="size"]:checked'); return c?c.value:''; }
-    function update(){ el.value = sel()? base + " - " + sel() : base; }
-    pills.addEventListener('change', update); update();
+    function val(){ var c=document.querySelector('input[name="size"]:checked'); return c?c.value:''; }
+    function update(){ el.value = val()? base + " - " + val() : base; }
+    document.getElementById('fz-size-pills')?.addEventListener('change', update);
+    update();
   })();
 
   // Add to Cart 附带尺寸（本地存储占位）
@@ -156,10 +156,10 @@ document.addEventListener('DOMContentLoaded', function(){
     var badge=document.getElementById('fz-cart-count');
     var upd=()=>{var n=get().reduce((s,i)=>s+(i.qty||1),0); if(badge){badge.hidden=n<=0; badge.textContent=String(n);}};
 
-    function sel(){ var c=document.querySelector('input[name="size"]:checked'); return c?c.value:''; }
+    function val(){ var c=document.querySelector('input[name="size"]:checked'); return c?c.value:''; }
 
     btn.addEventListener('click', function(){
-      var opt=sel();
+      var opt=val();
       var item={
         sku:(btn.dataset.sku||'item')+(opt?`-${opt}`:''),
         title:(btn.dataset.title||'')+(opt?` - ${opt}`:''),
