@@ -1,13 +1,13 @@
 <!-- 文件：_includes/header.html -->
 <header class="fz-site-header">
   <div class="fz-header-inner">
-    <!-- 左：FZS Logo（按参考图②尺寸；优先 site.logo，没有则 /assets/images/logo-fzs.svg） -->
+    <!-- 左：Logo（参考图大小） -->
     <a class="fz-logo" href="{{ '/' | relative_url }}" aria-label="FZ Studio Home">
       {% assign _logo = site.logo | default: '/assets/images/logo-fzs.svg' %}
       <img src="{{ _logo | relative_url }}" alt="{{ site.title | default: 'FZ Studio' }}">
     </a>
 
-    <!-- 中：主导航（顺序固定，全部大写） -->
+    <!-- 中：主导航（居中、字距大、间距大） -->
     {% assign _url = page.url | default: '' %}
     {% assign is_original = _url contains '/original-art/' or page.collection == 'originals' %}
     {% assign is_prints   = _url contains '/art-prints/'  or page.collection == 'artprints' %}
@@ -23,7 +23,7 @@
       <a href="{{ '/contact/' | relative_url }}" class="fz-nav__link{% if _url contains '/contact/' %} is-active{% endif %}">CONTACT</a>
     </nav>
 
-    <!-- 右：搜索 / 登录 / 购物篮（保持现状样式与交互） -->
+    <!-- 右：搜索/登录/购物篮（保持你认可的样式与交互） -->
     <div class="fz-actions">
       <button class="fz-icon-btn" id="fz-search-btn" aria-label="搜索" aria-haspopup="dialog" aria-controls="fz-search-panel">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M11 4a7 7 0 015.52 11.37l3.56 3.56-1.42 1.42-3.56-3.56A7 7 0 1111 4zm0 2a5 5 0 100 10 5 5 0 000-10z"/></svg>
@@ -39,7 +39,7 @@
   </div>
 </header>
 
-<!-- 以下保留占位（逻辑不变） -->
+<!-- 保留占位组件（不用改 JS） -->
 <div class="fz-panel" id="fz-search-panel" role="dialog" aria-modal="true" aria-labelledby="fz-search-title" hidden>
   <div class="fz-panel__backdrop" data-close="fz-search-panel"></div>
   <div class="fz-panel__body" role="document">
@@ -49,10 +49,8 @@
       <input class="fz-input" type="search" name="q" placeholder="搜索作品、文章…" autofocus>
       <button class="fz-btn fz-btn--primary" type="submit">搜索</button>
     </form>
-    <p class="fz-note">占位：后续可接入 Lunr.js / Algolia。</p>
   </div>
 </div>
-
 <div class="fz-menu" id="fz-login-menu" role="menu" hidden>
   <ul>
     <li><a href="#" role="menuitem">登录（占位）</a></li>
@@ -60,7 +58,6 @@
     <li><a href="{{ '/account/' | relative_url }}" role="menuitem">账户（占位）</a></li>
   </ul>
 </div>
-
 <aside class="fz-drawer" id="fz-cart-drawer" role="dialog" aria-modal="true" aria-labelledby="fz-cart-title" hidden>
   <div class="fz-drawer__backdrop" data-close="fz-cart-drawer"></div>
   <div class="fz-drawer__panel">
@@ -68,12 +65,8 @@
       <h2 id="fz-cart-title">购物篮</h2>
       <button class="fz-close" data-close="fz-cart-drawer" aria-label="关闭购物篮">×</button>
     </header>
-    <div class="fz-drawer__content" id="fz-cart-content">
-      <p>当前为空（占位）。</p>
-    </div>
-    <footer class="fz-drawer__footer">
-      <a class="fz-btn fz-btn--primary" href="#">去结算（占位）</a>
-    </footer>
+    <div class="fz-drawer__content" id="fz-cart-content"><p>当前为空（占位）。</p></div>
+    <footer class="fz-drawer__footer"><a class="fz-btn fz-btn--primary" href="#">去结算（占位）</a></footer>
   </div>
 </aside>
 
