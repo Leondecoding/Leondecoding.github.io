@@ -7,25 +7,37 @@ permalink: /original-art/
 <main class="fz-grid fz-grid--4">
   {% assign items = site.originals | sort: 'date' | reverse | slice: 0, 8 %}
   {% for item in items %}
-    {% assign cover = item.image | default: item.images | first %}
-    {% if cover and cover | slice: 0, 1 != '/' and (cover contains '://') == false %}
-      {% assign cover = '/' | append: cover %}
+    {%- comment -%}
+      安全取封面：
+      1) 优先 front matter: image
+      2) 其次 images 数组第一张
+      3) 不对占位图使用 relative_url（避免生成 /https://...）
+    {%- endcomment -%}
+    {% assign cover = item.image | default: item.images | first | default: item.cover %}
+    {% if cover %}
+      {% if cover contains '://' %}
+        {% assign img_src = cover %}
+      {% else %}
+        {% if cover | slice: 0, 1 != '/' %}
+          {% assign cover = '/' | append: cover %}
+        {% endif %}
+        {% assign img_src = cover | relative_url %}
+      {% endif %}
+    {% else %}
+      {% assign img_src = 'https://via.placeholder.com/800x800?text=Artwork' %}
     {% endif %}
 
     <a class="fz-card" href="{{ item.url | relative_url }}">
       <div class="fz-card__img">
-        <img
-          src="{{ cover | default: 'https://via.placeholder.com/800x800?text=Artwork' | relative_url }}"
-          alt="{{ item.title }}"
-          onerror="this.onerror=null;this.src='https://via.placeholder.com/800x800?text=Artwork';">
+        <img src="{{ img_src }}"
+             alt="{{ item.title }}"
+             onerror="this.onerror=null;this.src='https://via.placeholder.com/800x800?text=Artwork';">
       </div>
       <div class="fz-card__meta">
         <span>{{ item.title }}</span>
         {% if item.price %}
           {% assign c = item.currency | default: 'GBP' %}
-          <span class="fz-price">
-            {% case c %}{% when 'USD' %}${% when 'EUR' %}€{% else %}£{% endcase %}{{ item.price }}
-          </span>
+          <span class="fz-price">{% case c %}{% when 'USD' %}${% when 'EUR' %}€{% else %}£{% endcase %}{{ item.price }}</span>
         {% endif %}
       </div>
     </a>
