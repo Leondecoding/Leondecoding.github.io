@@ -3,10 +3,10 @@ layout: default
 ---
 
 <div class="container product-page">
-  <!-- 保持两列布局（即使站点样式未加载也能成立） -->
+  <!-- 保持两列布局 -->
   <div class="product-grid" style="display:grid;grid-template-columns:minmax(260px,1fr) minmax(320px,1fr);gap:64px;align-items:start;padding-left:30px;">
 
-    <!-- 左侧：作品主图（字段多路 + 标题/slug 兜底） -->
+    <!-- 左侧：作品主图 -->
     <div class="product-gallery">
       {% assign candidates = '' | split: '' %}
       {% if page.image %}{% assign candidates = candidates | push: page.image %}{% endif %}
@@ -61,13 +61,12 @@ layout: default
       {% endif %}
     </div>
 
-    <!-- 右侧：信息（严格顺序） -->
+    <!-- 右侧：信息 -->
     <div class="product-info" style="margin-top: 32px;">
       {% assign file_display = main_image_url | split: '/' | last %}
       {% if file_display == '' or file_display == nil %}{% assign file_display = page.title %}{% endif %}
       <h1 class="product-title" style="margin:0 0 8px 0;">{{ file_display }}</h1>
 
-      {%- comment -%} 价格（默认链兜底，显示在标题下/税务提示上） {%- endcomment -%}
       {% assign price_raw = page.price | default: page.price_gbp | default: page.priceGBP | default: page.amount | default: page.cost | default: page.Price %}
       {% assign curr = page.currency | upcase | default: site.currency | upcase %}
       {% assign sym = '' %}
@@ -80,20 +79,20 @@ layout: default
 
       {% assign default_size = page.selected_size | default: page.size | default: 'A4' %}
 
+      <!-- 改动：移除 action/method 防止 GitHub Pages POST -->
       <div class="product-actions" style="display:flex;flex-direction:column;gap:8px;max-width:420px;">
-        <form class="product-paypal" action="{{ page.paypal_action | default: site.paypal_action }}" method="post">
-          {% if page.paypal_hidden_fields %}{{ page.paypal_hidden_fields }}{% endif %}
+        <form class="product-paypal">
           <input type="hidden" name="item_name" value="{{ page.title | default: file_display }}">
           {% if price_raw %}<input type="hidden" name="amount" value="{{ price_raw }}">{% endif %}
           <input type="hidden" name="os0" value="{{ default_size }}">
-          <button type="submit" style="width:100%;padding:12px 16px;">Pay via PayPal</button>
+          <button type="button" style="width:100%;padding:12px 16px;">Pay via PayPal</button>
         </form>
 
-        <form class="product-cart" action="{{ page.cart_action | default: site.cart_action }}" method="post">
+        <form class="product-cart">
           <input type="hidden" name="title" value="{{ page.title | default: file_display }}">
           {% if price_raw %}<input type="hidden" name="price" value="{{ price_raw }}">{% endif %}
           <input type="hidden" name="size" value="{{ default_size }}">
-          <button type="submit" style="width:100%;padding:12px 16px;">Add to Cart</button>
+          <button type="button" style="width:100%;padding:12px 16px;">Add to Cart</button>
         </form>
       </div>
 
@@ -110,112 +109,71 @@ layout: default
   </div>
 </div>
 
-<!-- PayPal wiring: intercept form submits and send to PayPal; keeps DOM/visuals unchanged -->
+<!-- PayPal 逻辑脚本 -->
 <script>
 (function () {
-  // ---- Inject Jekyll values safely ----
   var PAYPAL_BUSINESS = {{ site.paypal_business | jsonify }};
   var ITEM_NAME       = {{ page.item_name | default: page.title | jsonify }};
   var AMOUNT_RAW      = {{ price_raw | jsonify }};
   var CURRENCY_CODE   = {{ page.currency | default: site.currency | default: 'GBP' | jsonify }};
   var DEFAULT_SIZE    = {{ default_size | jsonify }};
 
-  // Helper: read os0 (size) from current page or fallback
-  function readSizeFromPage() {
-    var sel = document.querySelector('select[name="os0"]');
-    if (sel) return sel.value;
-
-    var radios = document.querySelectorAll('input[type="radio"][name="os0"]');
-    if (radios && radios.length) {
-      for (var i = 0; i < radios.length; i++) if (radios[i].checked) return radios[i].value;
-      return radios[0].value;
-    }
-
-    var input = document.querySelector('input[name="os0"]');
-    if (input) return input.value;
-
-    return (DEFAULT_SIZE || "");
+  if (!PAYPAL_BUSINESS || PAYPAL_BUSINESS === "null" || PAYPAL_BUSINESS === "") {
+    console.warn("[product.html] site.paypal_business 未配置，PayPal 提交停用。");
+    return;
   }
 
-  // Build & submit to PayPal
-  function submitToPayPal(extraFields) {
+  function readSizeFromPage() {
+    var input = document.querySelector('input[name="os0"]');
+    return input ? input.value : (DEFAULT_SIZE || "");
+  }
+
+  function submitToPayPal(flow) {
+    var size = readSizeFromPage();
     var form = document.createElement("form");
     form.method = "post";
     form.action = "https://www.paypal.com/cgi-bin/webscr";
     form.target = "_blank";
 
-    function add(name, value) {
-      if (value === undefined || value === null || value === "") return;
-      var input = document.createElement("input");
-      input.type = "hidden";
-      input.name = name;
-      input.value = String(value);
-      form.appendChild(input);
+    function add(name, val) {
+      if (!val) return;
+      var i = document.createElement("input");
+      i.type = "hidden"; i.name = name; i.value = val;
+      form.appendChild(i);
     }
 
-    // Required common fields
     add("business", PAYPAL_BUSINESS);
     add("item_name", ITEM_NAME);
     add("amount", AMOUNT_RAW);
     add("currency_code", CURRENCY_CODE);
+    add("os0", size);
 
-    // Flow-specific
-    Object.keys(extraFields).forEach(function (k) { add(k, extraFields[k]); });
+    if (flow === "buy") {
+      add("cmd", "_xclick");
+    } else if (flow === "cart") {
+      add("cmd", "_cart");
+      add("add", "1");
+      add("on0", "Size");
+    }
 
     document.body.appendChild(form);
     form.submit();
     form.remove();
   }
 
-  function handle(flow) {
-    var size = readSizeFromPage();
-    if (!PAYPAL_BUSINESS || PAYPAL_BUSINESS === "null" || PAYPAL_BUSINESS === "") {
-      alert("PayPal is not configured. Please set 'site.paypal_business' in _config.yml.");
-      return;
-    }
-    if (!AMOUNT_RAW || AMOUNT_RAW === "null" || AMOUNT_RAW === "") {
-      alert("Missing price for this item. Please set 'price' on the page.");
-      return;
-    }
+  document.addEventListener("DOMContentLoaded", function () {
+    var buyBtn = document.querySelector(".product-paypal button");
+    var cartBtn = document.querySelector(".product-cart button");
 
-    if (flow === "buy") {
-      submitToPayPal({
-        cmd: "_xclick",
-        os0: size
-      });
-    } else if (flow === "cart") {
-      submitToPayPal({
-        cmd: "_cart",
-        add: "1",
-        on0: "Size",
-        os0: size
-      });
-    }
-  }
+    if (buyBtn) buyBtn.addEventListener("click", function (e) {
+      e.preventDefault();
+      submitToPayPal("buy");
+    });
 
-  // 1) 强拦截：捕获 submit 事件（包括回车提交），仅针对这两个表单
-  document.addEventListener("submit", function (ev) {
-    var f = ev.target;
-    if (!(f && f.classList)) return;
-    if (f.classList.contains("product-paypal")) {
-      ev.preventDefault(); ev.stopImmediatePropagation();
-      handle("buy");
-    } else if (f.classList.contains("product-cart")) {
-      ev.preventDefault(); ev.stopImmediatePropagation();
-      handle("cart");
-    }
-  }, true); // capture 阶段，确保早于默认提交
-
-  // 2) 兜底：按钮点击时也拦截
-  function attachClick(selector, flow) {
-    var btn = document.querySelector(selector);
-    if (!btn) return;
-    btn.addEventListener("click", function (ev) {
-      ev.preventDefault(); ev.stopPropagation();
-      handle(flow);
-    }, { passive: false });
-  }
-  attachClick(".product-paypal button[type='submit']", "buy");
-  attachClick(".product-cart button[type='submit']", "cart");
+    if (cartBtn) cartBtn.addEventListener("click", function (e) {
+      e.preventDefault();
+      submitToPayPal("cart");
+    });
+  });
 })();
 </script>
