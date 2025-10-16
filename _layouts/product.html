@@ -3,12 +3,13 @@ layout: default
 ---
 
 <div class="container product-page">
-  <div class="product-grid">
+  <!-- 最小侵入式保证两列布局（不依赖外部样式也能生效） -->
+  <div class="product-grid" style="display:grid;grid-template-columns:minmax(260px,1fr) minmax(320px,1fr);gap:32px;align-items:start;">
 
-    <!-- 左侧：作品主图（保留/复用你的自动探测逻辑） -->
+    <!-- 左侧：作品主图（自动探测，多字段 + 路径兜底） -->
     <div class="product-gallery">
-      {% comment %} 自动探测主图路径（字段优先级：image / featured_image / cover / hero / thumbnail / thumb / picture / photo / images[0] / photos[0]；并补全前导 /；再以标题推测文件名作为兜底） {% endcomment %}
-      {% assign candidates = "" | split: "" %}
+      {% comment %} 收集候选路径 {% endcomment %}
+      {% assign candidates = '' | split: '' %}
       {% if page.image %}{% assign candidates = candidates | push: page.image %}{% endif %}
       {% if page.featured_image %}{% assign candidates = candidates | push: page.featured_image %}{% endif %}
       {% if page.cover %}{% assign candidates = candidates | push: page.cover %}{% endif %}
@@ -22,11 +23,13 @@ layout: default
 
       {% assign title_dash = page.title | replace: ' ', '-' %}
       {% assign slug_dash  = page.title | slugify %}
-      {% assign candidates = candidates | push: '/assets/images/originals/' | append: title_dash | append: '.jpg' %}
-      {% assign candidates = candidates | push: '/assets/images/originals/' | append: title_dash | append: '-1.jpg' %}
-      {% assign candidates = candidates | push: '/assets/images/originals/' | append: slug_dash  | append: '.jpg' %}
-      {% assign candidates = candidates | push: '/assets/images/originals/' | append: slug_dash  | append: '-1.jpg' %}
+      {% capture cand1 %}/assets/images/originals/{{ title_dash }}.jpg{% endcapture %}
+      {% capture cand2 %}/assets/images/originals/{{ title_dash }}-1.jpg{% endcapture %}
+      {% capture cand3 %}/assets/images/originals/{{ slug_dash }}.jpg{% endcapture %}
+      {% capture cand4 %}/assets/images/originals/{{ slug_dash }}-1.jpg{% endcapture %}
+      {% assign candidates = candidates | push: cand1 | push: cand2 | push: cand3 | push: cand4 %}
 
+      {% comment %} 选择第一个非空候选，并补齐前导 / {% endcomment %}
       {% assign main_image_url = nil %}
       {% for c in candidates %}
         {% if c %}
@@ -44,11 +47,12 @@ layout: default
         {% endif %}
       {% endfor %}
 
-      <img class="product-main-image" src="{{ main_image_url | relative_url }}" alt="{{ page.title | escape }}">
+      {% comment %} 主图 {% endcomment %}
+      <img class="product-main-image" src="{{ main_image_url | relative_url }}" alt="{{ page.title | escape }}" style="max-width:100%;height:auto;display:block;"/>
 
-      {% comment %} 如有多图，保留缩略图区块 {% endcomment %}
+      {% comment %} 缩略图（若有多图） {% endcomment %}
       {% if page.images and page.images.size > 1 %}
-        <div class="product-thumbs">
+        <div class="product-thumbs" style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;">
           {% for t in page.images %}
             {% if t %}
               {% assign tpath = t %}
@@ -58,50 +62,53 @@ layout: default
                   {% assign tpath = '/' | append: tpath %}
                 {% endif %}
               {% endunless %}
-              <img class="product-thumb" src="{{ tpath | relative_url }}" alt="{{ page.title | escape }} thumbnail">
+              <img class="product-thumb" src="{{ tpath | relative_url }}" alt="{{ page.title | escape }} thumbnail" style="width:72px;height:auto;border:1px solid #eee;padding:2px;"/>
             {% endif %}
           {% endfor %}
         </div>
       {% endif %}
     </div>
 
-    <!-- 右侧：信息（严格按你要求的顺序） -->
+    <!-- 右侧：信息（严格顺序） -->
     <div class="product-info">
-      {% comment %} 1) 文件名（从主图路径取最后一段） {% endcomment %}
+      {% comment %} 1) 文件名（从主图路径取最后一段；若无则退回 title） {% endcomment %}
       {% assign file_display = main_image_url | split: '/' | last %}
-      <h1 class="product-title">{{ file_display }}</h1>
+      {% if file_display == '' or file_display == nil %}
+        {% assign file_display = page.title %}
+      {% endif %}
+      <h1 class="product-title" style="margin:0 0 8px 0;">{{ file_display }}</h1>
 
-      {% comment %} 2) 价格 {% endcomment %}
-      {% if page.price %}
-        <div class="product-price">{{ page.price }}</div>
+      {% comment %} 2) 价格（多字段兜底） {% endcomment %}
+      {% assign price_val = page.price | default: page.price_gbp | default: page.priceGBP | default: page.amount | default: page.cost | default: page.Price %}
+      {% if price_val %}
+        <div class="product-price" style="font-size:1rem;margin-bottom:4px;">{{ price_val }}</div>
       {% endif %}
 
       {% comment %} 3) 税务提示 {% endcomment %}
-      <div class="product-taxes">Taxes included.</div>
+      <div class="product-taxes" style="color:#555;margin-bottom:12px;">Taxes included.</div>
 
-      {% comment %} 传递尺寸但不展示选择（保持你已实现的 Size 逻辑，不扰动 UI）；若没有，默认 A4 {% endcomment %}
       {% assign default_size = page.selected_size | default: page.size | default: 'A4' %}
 
-      <div class="product-actions">
-        {% comment %} 4) Pay via PayPal（保持既有表单字段；如你有自定义 hidden 字段，依旧可从 page.* 注入） {% endcomment %}
+      <div class="product-actions" style="display:flex;flex-direction:column;gap:8px;max-width:420px;">
+        {% comment %} 4) Pay via PayPal {% endcomment %}
         <form class="product-paypal" action="{{ page.paypal_action | default: site.paypal_action }}" method="post">
           {% if page.paypal_hidden_fields %}{{ page.paypal_hidden_fields }}{% endif %}
           <input type="hidden" name="item_name" value="{{ page.title | default: file_display }}">
-          {% if page.price %}<input type="hidden" name="amount" value="{{ page.price }}">{% endif %}
+          {% if price_val %}<input type="hidden" name="amount" value="{{ price_val }}">{% endif %}
           <input type="hidden" name="os0" value="{{ default_size }}">
-          <button type="submit" class="btn btn-primary w-full">Pay via PayPal</button>
+          <button type="submit" style="width:100%;padding:12px 16px;">Pay via PayPal</button>
         </form>
 
-        {% comment %} 5) Add to Cart（站内购物车） {% endcomment %}
+        {% comment %} 5) Add to Cart {% endcomment %}
         <form class="product-cart" action="{{ page.cart_action | default: site.cart_action }}" method="post">
           <input type="hidden" name="title" value="{{ page.title | default: file_display }}">
-          {% if page.price %}<input type="hidden" name="price" value="{{ page.price }}">{% endif %}
+          {% if price_val %}<input type="hidden" name="price" value="{{ price_val }}">{% endif %}
           <input type="hidden" name="size" value="{{ default_size }}">
-          <button type="submit" class="btn btn-secondary w-full">Add to Cart</button>
+          <button type="submit" style="width:100%;padding:12px 16px;">Add to Cart</button>
         </form>
       </div>
 
-      {% comment %} 6) 作品详情（仅在右栏渲染时清洗误贴的第二段 front matter） {% endcomment %}
+      {% comment %} 6) 作品详情（清洗误贴的第二段 front matter） {% endcomment %}
       {% assign content_raw = content %}
       {% if content_raw contains '---' and content_raw contains 'layout:' %}
         {% assign parts = content_raw | split: '---' %}
@@ -113,9 +120,7 @@ layout: default
       {% else %}
         {% assign content_clean = content_raw %}
       {% endif %}
-      <div class="product-description">
-        {{ content_clean }}
-      </div>
+      <div class="product-description" style="margin-top:16px;max-width:65ch;">{{ content_clean }}</div>
     </div>
 
   </div>
