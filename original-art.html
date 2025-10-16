@@ -30,3 +30,40 @@ permalink: /original-art/
                "/assets/images/originals/{{ title_dash }}.jpg",
                "/assets/images/originals/{{ title_dash }}.jpeg",
                "/assets/images/originals/{{ title_dash }}.png",
+               "/assets/images/originals/{{ title_dash }}.webp",
+
+               "/assets/images/originals/{{ slug_lc }}.jpg",
+               "/assets/images/originals/{{ slug_lc }}.jpeg",
+               "/assets/images/originals/{{ slug_lc }}.png",
+               "/assets/images/originals/{{ slug_lc }}.webp",
+
+               "/assets/images/originals/{{ title_dash }}/hero.jpg",
+               "/assets/images/originals/{{ slug_lc }}/hero.jpg",
+               "/assets/images/originals/{{ title_dash }}/cover.jpg",
+               "/assets/images/originals/{{ slug_lc }}/cover.jpg"
+             ]'>
+      </div>
+      <div class="fz-card__meta">
+        <span>{{ item.title }}</span>
+        {% if item.price %}
+          {% assign c = item.currency | default: 'GBP' %}
+          <span class="fz-price">{% case c %}{% when 'USD' %}${% when 'EUR' %}€{% else %}£{% endcase %}{{ item.price }}</span>
+        {% endif %}
+      </div>
+    </a>
+  {% endfor %}
+</main>
+
+<script>
+(function(){
+  const base='{{ "" | relative_url }}';
+  const abs = s => /^https?:\/\//.test(s) || s.startsWith('data:');
+  function norm(p){ if(!p) return null; p=String(p).trim(); if(!p) return null; if(abs(p)) return p; if(!p.startsWith('/')) p='/'+p; return base+p; }
+  document.querySelectorAll('img.fz-autoimg').forEach(img=>{
+    let list=[]; try{ list=JSON.parse(img.getAttribute('data-candidates')||'[]').filter(Boolean);}catch(e){}
+    let i=-1; const tried=new Set();
+    function next(){ i++; while(i<list.length && tried.has(list[i])) i++; if(i>=list.length){ img.src='https://via.placeholder.com/800x800?text=Artwork'; return; } tried.add(list[i]); const src=norm(list[i]); if(src){ img.src=src; } else { next(); } }
+    img.addEventListener('error', next); next();
+  });
+})();
+</script>
