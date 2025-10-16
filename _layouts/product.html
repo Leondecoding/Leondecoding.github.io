@@ -3,10 +3,10 @@ layout: default
 ---
 
 <div class="container product-page">
-  <!-- 保持两列布局（与上一版一致） -->
+  <!-- 两列布局（保持既有样式/间距/顺序） -->
   <div class="product-grid" style="display:grid;grid-template-columns:minmax(260px,1fr) minmax(320px,1fr);gap:64px;align-items:start;padding-left:30px;">
 
-    <!-- 左侧：作品主图（字段多路 + 标题/slug 兜底） -->
+    <!-- 左侧：作品主图（多来源兜底） -->
     <div class="product-gallery">
       {% assign candidates = '' | split: '' %}
       {% if page.image %}{% assign candidates = candidates | push: page.image %}{% endif %}
@@ -61,13 +61,12 @@ layout: default
       {% endif %}
     </div>
 
-    <!-- 右侧：信息（严格顺序） -->
-    <div class="product-info" style="margin-top: 32px;">
+    <!-- 右侧：信息块（加 .fz-product 以配合 fz-ui.js 的就近查找） -->
+    <div class="product-info fz-product" style="margin-top: 32px;">
       {% assign file_display = main_image_url | split: '/' | last %}
       {% if file_display == '' or file_display == nil %}{% assign file_display = page.title %}{% endif %}
       <h1 class="product-title" style="margin:0 0 8px 0;">{{ file_display }}</h1>
 
-      {%- comment -%} 价格（默认链兜底，显示在标题下/税务提示上） {%- endcomment -%}
       {% assign price_raw = page.price | default: page.price_gbp | default: page.priceGBP | default: page.amount | default: page.cost | default: page.Price %}
       {% assign curr = page.currency | upcase | default: site.currency | upcase %}
       {% assign sym = '' %}
@@ -79,9 +78,11 @@ layout: default
       <div class="product-taxes" style="color:#555;margin-bottom:12px;">Taxes included.</div>
 
       {% assign default_size = page.selected_size | default: page.size | default: 'A4' %}
+      {% assign currency_code = page.currency | default: site.currency | default: 'GBP' %}
+      {% assign sku_base = page.sku | default: page.slug | default: page.title | slugify %}
 
       <div class="product-actions" style="display:flex;flex-direction:column;gap:8px;max-width:420px;">
-        <!-- 注意：不设置 action/method；按钮 type="button"，避免站内 POST(405) -->
+        <!-- PayPal（暂留按钮，不跳转；等有账户再接） -->
         <form class="product-paypal">
           <input type="hidden" name="item_name" value="{{ page.title | default: file_display }}">
           {% if price_raw %}<input type="hidden" name="amount" value="{{ price_raw }}">{% endif %}
@@ -89,133 +90,28 @@ layout: default
           <button type="button" style="width:100%;padding:12px 16px;">Pay via PayPal</button>
         </form>
 
+        <!-- Add to Cart：严格按 fz-ui.js 需要的 data-* 属性提供 -->
+        <!-- 你的脚本会在 .fz-product 内，按 data-option-input 寻找 name="size" 的选中项，因此提供一个隐藏单选即可。:contentReference[oaicite:1]{index=1} -->
         <form class="product-cart">
-          <input type="hidden" name="title" value="{{ page.title | default: file_display }}">
-          {% if price_raw %}<input type="hidden" name="price" value="{{ price_raw }}">{% endif %}
-          <input type="hidden" name="size" value="{{ default_size }}">
-          <button type="button" style="width:100%;padding:12px 16px;">Add to Cart</button>
+          <input type="radio" name="size" value="{{ default_size }}" checked hidden>
+          <button
+            type="button"
+            class="js-add-to-cart"
+            data-title="{{ page.title | default: file_display | escape }}"
+            {% if price_raw %}data-price="{{ price_raw }}"{% endif %}
+            data-currency="{{ currency_code }}"
+            data-image="{{ main_image_url | relative_url }}"
+            data-sku="{{ sku_base }}"
+            data-option-input="size"
+            data-option-name="Size"
+            style="width:100%;padding:12px 16px;"
+          >Add to Cart</button>
         </form>
       </div>
 
-      <!-- 描述正文（不再做 front-matter 清洗，避免渲染出 '---'） -->
+      <!-- 描述正文：不再做任何“---”切分，避免把 front-matter 误渲染出来 -->
       <div class="product-description" style="margin-top:16px;max-width:65ch;">{{ content }}</div>
     </div>
 
   </div>
 </div>
-
-<!-- 只做两件事：
-     1) Add to Cart -> 写入 localStorage:fz_cart（不弹支付、不干扰 Header 脚本）
-     2) 可选：Pay via PayPal（若未来配置账号才会生效；现在只提示）
--->
-<script>
-(function () {
-  // 变量注入（保持你之前的取值逻辑）
-  var ITEM_NAME     = {{ page.item_name | default: page.title | jsonify }};
-  var AMOUNT_RAW    = {{ price_raw | jsonify }};
-  var CURRENCY_CODE = {{ page.currency | default: site.currency | default: 'GBP' | jsonify }};
-  var DEFAULT_SIZE  = {{ default_size | jsonify }};
-  var MAIN_IMAGE    = {{ main_image_url | jsonify }};
-  var PRODUCT_URL   = {{ page.url | default: nil | jsonify }} || window.location.pathname;
-
-  // PayPal（先留口，未配置时不做任何跳转）
-  var MODE          = {{ site.paypal_mode | default: 'disabled' | jsonify }}; // 'sandbox'|'live'|'disabled'
-  var BUSINESS_LIVE = {{ site.paypal_business | jsonify }};
-  var BUSINESS_SANDBOX = {{ site.paypal_business_sandbox | jsonify }};
-  var endpoint = MODE === "sandbox" ? "https://www.sandbox.paypal.com/cgi-bin/webscr" : "https://www.paypal.com/cgi-bin/webscr";
-  var business = MODE === "sandbox" ? (BUSINESS_SANDBOX || BUSINESS_LIVE) : BUSINESS_LIVE;
-
-  // 读取尺寸（os0）
-  function readSize() {
-    var hidden = document.querySelector('.product-paypal input[name="os0"]');
-    return hidden ? hidden.value : (DEFAULT_SIZE || "");
-  }
-
-  // === 购物车本地存储（键名与徽标：来自 header.html 的结构） ===
-  // 键名：fz_cart；徽标元素：#fz-cart-count（见 header.html） :contentReference[oaicite:0]{index=0}
-  var CART_KEY = "fz_cart";
-
-  function loadCart() {
-    try { return JSON.parse(localStorage.getItem(CART_KEY) || "[]"); }
-    catch(e) { return []; }
-  }
-  function saveCart(items) { localStorage.setItem(CART_KEY, JSON.stringify(items)); }
-
-  function updateBadge() {
-    var badge = document.getElementById("fz-cart-count");
-    if (!badge) return;
-    var count = loadCart().length;
-    badge.textContent = count;
-    badge.hidden = !(count > 0);
-  }
-
-  function addCurrentToCart() {
-    var items = loadCart();
-    var size  = readSize();
-
-    var id = PRODUCT_URL + "::" + (size || "");
-    var existing = items.find(function(it){ return it.id === id; });
-
-    if (existing) {
-      existing.quantity = (existing.quantity || 1) + 1;
-    } else {
-      items.push({
-        id: id,
-        url: PRODUCT_URL,
-        name: ITEM_NAME || document.title || "Artwork",
-        size: size,
-        amount: AMOUNT_RAW,
-        currency: CURRENCY_CODE || "GBP",
-        quantity: 1,
-        image: MAIN_IMAGE
-      });
-    }
-
-    saveCart(items);
-    updateBadge();
-
-    // 通知全站其它脚本（若有监听）
-    try {
-      document.dispatchEvent(new CustomEvent("fz:cart:updated", { detail: { items: items, count: items.length } }));
-    } catch(_) {}
-
-    // 按钮轻提示（不影响布局/脚本）
-    var btn = document.querySelector(".product-cart button");
-    if (btn) {
-      var old = btn.textContent;
-      btn.disabled = true;
-      btn.textContent = "Added ✓";
-      setTimeout(function(){ btn.textContent = old; btn.disabled = false; }, 1200);
-    }
-  }
-
-  function directBuy() {
-    if (!business) {
-      // 现在先不直达支付，提示从购物篮结算即可
-      alert("已加入购物篮后，请通过右上角购物篮统一结账。等 PayPal 账号配置好后会在此直达支付。");
-      return;
-    }
-    // 如需开启“立即购买”，解开下面代码即可（保持最小字段集 _xclick）
-    var form = document.createElement("form");
-    form.method = "post";
-    form.action = endpoint;
-    form.target = "_blank";
-    function add(n,v){ if(v==null||v==="") return; var i=document.createElement("input"); i.type="hidden"; i.name=n; i.value=String(v); form.appendChild(i); }
-    add("cmd", "_xclick");
-    add("business", business);
-    add("item_name", ITEM_NAME || document.title || "Artwork");
-    add("amount", AMOUNT_RAW);
-    add("currency_code", CURRENCY_CODE || "GBP");
-    add("os0", readSize());
-    document.body.appendChild(form); form.submit(); form.remove();
-  }
-
-  document.addEventListener("DOMContentLoaded", function () {
-    var buyBtn  = document.querySelector(".product-paypal button");
-    var cartBtn = document.querySelector(".product-cart button");
-    if (cartBtn) cartBtn.addEventListener("click", function(e){ e.preventDefault(); addCurrentToCart(); });
-    if (buyBtn)  buyBtn.addEventListener("click", function(e){ e.preventDefault(); directBuy(); });
-    updateBadge(); // 刷新右上角徽标
-  });
-})();
-</script>
