@@ -67,15 +67,32 @@ layout: default
       <h1 class="product-title" style="margin:0 0 8px 0;">{{ file_display }}</h1>
 
       {%- comment -%} 价格：单一显示块，统一在这里渲染，避免重复 {%- endcomment -%}
-      {% assign price_raw = page.price | default: page.price_gbp | default: page.priceGBP | default: page.amount | default: page.cost | default: page.Price %}
-      {% assign curr = page.currency | upcase | default: site.currency | upcase %}
-      {% assign sym = '' %}
-      {% if curr == 'GBP' %}{% assign sym = '£' %}{% elsif curr == 'USD' %}{% assign sym = '$' %}{% elsif curr == 'EUR' %}{% assign sym = '€' %}{% elsif curr == 'CNY' %}{% assign sym = '¥' %}{% elsif curr == 'JPY' %}{% assign sym = '¥' %}{% elsif curr == 'HKD' %}{% assign sym = 'HK$' %}{% elsif curr == 'TWD' %}{% assign sym = 'NT$' %}{% endif %}
-      {% if price_raw != nil and price_raw != '' %}
-        <div class="product-price" style="font-size:1.125rem;font-weight:600;margin-bottom:6px;">{% if sym != '' %}{{ sym }}{{ price_raw }}{% else %}{{ price_raw }}{% if curr %} {{ curr }}{% endif %}{% endif %}</div>
-      {% endif %}
+      {%- assign price_raw = page.price -%}
+      {%- if price_raw == nil or price_raw == '' -%}
+        {%- assign _price_keys = 'price,Price,price_gbp,priceGBP,amount,cost' | split: ',' -%}
+        {%- for k in _price_keys -%}
+          {%- assign v = page[k] -%}
+          {%- if v != nil and v != '' -%}
+            {%- assign price_raw = v -%}
+            {%- break -%}
+          {%- endif -%}
+        {%- endfor -%}
+      {%- endif -%}
 
-      <div class="product-taxes" style="color:#555;margin-bottom:12px;">Taxes included.</div>
+      {%- assign curr = page.currency | upcase | default: site.currency | upcase -%}
+      {%- assign sym = '' -%}
+      {%- if curr == 'GBP' -%}{%- assign sym = '£' -%}{%- elsif curr == 'USD' -%}{%- assign sym = '$' -%}{%- elsif curr == 'EUR' -%}{%- assign sym = '€' -%}{%- elsif curr == 'CNY' or curr == 'JPY' -%}{%- assign sym = '¥' -%}{%- elsif curr == 'HKD' -%}{%- assign sym = 'HK$' -%}{%- elsif curr == 'TWD' -%}{%- assign sym = 'NT$' -%}{%- endif -%}
+
+      {%- if price_raw != nil and price_raw != '' -%}
+        <div class="product-price" style="font-size:1.125rem;font-weight:600;margin-bottom:6px;">
+          {%- if sym != '' -%}{{ sym }}{{ price_raw }}{%- else -%}{{ price_raw }}{%- if curr -%} {{ curr }}{%- endif -%}{%- endif -%}
+        </div>
+      {%- else -%}
+        <!-- debug aid: show hidden stub when no price parsed (remove later) -->
+        <div style="display:none" data-no-price="true"></div>
+      {%- endif -%}
+
+      <div class="product-taxes" style="color:#555;margin-bottom:12px;">Taxes included.</div> style="color:#555;margin-bottom:12px;">Taxes included.</div>
 
       {% assign default_size = page.selected_size | default: page.size | default: 'A4' %}
 
