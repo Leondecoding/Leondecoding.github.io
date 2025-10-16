@@ -3,9 +3,9 @@ layout: default
 ---
 
 <div class="container product-page">
-  <div class="product-grid" style="display:grid;grid-template-columns:minmax(260px,1fr) minmax(320px,1fr);gap:64px;align-items:start;padding-left:30px;">
+  <div class="product-grid" style="display:grid;grid-template-columns:minmax(260px,1fr) minmax(360px,1fr);gap:64px;align-items:start;padding-left:30px;">
 
-    <!-- 左侧：主图（多字段兜底） -->
+    <!-- 左：主图（多字段兜底） -->
     <div class="product-gallery">
       {% assign candidates = '' | split: '' %}
       {% if page.image %}{% assign candidates = candidates | push: page.image %}{% endif %}
@@ -60,8 +60,8 @@ layout: default
       {% endif %}
     </div>
 
-    <!-- 右侧：信息（与原布局一致） -->
-    <div class="product-info fz-product" style="margin-top: 32px;">
+    <!-- 右：信息栏（标题→价格→Taxes→按钮→说明） -->
+    <div class="product-info fz-product" style="margin-top:32px;">
       {% assign file_display = main_image_url | split: '/' | last %}
       {% if file_display == '' or file_display == nil %}{% assign file_display = page.title %}{% endif %}
       <h1 class="product-title" style="margin:0 0 8px 0;">{{ file_display }}</h1>
@@ -71,27 +71,29 @@ layout: default
       {% assign sym = '' %}
       {% if curr == 'GBP' %}{% assign sym = '£' %}{% elsif curr == 'USD' %}{% assign sym = '$' %}{% elsif curr == 'EUR' %}{% assign sym = '€' %}{% elsif curr == 'CNY' or curr == 'JPY' %}{% assign sym = '¥' %}{% elsif curr == 'HKD' %}{% assign sym = 'HK$' %}{% elsif curr == 'TWD' %}{% assign sym = 'NT$' %}{% endif %}
       {% if price_raw %}
-        <div class="product-price" style="font-size:1.125rem;font-weight:600;margin-bottom:6px;">{% if sym != '' %}{{ sym }}{{ price_raw }}{% else %}{{ price_raw }}{% if curr %} {{ curr }}{% endif %}{% endif %}</div>
+        <div class="product-price" style="font-size:1.125rem;font-weight:600;margin:0 0 6px 0;float:none;clear:both;text-align:left;">
+          {% if sym != '' %}{{ sym }}{{ price_raw }}{% else %}{{ price_raw }}{% if curr %} {{ curr }}{% endif %}{% endif %}
+        </div>
       {% endif %}
 
-      <div class="product-taxes" style="color:#555;margin-bottom:12px;">Taxes included.</div>
+      <div class="product-taxes" style="color:#555;margin:0 0 12px 0;float:none;clear:both;text-align:left;">Taxes included.</div>
 
       {% assign default_size = page.selected_size | default: page.size | default: 'A4' %}
       {% assign currency_code = page.currency | default: site.currency | default: 'GBP' %}
       {% assign sku_base = page.sku | default: page.slug | default: page.title | slugify %}
 
-      <div class="product-actions" style="display:flex;flex-direction:column;gap:8px;max-width:420px;">
-        <!-- 预留 PayPal（暂不跳转） -->
+      <div class="product-actions" style="display:flex;flex-direction:column;gap:8px;max-width:420px;float:none;clear:both;text-align:left;">
+        <!-- PayPal 立即购买：未配置账号时给出提示，不跳转 -->
         <form class="product-paypal">
           <input type="hidden" name="item_name" value="{{ page.title | default: file_display }}">
           {% if price_raw %}<input type="hidden" name="amount" value="{{ price_raw }}">{% endif %}
           <input type="hidden" name="os0" value="{{ default_size }}">
-          <button type="button" style="width:100%;padding:12px 16px;">Pay via PayPal</button>
+          <button type="button" id="pp-buy" style="width:100%;padding:12px 16px;">Pay via PayPal</button>
         </form>
 
-        <!-- Add to Cart —— 严格对齐 fz-ui.js 的数据协议 -->
+        <!-- Add to Cart：完全对齐 fz-ui.js 的数据协议 -->
         <form class="product-cart">
-          <!-- 供 getSelectedValue() 读取尺寸（隐藏单选，不改变视觉） -->
+          <!-- 让 getSelectedValue() 能读到尺寸（隐藏，不改视觉） -->
           <input type="radio" name="size" value="{{ default_size }}" checked hidden>
           <button
             type="button"
@@ -108,9 +110,89 @@ layout: default
         </form>
       </div>
 
-      <!-- 只渲染正文；不再做任何 '---' 切分，避免误把 front-matter 当正文 -->
+      <!-- 作品说明 -->
       <div class="product-description" style="margin-top:16px;max-width:65ch;">{{ content }}</div>
     </div>
 
   </div>
 </div>
+
+<!-- 极小兜底：若 fz-ui.js 未加载，仍保证按钮可用；PayPal 未配置时仅提示 -->
+<script>
+(function(){
+  // 让 PayPal 按钮“有反馈”
+  var BUSINESS = {{ site.paypal_business | jsonify }};
+  var PRICE    = {{ price_raw | jsonify }};
+  var CURRENCY = {{ currency_code | jsonify }};
+  var TITLE    = {{ page.item_name | default: page.title | jsonify }};
+  var SIZE     = {{ default_size | jsonify }};
+  var endpoint = "https://www.paypal.com/cgi-bin/webscr";
+
+  document.addEventListener('DOMContentLoaded', function(){
+    var pp = document.getElementById('pp-buy');
+    if (pp) pp.addEventListener('click', function(e){
+      e.preventDefault();
+      if (!BUSINESS) {
+        alert("PayPal 尚未配置。可先加入购物篮，待账号就绪后统一结账。");
+        return;
+      }
+      var f = document.createElement('form'); f.method='post'; f.action=endpoint; f.target='_blank';
+      function add(n,v){ if(v==null||v==='')return; var i=document.createElement('input'); i.type='hidden'; i.name=n; i.value=String(v); f.appendChild(i); }
+      add('cmd','_xclick'); add('business',BUSINESS); add('item_name',TITLE); add('amount',PRICE); add('currency_code',CURRENCY); add('os0',SIZE);
+      document.body.appendChild(f); f.submit(); f.remove();
+    });
+
+    // 如果你的 fz-ui.js 已经绑定 .js-add-to-cart，这里不会重复绑定；
+    // 否则，做一个与 fz-ui.js 等价的最小实现（写入 localStorage:fz_cart 并更新 #fz-cart-count）
+    var wired = false;
+    document.querySelectorAll('.js-add-to-cart').forEach(function(btn){
+      if (btn._fzWired) { wired = true; }
+    });
+    if (!wired) {
+      var $$ = function(s,c){ return Array.from((c||document).querySelectorAll(s)); };
+      function getSelectedValue(btn){
+        var n = btn.dataset.optionInput || 'size';
+        var wrap = btn.closest('.fz-product') || document;
+        var picked = wrap.querySelector('input[name="'+n+'"]:checked');
+        return picked ? picked.value : '';
+      }
+      $$('.js-add-to-cart').forEach(function(btn){
+        btn.addEventListener('click', function(){
+          var storeKey = 'fz_cart';
+          var getCart = function(){ try { return JSON.parse(localStorage.getItem(storeKey)||'[]'); } catch(e){ return []; } };
+          var setCart = function(arr){ localStorage.setItem(storeKey, JSON.stringify(arr)); };
+          var badge = document.getElementById('fz-cart-count');
+          var updateBadge = function(){
+            var cnt = getCart().reduce(function(n,i){return n+(i.qty||1);},0);
+            if(badge){ badge.hidden = cnt<=0; badge.textContent = String(cnt); }
+          };
+
+          var optionName = btn.dataset.optionName || 'Size';
+          var optionValue = getSelectedValue(btn);
+          var title = (btn.dataset.title||'Artwork') + (optionValue ? (' - '+optionValue) : '');
+          var sku = (btn.dataset.sku || 'item') + (optionValue ? ('-'+optionValue) : '');
+
+          var item = {
+            sku: sku,
+            title: title,
+            price: parseFloat(btn.dataset.price||'0'),
+            currency: btn.dataset.currency || '',
+            image: btn.dataset.image || '',
+            qty: 1,
+            options: optionValue ? [{ name: optionName, value: optionValue }] : []
+          };
+
+          var cart = getCart();
+          var exist = cart.find(function(x){ return x.sku === item.sku; });
+          if (exist){ exist.qty = (exist.qty||1) + 1; } else { cart.push(item); }
+          setCart(cart); updateBadge();
+
+          // 轻反馈
+          var old = btn.textContent; btn.disabled = true; btn.textContent = "Added ✓";
+          setTimeout(function(){ btn.textContent = old; btn.disabled = false; }, 1000);
+        });
+      });
+    }
+  });
+})();
+</script>
