@@ -3,7 +3,7 @@ layout: default
 ---
 
 <style>
-/* 仅此页：左图右信息（保持你现状的排版与按钮） */
+/* 仅此页：保证左图右信息；不动你现有的右栏样式 */
 .fz-product{max-width:1100px;margin:32px auto;display:grid;grid-template-columns:1.1fr .9fr;gap:36px}
 @media (max-width:900px){.fz-product{grid-template-columns:1fr;gap:22px}}
 .fz-hero{border:1px solid #eee;background:#fafafa;border-radius:10px;overflow:hidden}
@@ -12,132 +12,88 @@ layout: default
 .fz-thumbs img{width:80px;height:80px;object-fit:cover;border:1px solid #eee;border-radius:6px;cursor:pointer}
 </style>
 
-{%- comment -%}
-  HERO 图：自动识别字段 → 修正路径 → 避免对绝对URL使用 relative_url
-{%- endcomment -%}
-{% assign _keys = "image,featured_image,cover,hero,thumbnail,thumb,picture,photo" | split: "," %}
-{% assign _hero = nil %}
-{% for k in _keys %}
-  {% if _hero == nil and page[k] %}{% assign _hero = page[k] %}{% endif %}
-{% endfor %}
-{% if _hero == nil and page.images %}{% assign _hero = page.images | first %}{% endif %}
-{% if _hero == nil and page.photos %}{% assign _hero = page.photos | first %}{% endif %}
-
-{% if _hero %}
-  {% if _hero contains '://' %}
-    {% assign hero_src = _hero %}
-  {% else %}
-    {% if _hero | slice: 0, 1 != '/' %}{% assign _hero = '/' | append: _hero %}{% endif %}
-    {% assign hero_src = _hero | relative_url %}
-  {% endif %}
-{% else %}
-  {% assign hero_src = 'https://via.placeholder.com/900x900?text=Artwork' %}
-{% endif %}
-
-{% assign _thumbs = nil %}
-{% if page.images and page.images.size > 1 %}
-  {% assign _thumbs = page.images %}
-{% endif %}
-
-{% assign currency = page.currency | default: site.default_currency | default: 'GBP' %}
-{% capture currency_symbol %}{% case currency %}{% when 'GBP' %}£{% when 'USD' %}${% when 'EUR' %}€{% else %}{{ currency }}{% endcase %}{% endcapture %}
+{% assign slug = page.slug | default: page.title | slugify %}
 
 <main class="fz-product">
   <!-- 左：主图 + 缩略图 -->
   <section>
     <div class="fz-hero">
-      <img id="fz-hero-img"
-           src="{{ hero_src }}"
+      <img id="fz-hero-img" class="fz-autoimg"
            alt="{{ page.title }}"
-           onerror="this.onerror=null;this.src='https://via.placeholder.com/900x900?text=Artwork';">
+           src="https://via.placeholder.com/900x900?text=Loading"
+           data-candidates='[
+             "{{ page.image }}",
+             "{{ page.featured_image }}",
+             "{{ page.cover }}",
+             "{{ page.hero }}",
+             "{{ page.thumbnail }}",
+             "{{ page.thumb }}",
+             "{{ page.picture }}",
+             "{{ page.photo }}",
+             {% if page.images %}"{{ page.images | first }}",{% endif %}
+             {% if page.photos %}"{{ page.photos  | first }}",{% endif %}
+             "/assets/images/originals/{{ slug }}.jpg",
+             "/assets/images/originals/{{ slug }}.jpeg",
+             "/assets/images/originals/{{ slug }}.png",
+             "/assets/images/originals/{{ slug }}.webp",
+             "/assets/images/originals/{{ slug }}/hero.jpg",
+             "/assets/images/originals/{{ slug }}/cover.jpg"
+           ]'>
     </div>
 
-    {% if _thumbs %}
+    {% if page.images and page.images.size > 1 %}
       <div class="fz-thumbs" id="fz-thumbs">
-        {% for p in _thumbs %}
-          {% assign t = p %}
-          {% if t contains '://' %}
-            {% assign t_src = t %}
-          {% else %}
-            {% if t | slice: 0, 1 != '/' %}{% assign t = '/' | append: t %}{% endif %}
-            {% assign t_src = t | relative_url %}
-          {% endif %}
-          <img src="{{ t_src }}" alt="{{ page.title }} thumb {{ forloop.index }}"
-               data-hero="{{ t_src }}"
+        {% for p in page.images %}
+          <img src="{{ p | relative_url }}" alt="{{ page.title }} thumb {{ forloop.index }}"
+               data-hero="{{ p | relative_url }}"
                onerror="this.onerror=null;this.style.display='none';">
         {% endfor %}
       </div>
     {% endif %}
   </section>
 
-  <!-- 右：信息（你现有的顺序与按钮保持不变；下面是最小示例） -->
+  <!-- 右：信息（保持你当前顺序与样式，不再赘述） -->
   <aside>
-    <h1 class="fz-title">{{ page.title }}</h1>
-    {% if page.price %}<p class="fz-price-line">{{ currency_symbol | strip }}{{ page.price }}</p><p class="fz-tax">Taxes included.</p>{% endif %}
-
-    <!-- 固定显示 Size A5/A4（在价格下、按钮上） -->
-    <div class="fz-field">
-      <div class="fz-field__label">Size</div>
-      <div class="fz-pills" id="fz-size-pills">
-        <input class="fz-pill-input" type="radio" name="size" id="size-a5" value="A5" checked>
-        <label class="fz-pill" for="size-a5">A5</label>
-        <input class="fz-pill-input" type="radio" name="size" id="size-a4" value="A4">
-        <label class="fz-pill" for="size-a4">A4</label>
-      </div>
-    </div>
-
-    <div class="fz-buy">
-      {% if site.paypal_business_id and page.price %}
-      <form id="fz-paypal-form" action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_blank">
-        <input type="hidden" name="cmd" value="_xclick">
-        <input type="hidden" name="business" value="{{ site.paypal_business_id }}">
-        <input type="hidden" id="pp_item_name" name="item_name" value="{{ page.title }}{% if page.sku %} ({{ page.sku }}){% endif %}">
-        <input type="hidden" name="amount" value="{{ page.price }}">
-        <input type="hidden" name="currency_code" value="{{ currency }}">
-        <button type="submit" class="fz-btn fz-btn--primary">Pay via PayPal</button>
-      </form>
-      {% endif %}
-
-      <button class="fz-btn js-add-to-cart"
-        data-sku="{{ page.sku | default: page.slug | default: page.title | slugify }}"
-        data-title="{{ page.title | escape }}"
-        data-price="{{ page.price | default: 0 }}"
-        data-currency="{{ currency | escape }}"
-        data-image="{{ hero_src }}"
-        data-option-name="Size"
-        data-option-input="size"
-      >Add to Cart</button>
-    </div>
-
-    {% if page.description %}<div class="fz-prop" style="margin-top:14px;">{{ page.description }}</div>{% endif %}
-    {% if content %}<div class="fz-prop" style="margin-top:6px;">{{ content }}</div>{% endif %}
+    {{ content }}
   </aside>
 </main>
 
+<!-- 仅本页：自动加载候选主图 + 缩略图切换 -->
 <script>
-// 缩略图切主图；PayPal与购物车携带尺寸（保持原逻辑）
-document.addEventListener('DOMContentLoaded', function(){
-  var thumbs=document.getElementById('fz-thumbs');
-  var hero=document.getElementById('fz-hero-img');
-  thumbs && hero && thumbs.addEventListener('click', function(e){
-    var t=e.target; if(t && t.dataset.hero){ hero.src=t.dataset.hero; }
+(function(){
+  const base='{{ "" | relative_url }}';
+  const abs = s => /^https?:\/\//.test(s) || s.startsWith('data:');
+  function normalize(p){
+    if(!p) return null;
+    p = String(p).trim();
+    if(!p) return null;
+    if(abs(p)) return p;
+    if(!p.startsWith('/')) p = '/' + p;
+    return base + p;
+  }
+
+  // 自动主图
+  const hero = document.getElementById('fz-hero-img');
+  if(hero){
+    let list=[];
+    try{ list = JSON.parse(hero.getAttribute('data-candidates')||'[]').filter(Boolean); }catch(e){}
+    let i=-1, tried=new Set();
+    function next(){
+      i++;
+      while(i<list.length && tried.has(list[i])) i++;
+      if(i>=list.length){ hero.src='https://via.placeholder.com/900x900?text=Artwork'; return; }
+      tried.add(list[i]);
+      const src = normalize(list[i]);
+      if(src){ hero.src = src; } else { next(); }
+    }
+    hero.addEventListener('error', next);
+    next();
+  }
+
+  // 点击缩略图切换主图（沿用你已有结构）
+  const thumbs = document.getElementById('fz-thumbs');
+  thumbs && hero && thumbs.addEventListener('click', e=>{
+    const t = e.target; if(t && t.dataset.hero){ hero.src = t.dataset.hero; }
   });
-
-  function sel(){ var c=document.querySelector('input[name="size"]:checked'); return c?c.value:''; }
-
-  (function(){
-    var el=document.getElementById('pp_item_name'); if(!el) return;
-    var base="{{ page.title | escape }}{% if page.sku %} ({{ page.sku }}){% endif %}";
-    function up(){ el.value = sel()? base + " - " + sel() : base; }
-    document.getElementById('fz-size-pills')?.addEventListener('change', up); up();
-  })();
-
-  (function(){
-    var btn=document.querySelector('.js-add-to-cart'); if(!btn) return;
-    var key='fz_cart', get=()=>{try{return JSON.parse(localStorage.getItem(key)||'[]')}catch(e){return[]}}, set=(x)=>localStorage.setItem(key, JSON.stringify(x));
-    var badge=document.getElementById('fz-cart-count'), upd=()=>{var n=get().reduce((s,i)=>s+(i.qty||1),0); if(badge){badge.hidden=n<=0; badge.textContent=String(n);}};
-    btn.addEventListener('click', ()=>{var o=sel(), cart=get(), item={sku:(btn.dataset.sku||'item')+(o?`-${o}`:''), title:(btn.dataset.title||'')+(o?` - ${o}`:''), price:parseFloat(btn.dataset.price||'0'), currency:btn.dataset.currency||'', image:btn.dataset.image||'', qty:1, options:o?[{name:'Size',value:o}]:[]}; var ex=cart.find(x=>x.sku===item.sku); if(ex){ex.qty=(ex.qty||1)+1}else{cart.push(item)}; set(cart); upd();});
-    upd();
-  })();
-});
+})();
 </script>
