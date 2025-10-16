@@ -3,10 +3,10 @@ layout: default
 ---
 
 <div class="container product-page">
-  <!-- 两列布局（保持与你之前一致） -->
+  <!-- 两列布局（保持既有样式/间距/顺序） -->
   <div class="product-grid" style="display:grid;grid-template-columns:minmax(260px,1fr) minmax(320px,1fr);gap:64px;align-items:start;padding-left:30px;">
 
-    <!-- 左侧：作品主图（多字段候选 + 标题/slug 兜底） -->
+    <!-- 左侧：作品主图（多来源兜底） -->
     <div class="product-gallery">
       {% assign candidates = '' | split: '' %}
       {% if page.image %}{% assign candidates = candidates | push: page.image %}{% endif %}
@@ -61,7 +61,7 @@ layout: default
       {% endif %}
     </div>
 
-    <!-- 右侧：信息（顺序保持不变） -->
+    <!-- 右侧：信息块（加 .fz-product 以配合 fz-ui.js 的就近查找） -->
     <div class="product-info fz-product" style="margin-top: 32px;">
       {% assign file_display = main_image_url | split: '/' | last %}
       {% if file_display == '' or file_display == nil %}{% assign file_display = page.title %}{% endif %}
@@ -82,7 +82,7 @@ layout: default
       {% assign sku_base = page.sku | default: page.slug | default: page.title | slugify %}
 
       <div class="product-actions" style="display:flex;flex-direction:column;gap:8px;max-width:420px;">
-        <!-- PayPal 按钮（先留口；未配置账号时不跳转） -->
+        <!-- PayPal（暂留按钮，不跳转；等有账户再接） -->
         <form class="product-paypal">
           <input type="hidden" name="item_name" value="{{ page.title | default: file_display }}">
           {% if price_raw %}<input type="hidden" name="amount" value="{{ price_raw }}">{% endif %}
@@ -90,8 +90,8 @@ layout: default
           <button type="button" style="width:100%;padding:12px 16px;">Pay via PayPal</button>
         </form>
 
-        <!-- Add to Cart：完全按 fz-ui.js 的约定对接 -->
-        <!-- getSelectedValue() 会在 .fz-product 内查找 name="size" 的选中项，所以提供一个隐藏单选即可。:contentReference[oaicite:1]{index=1} -->
+        <!-- Add to Cart：严格按 fz-ui.js 需要的 data-* 属性提供 -->
+        <!-- 你的脚本会在 .fz-product 内，按 data-option-input 寻找 name="size" 的选中项，因此提供一个隐藏单选即可。:contentReference[oaicite:1]{index=1} -->
         <form class="product-cart">
           <input type="radio" name="size" value="{{ default_size }}" checked hidden>
           <button
@@ -109,9 +109,8 @@ layout: default
         </form>
       </div>
 
-      <!-- 描述正文；去掉意外出现的 '--- layout: default ---' 文本 -->
-      {% assign content_safe = content | replace: '--- layout: default ---', '' %}
-      <div class="product-description" style="margin-top:16px;max-width:65ch;">{{ content_safe }}</div>
+      <!-- 描述正文：不再做任何“---”切分，避免把 front-matter 误渲染出来 -->
+      <div class="product-description" style="margin-top:16px;max-width:65ch;">{{ content }}</div>
     </div>
 
   </div>
