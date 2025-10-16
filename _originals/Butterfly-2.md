@@ -1,12 +1,20 @@
 ---
- layout: product
- title: "Butterfly-2"
- price: 370
- currency: GBP
- image: /assets/images/originals/Butterfly-2.jpg
- stock: 1
- ---
- A yelling gull, painted with Winsor & Newton professional watercolors on Canson Heritage 100% cotton paper. The painting measures 20,5 x 31cm / 8x12 in.
+layout: product
+title: "Butterfly-2"
+price: 370
+currency: GBP
+image: /assets/images/originals/Butterfly-2.jpg
+stock: 1
+---
+
+**Original watercolour** on paper. Signed on the front.
+
+- Size: **30×40 cm**
+- Paper: **Hahnemühle**
+- Year: **2025**
+- Unframed
+
+A yelling gull, painted with Winsor & Newton professional watercolors on Canson Heritage 100% cotton paper. The painting measures 20,5 x 31cm / 8x12 in.
 
 10% of the proceeds are donated to BirdLife International, to support their work protecting biodiversity and natural habitats for birds.
 
