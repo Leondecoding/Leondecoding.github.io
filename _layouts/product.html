@@ -78,6 +78,23 @@ layout: default
       {% endif %}
       <h1 class="product-title" style="margin:0 0 8px 0;">{{ file_display }}</h1>
 
+      {% comment %} price display (robust) {% endcomment %}
+      {% assign _price_candidates = "price,price_gbp,priceGBP,amount,cost,Price" | split: "," %}
+      {% assign price_raw = nil %}
+      {% for _k in _price_candidates %}
+        {% assign _v = page[_k] %}
+        {% if _v != nil and _v != '' %}
+          {% assign price_raw = _v %}
+          {% break %}
+        {% endif %}
+      {% endfor %}
+      {% assign curr = page.currency | upcase | default: site.currency | upcase | default: 'GBP' %}
+      {% assign sym = '' %}
+      {% if curr == 'GBP' %}{% assign sym = '£' %}{% elsif curr == 'USD' %}{% assign sym = '$' %}{% elsif curr == 'EUR' %}{% assign sym = '€' %}{% elsif curr == 'CNY' %}{% assign sym = '¥' %}{% elsif curr == 'JPY' %}{% assign sym = '¥' %}{% elsif curr == 'HKD' %}{% assign sym = 'HK$' %}{% elsif curr == 'TWD' %}{% assign sym = 'NT$' %}{% endif %}
+      {% if price_raw %}
+        <div class="product-price" style="font-size:1.125rem;font-weight:600;margin-bottom:6px;">{% if sym != '' %}{{ sym }}{{ price_raw }}{% else %}{{ price_raw }}{% if curr %} {{ curr }}{% endif %}{% endif %}</div>
+      {% endif %}
+
       {% comment %} 2) 价格（多字段兜底 + 货币符号） {% endcomment %}
       {% assign price_raw = page.price | default: page.price_gbp | default: page.priceGBP | default: page.amount | default: page.cost | default: page.Price %}
       {% assign curr = page.currency | upcase | default: site.currency | upcase %}
@@ -100,7 +117,7 @@ layout: default
         <form class="product-paypal" action="{{ page.paypal_action | default: site.paypal_action }}" method="post">
           {% if page.paypal_hidden_fields %}{{ page.paypal_hidden_fields }}{% endif %}
           <input type="hidden" name="item_name" value="{{ page.title | default: file_display }}">
-          {% if price_val %}<input type="hidden" name="amount" value="{{ price_val }}">{% endif %}
+          {% if price_raw %}<input type="hidden" name="amount" value="{{ price_raw }}">{% endif %}
           <input type="hidden" name="os0" value="{{ default_size }}">
           <button type="submit" style="width:100%;padding:12px 16px;">Pay via PayPal</button>
         </form>
@@ -108,7 +125,7 @@ layout: default
         {% comment %} 5) Add to Cart {% endcomment %}
         <form class="product-cart" action="{{ page.cart_action | default: site.cart_action }}" method="post">
           <input type="hidden" name="title" value="{{ page.title | default: file_display }}">
-          {% if price_val %}<input type="hidden" name="price" value="{{ price_val }}">{% endif %}
+          {% if price_raw %}<input type="hidden" name="price" value="{{ price_raw }}">{% endif %}
           <input type="hidden" name="size" value="{{ default_size }}">
           <button type="submit" style="width:100%;padding:12px 16px;">Add to Cart</button>
         </form>
