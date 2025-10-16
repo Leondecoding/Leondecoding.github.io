@@ -69,4 +69,48 @@ layout: default
       {% assign price_raw = page.price | default: page.price_gbp | default: page.priceGBP | default: page.amount | default: page.cost | default: page.Price %}
       {% assign curr = page.currency | upcase | default: site.currency | upcase %}
       {% assign sym = '' %}
-      {% if curr == 'GBP' %}{% assign sym = '£' %}{% elsif curr == 'US
+      {% if curr == 'GBP' %}{% assign sym = '£' %}{% elsif curr == 'USD' %}{% assign sym = '$' %}{% elsif curr == 'EUR' %}{% assign sym = '€' %}{% elsif curr == 'CNY' or curr == 'JPY' %}{% assign sym = '¥' %}{% elsif curr == 'HKD' %}{% assign sym = 'HK$' %}{% elsif curr == 'TWD' %}{% assign sym = 'NT$' %}{% endif %}
+      {% if price_raw %}
+        <div class="product-price" style="font-size:1.125rem;font-weight:600;margin-bottom:6px;">{% if sym != '' %}{{ sym }}{{ price_raw }}{% else %}{{ price_raw }}{% if curr %} {{ curr }}{% endif %}{% endif %}</div>
+      {% endif %}
+
+      <div class="product-taxes" style="color:#555;margin-bottom:12px;">Taxes included.</div>
+
+      {% assign default_size = page.selected_size | default: page.size | default: 'A4' %}
+      {% assign currency_code = page.currency | default: site.currency | default: 'GBP' %}
+      {% assign sku_base = page.sku | default: page.slug | default: page.title | slugify %}
+
+      <div class="product-actions" style="display:flex;flex-direction:column;gap:8px;max-width:420px;">
+        <!-- 预留 PayPal（暂不跳转） -->
+        <form class="product-paypal">
+          <input type="hidden" name="item_name" value="{{ page.title | default: file_display }}">
+          {% if price_raw %}<input type="hidden" name="amount" value="{{ price_raw }}">{% endif %}
+          <input type="hidden" name="os0" value="{{ default_size }}">
+          <button type="button" style="width:100%;padding:12px 16px;">Pay via PayPal</button>
+        </form>
+
+        <!-- Add to Cart —— 严格对齐 fz-ui.js 的数据协议 -->
+        <form class="product-cart">
+          <!-- 供 getSelectedValue() 读取尺寸（隐藏单选，不改变视觉） -->
+          <input type="radio" name="size" value="{{ default_size }}" checked hidden>
+          <button
+            type="button"
+            class="js-add-to-cart"
+            data-title="{{ page.title | default: file_display | escape }}"
+            {% if price_raw %}data-price="{{ price_raw }}"{% endif %}
+            data-currency="{{ currency_code }}"
+            data-image="{{ main_image_url | relative_url }}"
+            data-sku="{{ sku_base }}"
+            data-option-input="size"
+            data-option-name="Size"
+            style="width:100%;padding:12px 16px;"
+          >Add to Cart</button>
+        </form>
+      </div>
+
+      <!-- 只渲染正文；不再做任何 '---' 切分，避免误把 front-matter 当正文 -->
+      <div class="product-description" style="margin-top:16px;max-width:65ch;">{{ content }}</div>
+    </div>
+
+  </div>
+</div>
