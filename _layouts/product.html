@@ -3,12 +3,10 @@ layout: default
 ---
 
 <div class="container product-page">
-  <!-- 最小侵入式保证两列布局（不依赖外部样式也能生效） -->
   <div class="product-grid" style="display:grid;grid-template-columns:minmax(260px,1fr) minmax(320px,1fr);gap:32px;align-items:start;">
 
     <!-- 左侧：作品主图（自动探测，多字段 + 路径兜底） -->
     <div class="product-gallery">
-      {% comment %} 收集候选路径 {% endcomment %}
       {% assign candidates = '' | split: '' %}
       {% if page.image %}{% assign candidates = candidates | push: page.image %}{% endif %}
       {% if page.featured_image %}{% assign candidates = candidates | push: page.featured_image %}{% endif %}
@@ -29,7 +27,6 @@ layout: default
       {% capture cand4 %}/assets/images/originals/{{ slug_dash }}-1.jpg{% endcapture %}
       {% assign candidates = candidates | push: cand1 | push: cand2 | push: cand3 | push: cand4 %}
 
-      {% comment %} 选择第一个非空候选，并补齐前导 / {% endcomment %}
       {% assign main_image_url = nil %}
       {% for c in candidates %}
         {% if c %}
@@ -37,9 +34,7 @@ layout: default
           {% if p != '' %}
             {% unless p contains '://' %}
               {% assign first_char = p | slice: 0, 1 %}
-              {% if first_char != '/' %}
-                {% assign p = '/' | append: p %}
-              {% endif %}
+              {% if first_char != '/' %}{% assign p = '/' | append: p %}{% endif %}
             {% endunless %}
             {% assign main_image_url = p %}
             {% break %}
@@ -47,10 +42,8 @@ layout: default
         {% endif %}
       {% endfor %}
 
-      {% comment %} 主图 {% endcomment %}
       <img class="product-main-image" src="{{ main_image_url | relative_url }}" alt="{{ page.title | escape }}" style="max-width:100%;height:auto;display:block;"/>
 
-      {% comment %} 缩略图（若有多图） {% endcomment %}
       {% if page.images and page.images.size > 1 %}
         <div class="product-thumbs" style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;">
           {% for t in page.images %}
@@ -58,9 +51,7 @@ layout: default
               {% assign tpath = t %}
               {% unless tpath contains '://' %}
                 {% assign first_char = tpath | slice: 0, 1 %}
-                {% if first_char != '/' %}
-                  {% assign tpath = '/' | append: tpath %}
-                {% endif %}
+                {% if first_char != '/' %}{% assign tpath = '/' | append: tpath %}{% endif %}
               {% endunless %}
               <img class="product-thumb" src="{{ tpath | relative_url }}" alt="{{ page.title | escape }} thumbnail" style="width:72px;height:auto;border:1px solid #eee;padding:2px;"/>
             {% endif %}
@@ -71,75 +62,44 @@ layout: default
 
     <!-- 右侧：信息（严格顺序） -->
     <div class="product-info">
-      {% comment %} 1) 文件名（从主图路径取最后一段；若无则退回 title） {% endcomment %}
       {% assign file_display = main_image_url | split: '/' | last %}
-      {% if file_display == '' or file_display == nil %}
-        {% assign file_display = page.title %}
-      {% endif %}
+      {% if file_display == '' or file_display == nil %}{% assign file_display = page.title %}{% endif %}
       <h1 class="product-title" style="margin:0 0 8px 0;">{{ file_display }}</h1>
 
-      {% comment %} price display (robust) {% endcomment %}
-      {% assign _price_candidates = "price,price_gbp,priceGBP,amount,cost,Price" | split: "," %}
-      {% assign price_raw = nil %}
-      {% for _k in _price_candidates %}
-        {% assign _v = page[_k] %}
-        {% if _v != nil and _v != '' %}
-          {% assign price_raw = _v %}
-          {% break %}
-        {% endif %}
-      {% endfor %}
-      {% assign curr = page.currency | upcase | default: site.currency | upcase | default: 'GBP' %}
-      {% assign sym = '' %}
-      {% if curr == 'GBP' %}{% assign sym = '£' %}{% elsif curr == 'USD' %}{% assign sym = '$' %}{% elsif curr == 'EUR' %}{% assign sym = '€' %}{% elsif curr == 'CNY' %}{% assign sym = '¥' %}{% elsif curr == 'JPY' %}{% assign sym = '¥' %}{% elsif curr == 'HKD' %}{% assign sym = 'HK$' %}{% elsif curr == 'TWD' %}{% assign sym = 'NT$' %}{% endif %}
-      {% if price_raw %}
-        <div class="product-price" style="font-size:1.125rem;font-weight:600;margin-bottom:6px;">{% if sym != '' %}{{ sym }}{{ price_raw }}{% else %}{{ price_raw }}{% if curr %} {{ curr }}{% endif %}{% endif %}</div>
-      {% endif %}
-
-      {% comment %} 2) 价格（多字段兜底 + 货币符号） {% endcomment %}
+      {%- comment -%} 价格：单一显示块，统一在这里渲染，避免重复 {%- endcomment -%}
       {% assign price_raw = page.price | default: page.price_gbp | default: page.priceGBP | default: page.amount | default: page.cost | default: page.Price %}
       {% assign curr = page.currency | upcase | default: site.currency | upcase %}
       {% assign sym = '' %}
       {% if curr == 'GBP' %}{% assign sym = '£' %}{% elsif curr == 'USD' %}{% assign sym = '$' %}{% elsif curr == 'EUR' %}{% assign sym = '€' %}{% elsif curr == 'CNY' %}{% assign sym = '¥' %}{% elsif curr == 'JPY' %}{% assign sym = '¥' %}{% elsif curr == 'HKD' %}{% assign sym = 'HK$' %}{% elsif curr == 'TWD' %}{% assign sym = 'NT$' %}{% endif %}
-      {% capture price_display %}
-        {% if sym != '' %}{{ sym }}{{ price_raw }}{% elsif curr %}{{ price_raw }} {{ curr }}{% else %}{{ price_raw }}{% endif %}
-      {% endcapture %}
-      {% if price_raw %}
-        <div class="product-price" style="font-size:1.125rem;font-weight:600;margin-bottom:6px;">{{ price_display | strip }}</div>
+      {% if price_raw != nil and price_raw != '' %}
+        <div class="product-price" style="font-size:1.125rem;font-weight:600;margin-bottom:6px;">{% if sym != '' %}{{ sym }}{{ price_raw }}{% else %}{{ price_raw }}{% if curr %} {{ curr }}{% endif %}{% endif %}</div>
       {% endif %}
 
-      {% comment %} 3) 税务提示 {% endcomment %}
       <div class="product-taxes" style="color:#555;margin-bottom:12px;">Taxes included.</div>
 
       {% assign default_size = page.selected_size | default: page.size | default: 'A4' %}
 
       <div class="product-actions" style="display:flex;flex-direction:column;gap:8px;max-width:420px;">
-        {% comment %} 4) Pay via PayPal {% endcomment %}
         <form class="product-paypal" action="{{ page.paypal_action | default: site.paypal_action }}" method="post">
           {% if page.paypal_hidden_fields %}{{ page.paypal_hidden_fields }}{% endif %}
           <input type="hidden" name="item_name" value="{{ page.title | default: file_display }}">
-          {% if price_raw %}<input type="hidden" name="amount" value="{{ price_raw }}">{% endif %}
+          {% if price_raw != nil and price_raw != '' %}<input type="hidden" name="amount" value="{{ price_raw }}">{% endif %}
           <input type="hidden" name="os0" value="{{ default_size }}">
           <button type="submit" style="width:100%;padding:12px 16px;">Pay via PayPal</button>
         </form>
 
-        {% comment %} 5) Add to Cart {% endcomment %}
         <form class="product-cart" action="{{ page.cart_action | default: site.cart_action }}" method="post">
           <input type="hidden" name="title" value="{{ page.title | default: file_display }}">
-          {% if price_raw %}<input type="hidden" name="price" value="{{ price_raw }}">{% endif %}
+          {% if price_raw != nil and price_raw != '' %}<input type="hidden" name="price" value="{{ price_raw }}">{% endif %}
           <input type="hidden" name="size" value="{{ default_size }}">
           <button type="submit" style="width:100%;padding:12px 16px;">Add to Cart</button>
         </form>
       </div>
 
-      {% comment %} 6) 作品详情（清洗误贴的第二段 front matter） {% endcomment %}
       {% assign content_raw = content %}
       {% if content_raw contains '---' and content_raw contains 'layout:' %}
         {% assign parts = content_raw | split: '---' %}
-        {% if parts.size > 2 %}
-          {% assign content_clean = parts[2] %}
-        {% else %}
-          {% assign content_clean = content_raw %}
-        {% endif %}
+        {% if parts.size > 2 %}{% assign content_clean = parts[2] %}{% else %}{% assign content_clean = content_raw %}{% endif %}
       {% else %}
         {% assign content_clean = content_raw %}
       {% endif %}
