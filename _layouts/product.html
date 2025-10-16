@@ -2,110 +2,146 @@
 layout: default
 ---
 
-<div class="container product-page">
-  <!-- 保持两列布局（即使站点样式未加载也能成立） -->
-  <div class="product-grid" style="display:grid;grid-template-columns:minmax(260px,1fr) minmax(320px,1fr);gap:64px;align-items:start;padding-left:30px;">
+{{ content }}
 
-    <!-- 左侧：作品主图（字段多路 + 标题/slug 兜底） -->
-    <div class="product-gallery">
-      {% assign candidates = '' | split: '' %}
-      {% if page.image %}{% assign candidates = candidates | push: page.image %}{% endif %}
-      {% if page.featured_image %}{% assign candidates = candidates | push: page.featured_image %}{% endif %}
-      {% if page.cover %}{% assign candidates = candidates | push: page.cover %}{% endif %}
-      {% if page.hero %}{% assign candidates = candidates | push: page.hero %}{% endif %}
-      {% if page.thumbnail %}{% assign candidates = candidates | push: page.thumbnail %}{% endif %}
-      {% if page.thumb %}{% assign candidates = candidates | push: page.thumb %}{% endif %}
-      {% if page.picture %}{% assign candidates = candidates | push: page.picture %}{% endif %}
-      {% if page.photo %}{% assign candidates = candidates | push: page.photo %}{% endif %}
-      {% if page.images and page.images.size > 0 %}{% assign candidates = candidates | push: page.images[0] %}{% endif %}
-      {% if page.photos and page.photos.size > 0 %}{% assign candidates = candidates | push: page.photos[0] %}{% endif %}
+<!--
+  Leondecoding · product layout
+  目的：仅为“Pay via PayPal”与“Add to Cart”提供可用的 PayPal 提交，不改动已有布局/文案/样式/顺序。
+  行为：
+    - 监听页面上文字精确为 “Pay via PayPal” 与 “Add to Cart” 的按钮/链接/提交控件。
+    - 点击时在前端临时构建 <form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_blank">，
+      注入必需隐藏字段后提交到 PayPal 官方页面。
+    - 价格与尺寸：继续复用现有 price_raw 与 default_size；如页面上已有 name="os0" 的可见/隐藏控件，将以其当前值为准。
+    - 货币：默认 GBP，亦支持 page.currency / site.currency。
+    - 不改任何可见 DOM、类名、顺序与按钮文案。
+-->
+<script>
+(function () {
+  // ---- 将 Jekyll 变量安全注入到 JS（使用 jsonify 以保证正确转义）----
+  var PAYPAL_BUSINESS = {{ site.paypal_business | jsonify }};
+  var ITEM_NAME       = {{ page.item_name | default: page.title | jsonify }};
+  var AMOUNT_RAW      = {{ price_raw | jsonify }};
+  var CURRENCY_CODE   = {{ page.currency | default: site.currency | default: 'GBP' | jsonify }};
+  var DEFAULT_SIZE    = {{ default_size | jsonify }};
 
-      {% assign title_dash = page.title | replace: ' ', '-' %}
-      {% assign slug_dash  = page.title | slugify %}
-      {% capture cand1 %}/assets/images/originals/{{ title_dash }}.jpg{% endcapture %}
-      {% capture cand2 %}/assets/images/originals/{{ title_dash }}-1.jpg{% endcapture %}
-      {% capture cand3 %}/assets/images/originals/{{ slug_dash }}.jpg{% endcapture %}
-      {% capture cand4 %}/assets/images/originals/{{ slug_dash }}-1.jpg{% endcapture %}
-      {% assign candidates = candidates | push: cand1 | push: cand2 | push: cand3 | push: cand4 %}
+  // 若未配置收款邮箱，则保持静默（不破坏页面）
+  if (!PAYPAL_BUSINESS || PAYPAL_BUSINESS === "null" || PAYPAL_BUSINESS === "") {
+    console.warn("[product.html] site.paypal_business 未配置：PayPal 提交将被跳过。");
+  }
 
-      {% assign main_image_url = nil %}
-      {% for c in candidates %}
-        {% if c %}
-          {% assign p = c | strip %}
-          {% if p != '' %}
-            {% unless p contains '://' %}
-              {% assign first_char = p | slice: 0, 1 %}
-              {% if first_char != '/' %}{% assign p = '/' | append: p %}{% endif %}
-            {% endunless %}
-            {% assign main_image_url = p %}
-            {% break %}
-          {% endif %}
-        {% endif %}
-      {% endfor %}
+  // 从页面上读取尺寸：优先取已有 name="os0" 的控件（select/radio/input），否则退回 default_size
+  function readSizeFromPage() {
+    var val = null;
+    var sel = document.querySelector('select[name="os0"]');
+    if (sel) return sel.value;
 
-      <img class="product-main-image" src="{{ main_image_url | relative_url }}" alt="{{ page.title | escape }}" style="max-width:100%;height:auto;display:block;"/>
+    var radios = document.querySelectorAll('input[type="radio"][name="os0"]');
+    if (radios && radios.length) {
+      for (var i = 0; i < radios.length; i++) if (radios[i].checked) return radios[i].value;
+      // 无选中则取第一个值（若有）
+      return radios[0].value;
+    }
 
-      {% if page.images and page.images.size > 1 %}
-        <div class="product-thumbs" style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;">
-          {% for t in page.images %}
-            {% if t %}
-              {% assign tpath = t %}
-              {% unless tpath contains '://' %}
-                {% assign first_char = tpath | slice: 0, 1 %}
-                {% if first_char != '/' %}{% assign tpath = '/' | append: tpath %}{% endif %}
-              {% endunless %}
-              <img class="product-thumb" src="{{ tpath | relative_url }}" alt="{{ page.title | escape }} thumbnail" style="width:72px;height:auto;border:1px solid #eee;padding:2px;"/>
-            {% endif %}
-          {% endfor %}
-        </div>
-      {% endif %}
-    </div>
+    var input = document.querySelector('input[name="os0"]');
+    if (input) return input.value;
 
-    <!-- 右侧：信息（严格顺序） -->
-    <div class="product-info" style="margin-top: 32px;">
-      {% assign file_display = main_image_url | split: '/' | last %}
-      {% if file_display == '' or file_display == nil %}{% assign file_display = page.title %}{% endif %}
-      <h1 class="product-title" style="margin:0 0 8px 0;">{{ file_display }}</h1>
+    return (DEFAULT_SIZE || "");
+  }
 
-      {%- comment -%} 价格（默认链兜底，显示在标题下/税务提示上） {%- endcomment -%}
-      {% assign price_raw = page.price | default: page.price_gbp | default: page.priceGBP | default: page.amount | default: page.cost | default: page.Price %}
-      {% assign curr = page.currency | upcase | default: site.currency | upcase %}
-      {% assign sym = '' %}
-      {% if curr == 'GBP' %}{% assign sym = '£' %}{% elsif curr == 'USD' %}{% assign sym = '$' %}{% elsif curr == 'EUR' %}{% assign sym = '€' %}{% elsif curr == 'CNY' or curr == 'JPY' %}{% assign sym = '¥' %}{% elsif curr == 'HKD' %}{% assign sym = 'HK$' %}{% elsif curr == 'TWD' %}{% assign sym = 'NT$' %}{% endif %}
-      {% if price_raw %}
-        <div class="product-price" style="font-size:1.125rem;font-weight:600;margin-bottom:6px;">{% if sym != '' %}{{ sym }}{{ price_raw }}{% else %}{{ price_raw }}{% if curr %} {{ curr }}{% endif %}{% endif %}</div>
-      {% endif %}
+  // 构建并提交表单到 PayPal 官方
+  function submitToPayPal(fields) {
+    if (!PAYPAL_BUSINESS || PAYPAL_BUSINESS === "null" || PAYPAL_BUSINESS === "") return;
 
-      <div class="product-taxes" style="color:#555;margin-bottom:12px;">Taxes included.</div>
+    var form = document.createElement("form");
+    form.method = "post";
+    form.action = "https://www.paypal.com/cgi-bin/webscr";
+    form.target = "_blank";
 
-      {% assign default_size = page.selected_size | default: page.size | default: 'A4' %}
+    function add(name, value) {
+      if (value === undefined || value === null || value === "") return;
+      var input = document.createElement("input");
+      input.type = "hidden";
+      input.name = name;
+      input.value = String(value);
+      form.appendChild(input);
+    }
 
-      <div class="product-actions" style="display:flex;flex-direction:column;gap:8px;max-width:420px;">
-        <form class="product-paypal" action="{{ page.paypal_action | default: site.paypal_action }}" method="post">
-          {% if page.paypal_hidden_fields %}{{ page.paypal_hidden_fields }}{% endif %}
-          <input type="hidden" name="item_name" value="{{ page.title | default: file_display }}">
-          {% if price_raw %}<input type="hidden" name="amount" value="{{ price_raw }}">{% endif %}
-          <input type="hidden" name="os0" value="{{ default_size }}">
-          <button type="submit" style="width:100%;padding:12px 16px;">Pay via PayPal</button>
-        </form>
+    // 通用字段
+    add("business", PAYPAL_BUSINESS);
+    add("item_name", ITEM_NAME);
+    add("amount", AMOUNT_RAW);
+    add("currency_code", CURRENCY_CODE);
 
-        <form class="product-cart" action="{{ page.cart_action | default: site.cart_action }}" method="post">
-          <input type="hidden" name="title" value="{{ page.title | default: file_display }}">
-          {% if price_raw %}<input type="hidden" name="price" value="{{ price_raw }}">{% endif %}
-          <input type="hidden" name="size" value="{{ default_size }}">
-          <button type="submit" style="width:100%;padding:12px 16px;">Add to Cart</button>
-        </form>
-      </div>
+    // 具体流程字段
+    Object.keys(fields).forEach(function (k) { add(k, fields[k]); });
 
-      {% assign content_raw = content %}
-      {% if content_raw contains '---' and content_raw contains 'layout:' %}
-        {% assign parts = content_raw | split: '---' %}
-        {% if parts.size > 2 %}{% assign content_clean = parts[2] %}{% else %}{% assign content_clean = content_raw %}{% endif %}
-      {% else %}
-        {% assign content_clean = content_raw %}
-      {% endif %}
-      <div class="product-description" style="margin-top:16px;max-width:65ch;">{{ content_clean }}</div>
-    </div>
+    document.body.appendChild(form);
+    form.submit();
+    form.remove();
+  }
 
-  </div>
-</div>
+  // 点击处理：buy = 立即购买（_xclick）；cart = 加入购物车（_cart + add=1）
+  function handle(type) {
+    var size = readSizeFromPage();
+
+    if (type === "buy") {
+      // 立即购买：只按要求携带 os0（尺寸），其他最小字段集
+      submitToPayPal({
+        cmd: "_xclick",
+        os0: size
+      });
+    } else if (type === "cart") {
+      // 购物车：按要求携带 on0/os0（尺寸）
+      submitToPayPal({
+        cmd: "_cart",
+        add: "1",
+        on0: "Size",
+        os0: size
+      });
+    }
+  }
+
+  // 根据按钮可见文字绑定事件（不改按钮/样式/顺序）
+  function textOf(el) {
+    // 按钮用 textContent，input[submit] 用 value
+    return (el.tagName === "INPUT") ? (el.value || "") : (el.textContent || "");
+  }
+  function wire(el, type) {
+    // 点击按钮 => 阻止原本站内提交，转而提交到 PayPal
+    el.addEventListener("click", function (ev) {
+      if (!PAYPAL_BUSINESS) return; // 未配置则放行，避免影响其它逻辑
+      ev.preventDefault();
+      ev.stopPropagation();
+      handle(type);
+    }, { passive: false });
+
+    // 若按钮在 <form> 内，防止原 form 提交到本站
+    var parentForm = el.closest("form");
+    if (parentForm) {
+      parentForm.addEventListener("submit", function (ev) {
+        if (!PAYPAL_BUSINESS) return;
+        var submitterText = (document.activeElement && textOf(document.activeElement).trim()) || "";
+        // 仅当通过这两个按钮触发时拦截
+        if (submitterText === "Pay via PayPal") {
+          ev.preventDefault(); ev.stopImmediatePropagation(); handle("buy");
+        } else if (submitterText === "Add to Cart") {
+          ev.preventDefault(); ev.stopImmediatePropagation(); handle("cart");
+        }
+      }, { passive: false });
+    }
+  }
+
+  document.addEventListener("DOMContentLoaded", function () {
+    // 找到所有候选控件（按钮/链接/提交控件），按可见文字精确匹配
+    var candidates = document.querySelectorAll('button, a, input[type="button"], input[type="submit"]');
+    candidates.forEach(function (el) {
+      var txt = textOf(el).trim();
+      if (txt === "Pay via PayPal") {
+        wire(el, "buy");
+      } else if (txt === "Add to Cart") {
+        wire(el, "cart");
+      }
+    });
+  });
+})();
+</script>
