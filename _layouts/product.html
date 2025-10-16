@@ -3,9 +3,10 @@ layout: default
 ---
 
 <div class="container product-page">
+  <!-- 保持两列布局（即使站点样式未加载也能成立） -->
   <div class="product-grid" style="display:grid;grid-template-columns:minmax(260px,1fr) minmax(320px,1fr);gap:32px;align-items:start;">
 
-    <!-- 左侧：作品主图（自动探测，多字段 + 路径兜底） -->
+    <!-- 左侧：作品主图（字段多路 + 标题/slug 兜底） -->
     <div class="product-gallery">
       {% assign candidates = '' | split: '' %}
       {% if page.image %}{% assign candidates = candidates | push: page.image %}{% endif %}
@@ -66,33 +67,16 @@ layout: default
       {% if file_display == '' or file_display == nil %}{% assign file_display = page.title %}{% endif %}
       <h1 class="product-title" style="margin:0 0 8px 0;">{{ file_display }}</h1>
 
-      {%- comment -%} 价格：单一显示块，统一在这里渲染，避免重复 {%- endcomment -%}
-      {%- assign price_raw = page.price -%}
-      {%- if price_raw == nil or price_raw == '' -%}
-        {%- assign _price_keys = 'price,Price,price_gbp,priceGBP,amount,cost' | split: ',' -%}
-        {%- for k in _price_keys -%}
-          {%- assign v = page[k] -%}
-          {%- if v != nil and v != '' -%}
-            {%- assign price_raw = v -%}
-            {%- break -%}
-          {%- endif -%}
-        {%- endfor -%}
-      {%- endif -%}
+      {%- comment -%} 价格（默认链兜底，显示在标题下/税务提示上） {%- endcomment -%}
+      {% assign price_raw = page.price | default: page.price_gbp | default: page.priceGBP | default: page.amount | default: page.cost | default: page.Price %}
+      {% assign curr = page.currency | upcase | default: site.currency | upcase %}
+      {% assign sym = '' %}
+      {% if curr == 'GBP' %}{% assign sym = '£' %}{% elsif curr == 'USD' %}{% assign sym = '$' %}{% elsif curr == 'EUR' %}{% assign sym = '€' %}{% elsif curr == 'CNY' or curr == 'JPY' %}{% assign sym = '¥' %}{% elsif curr == 'HKD' %}{% assign sym = 'HK$' %}{% elsif curr == 'TWD' %}{% assign sym = 'NT$' %}{% endif %}
+      {% if price_raw %}
+        <div class="product-price" style="font-size:1.125rem;font-weight:600;margin-bottom:6px;">{% if sym != '' %}{{ sym }}{{ price_raw }}{% else %}{{ price_raw }}{% if curr %} {{ curr }}{% endif %}{% endif %}</div>
+      {% endif %}
 
-      {%- assign curr = page.currency | upcase | default: site.currency | upcase -%}
-      {%- assign sym = '' -%}
-      {%- if curr == 'GBP' -%}{%- assign sym = '£' -%}{%- elsif curr == 'USD' -%}{%- assign sym = '$' -%}{%- elsif curr == 'EUR' -%}{%- assign sym = '€' -%}{%- elsif curr == 'CNY' or curr == 'JPY' -%}{%- assign sym = '¥' -%}{%- elsif curr == 'HKD' -%}{%- assign sym = 'HK$' -%}{%- elsif curr == 'TWD' -%}{%- assign sym = 'NT$' -%}{%- endif -%}
-
-      {%- if price_raw != nil and price_raw != '' -%}
-        <div class="product-price" style="font-size:1.125rem;font-weight:600;margin-bottom:6px;">
-          {%- if sym != '' -%}{{ sym }}{{ price_raw }}{%- else -%}{{ price_raw }}{%- if curr -%} {{ curr }}{%- endif -%}{%- endif -%}
-        </div>
-      {%- else -%}
-        <!-- debug aid: show hidden stub when no price parsed (remove later) -->
-        <div style="display:none" data-no-price="true"></div>
-      {%- endif -%}
-
-      <div class="product-taxes" style="color:#555;margin-bottom:12px;">Taxes included.</div> style="color:#555;margin-bottom:12px;">Taxes included.</div>
+      <div class="product-taxes" style="color:#555;margin-bottom:12px;">Taxes included.</div>
 
       {% assign default_size = page.selected_size | default: page.size | default: 'A4' %}
 
@@ -100,14 +84,14 @@ layout: default
         <form class="product-paypal" action="{{ page.paypal_action | default: site.paypal_action }}" method="post">
           {% if page.paypal_hidden_fields %}{{ page.paypal_hidden_fields }}{% endif %}
           <input type="hidden" name="item_name" value="{{ page.title | default: file_display }}">
-          {% if price_raw != nil and price_raw != '' %}<input type="hidden" name="amount" value="{{ price_raw }}">{% endif %}
+          {% if price_raw %}<input type="hidden" name="amount" value="{{ price_raw }}">{% endif %}
           <input type="hidden" name="os0" value="{{ default_size }}">
           <button type="submit" style="width:100%;padding:12px 16px;">Pay via PayPal</button>
         </form>
 
         <form class="product-cart" action="{{ page.cart_action | default: site.cart_action }}" method="post">
           <input type="hidden" name="title" value="{{ page.title | default: file_display }}">
-          {% if price_raw != nil and price_raw != '' %}<input type="hidden" name="price" value="{{ price_raw }}">{% endif %}
+          {% if price_raw %}<input type="hidden" name="price" value="{{ price_raw }}">{% endif %}
           <input type="hidden" name="size" value="{{ default_size }}">
           <button type="submit" style="width:100%;padding:12px 16px;">Add to Cart</button>
         </form>
