@@ -1,349 +1,61 @@
----
-layout: default
----
+<!-- _includes/header.html  — 注意：不要有任何 front-matter（不要写 ---） -->
+<header class="site-header">
+  <div class="container header-bar">
+    <a class="site-logo" href="{{ '/' | relative_url }}" aria-label="Home">
+      <img src="{{ '/assets/logo.svg' | relative_url }}" alt="FZ Studio" />
+    </a>
 
-<div class="container product-page">
-  <!-- 保持两列布局（即使站点样式未加载也能成立） -->
-  <div class="product-grid" style="display:grid;grid-template-columns:minmax(260px,1fr) minmax(320px,1fr);gap:64px;align-items:start;padding-left:30px;">
+    <nav class="site-nav">
+      <a href="{{ '/' | relative_url }}">HOME</a>
+      <a href="{{ '/our-story/' | relative_url }}">OUR STORY</a>
+      <a href="{{ '/blog/' | relative_url }}">BLOG</a>
+      <a href="{{ '/original-art/' | relative_url }}">ORIGINAL ART</a>
+      <a href="{{ '/art-prints/' | relative_url }}">ART PRINTS</a>
+      <a href="{{ '/greeting-cards/' | relative_url }}">GREETING CARDS</a>
+      <a href="{{ '/contact/' | relative_url }}">CONTACT</a>
+    </nav>
 
-    <!-- 左侧：作品主图（字段多路 + 标题/slug 兜底） -->
-    <div class="product-gallery">
-      {% assign candidates = '' | split: '' %}
-      {% if page.image %}{% assign candidates = candidates | push: page.image %}{% endif %}
-      {% if page.featured_image %}{% assign candidates = candidates | push: page.featured_image %}{% endif %}
-      {% if page.cover %}{% assign candidates = candidates | push: page.cover %}{% endif %}
-      {% if page.hero %}{% assign candidates = candidates | push: page.hero %}{% endif %}
-      {% if page.thumbnail %}{% assign candidates = candidates | push: page.thumbnail %}{% endif %}
-      {% if page.thumb %}{% assign candidates = candidates | push: page.thumb %}{% endif %}
-      {% if page.picture %}{% assign candidates = candidates | push: page.picture %}{% endif %}
-      {% if page.photo %}{% assign candidates = candidates | push: page.photo %}{% endif %}
-      {% if page.images and page.images.size > 0 %}{% assign candidates = candidates | push: page.images[0] %}{% endif %}
-      {% if page.photos and page.photos.size > 0 %}{% assign candidates = candidates | push: page.photos[0] %}{% endif %}
-
-      {% assign title_dash = page.title | replace: ' ', '-' %}
-      {% assign slug_dash  = page.title | slugify %}
-      {% capture cand1 %}/assets/images/originals/{{ title_dash }}.jpg{% endcapture %}
-      {% capture cand2 %}/assets/images/originals/{{ title_dash }}-1.jpg{% endcapture %}
-      {% capture cand3 %}/assets/images/originals/{{ slug_dash }}.jpg{% endcapture %}
-      {% capture cand4 %}/assets/images/originals/{{ slug_dash }}-1.jpg{% endcapture %}
-      {% assign candidates = candidates | push: cand1 | push: cand2 | push: cand3 | push: cand4 %}
-
-      {% assign main_image_url = nil %}
-      {% for c in candidates %}
-        {% if c %}
-          {% assign p = c | strip %}
-          {% if p != '' %}
-            {% unless p contains '://' %}
-              {% assign first_char = p | slice: 0, 1 %}
-              {% if first_char != '/' %}{% assign p = '/' | append: p %}{% endif %}
-            {% endunless %}
-            {% assign main_image_url = p %}
-            {% break %}
-          {% endif %}
-        {% endif %}
-      {% endfor %}
-
-      <img class="product-main-image" src="{{ main_image_url | relative_url }}" alt="{{ page.title | escape }}" style="max-width:100%;height:auto;display:block;"/>
-
-      {% if page.images and page.images.size > 1 %}
-        <div class="product-thumbs" style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;">
-          {% for t in page.images %}
-            {% if t %}
-              {% assign tpath = t %}
-              {% unless tpath contains '://' %}
-                {% assign first_char = tpath | slice: 0, 1 %}
-                {% if first_char != '/' %}{% assign tpath = '/' | append: tpath %}{% endif %}
-              {% endunless %}
-              <img class="product-thumb" src="{{ tpath | relative_url }}" alt="{{ page.title | escape }} thumbnail" style="width:72px;height:auto;border:1px solid #eee;padding:2px;"/>
-            {% endif %}
-          {% endfor %}
-        </div>
-      {% endif %}
+    <div class="site-actions">
+      <button id="fz-search-btn" aria-controls="fz-search-panel" aria-expanded="false" aria-label="Search">🔍</button>
+      <button id="fz-login-btn"  aria-controls="fz-login-menu"  aria-expanded="false" aria-label="Account">👤</button>
+      <button id="fz-cart-btn"   aria-controls="fz-cart-drawer" aria-expanded="false" aria-label="Cart">
+        🛒 <span id="fz-cart-count" hidden>0</span>
+      </button>
     </div>
-
-    <!-- 右侧：信息（严格顺序） -->
-    <div class="product-info" style="margin-top: 32px;">
-      {% assign file_display = main_image_url | split: '/' | last %}
-      {% if file_display == '' or file_display == nil %}{% assign file_display = page.title %}{% endif %}
-      <h1 class="product-title" style="margin:0 0 8px 0;">{{ file_display }}</h1>
-
-      {%- comment -%} 价格（默认链兜底，显示在标题下/税务提示上） {%- endcomment -%}
-      {% assign price_raw = page.price | default: page.price_gbp | default: page.priceGBP | default: page.amount | default: page.cost | default: page.Price %}
-      {% assign curr = page.currency | upcase | default: site.currency | upcase %}
-      {% assign sym = '' %}
-      {% if curr == 'GBP' %}{% assign sym = '£' %}{% elsif curr == 'USD' %}{% assign sym = '$' %}{% elsif curr == 'EUR' %}{% assign sym = '€' %}{% elsif curr == 'CNY' or curr == 'JPY' %}{% assign sym = '¥' %}{% elsif curr == 'HKD' %}{% assign sym = 'HK$' %}{% elsif curr == 'TWD' %}{% assign sym = 'NT$' %}{% endif %}
-      {% if price_raw %}
-        <div class="product-price" style="font-size:1.125rem;font-weight:600;margin-bottom:6px;">{% if sym != '' %}{{ sym }}{{ price_raw }}{% else %}{{ price_raw }}{% if curr %} {{ curr }}{% endif %}{% endif %}</div>
-      {% endif %}
-
-      <div class="product-taxes" style="color:#555;margin-bottom:12px;">Taxes included.</div>
-
-      {% assign default_size = page.selected_size | default: page.size | default: 'A4' %}
-
-      <div class="product-actions" style="display:flex;flex-direction:column;gap:8px;max-width:420px;">
-        <!-- 注意：不设置 action/method；按钮用 type="button"，避免站内 POST 触发 405 -->
-        <form class="product-paypal">
-          <input type="hidden" name="item_name" value="{{ page.title | default: file_display }}">
-          {% if price_raw %}<input type="hidden" name="amount" value="{{ price_raw }}">{% endif %}
-          <input type="hidden" name="os0" value="{{ default_size }}">
-          <button type="button" style="width:100%;padding:12px 16px;">Pay via PayPal</button>
-        </form>
-
-        <form class="product-cart">
-          <input type="hidden" name="title" value="{{ page.title | default: file_display }}">
-          {% if price_raw %}<input type="hidden" name="price" value="{{ price_raw }}">{% endif %}
-          <input type="hidden" name="size" value="{{ default_size }}">
-          <button type="button" style="width:100%;padding:12px 16px;">Add to Cart</button>
-        </form>
-      </div>
-
-      {% assign content_raw = content %}
-      {% if content_raw contains '---' and content_raw contains 'layout:' %}
-        {% assign parts = content_raw | split: '---' %}
-        {% if parts.size > 2 %}{% assign content_clean = parts[2] %}{% else %}{% assign content_clean = content_raw %}{% endif %}
-      {% else %}
-        {% assign content_clean = content_raw %}
-      {% endif %}
-      <div class="product-description" style="margin-top:16px;max-width:65ch;">{{ content_clean }}</div>
-    </div>
-
   </div>
+</header>
+
+<!-- 搜索面板 -->
+<div id="fz-search-panel" hidden>
+  <button data-close="fz-search-panel" aria-label="Close">×</button>
+  <form action="{{ '/search/' | relative_url }}" method="get">
+    <input type="search" name="q" placeholder="Search…" />
+  </form>
 </div>
 
-<!-- 仅做三件事：
-  1) Add to Cart 写入 localStorage:fz_cart 并更新右上角徽标
-  2) 点击右上角购物篮 => 打开 Header 抽屉并渲染内容（不弹支付）
-  3) “Checkout with PayPal” 从抽屉里统一结账（若已配置账号；未配时提示）
--->
+<!-- 登录菜单（占位） -->
+<div id="fz-login-menu" hidden>
+  <a href="{{ '/account/login/' | relative_url }}">Log in</a>
+  <a href="{{ '/account/register/' | relative_url }}">Register</a>
+</div>
+
+<!-- 购物车抽屉 -->
+<aside id="fz-cart-drawer" hidden>
+  <button class="fz-close" data-close="fz-cart-drawer" aria-label="Close">×</button>
+  <div id="fz-cart-content"></div>
+  <div class="fz-drawer__footer">
+    <a href="#" id="fz-checkout-link">Checkout</a>
+  </div>
+</aside>
+
+<!-- 初始化角标（不与 fz-ui.js 冲突） -->
 <script>
-(function () {
-  // —— 从 Jekyll 注入变量（安全转义）——
-  var MODE             = {{ site.paypal_mode | default: 'disabled' | jsonify }}; // 'sandbox' | 'live' | 'disabled'
-  var BUSINESS_LIVE    = {{ site.paypal_business | jsonify }};
-  var BUSINESS_SANDBOX = {{ site.paypal_business_sandbox | jsonify }};
-  var ITEM_NAME        = {{ page.item_name | default: page.title | jsonify }};
-  var AMOUNT_RAW       = {{ price_raw | jsonify }};
-  var CURRENCY_CODE    = {{ page.currency | default: site.currency | default: 'GBP' | jsonify }};
-  var DEFAULT_SIZE     = {{ default_size | jsonify }};
-  var MAIN_IMAGE       = {{ main_image_url | jsonify }};
-
-  // —— PayPal 端点（只用于结账按钮/立即购买）——
-  var endpoint = MODE === "sandbox"
-    ? "https://www.sandbox.paypal.com/cgi-bin/webscr"
-    : "https://www.paypal.com/cgi-bin/webscr";
-  var business = MODE === "sandbox" ? (BUSINESS_SANDBOX || BUSINESS_LIVE) : BUSINESS_LIVE;
-
-  // —— 读尺寸（os0）——
-  function readSize() {
-    var hidden = document.querySelector('.product-paypal input[name="os0"]');
-    return hidden ? hidden.value : (DEFAULT_SIZE || "");
-  }
-
-  // ===== 购物车（全站通用最小实现）=====
-  var CART_KEY = "fz_cart";
-
-  function loadCart() {
-    try { return JSON.parse(localStorage.getItem(CART_KEY) || "[]"); }
-    catch(e) { return []; }
-  }
-  function saveCart(items) {
-    localStorage.setItem(CART_KEY, JSON.stringify(items));
-  }
-  function formatCurrency(v, code) {
-    var num = (typeof v === 'number') ? v : parseFloat(v);
-    var sym = (code==='GBP')?'£':(code==='USD')?'$':(code==='EUR')?'€':((code==='CNY'||code==='JPY')?'¥':(code==='HKD')?'HK$':(code==='TWD')?'NT$':''));
-    return (sym? sym : '') + (isNaN(num)? v : num.toFixed(2)) + (sym? '' : (' ' + (code||'')));
-  }
-  function escapeHtml(s){return String(s).replace(/[&<>"']/g, m=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));}
-
-  function addCurrentToCart() {
-    var items = loadCart();
-    var size  = readSize();
-    var item = {
-      name: ITEM_NAME || document.title || "Artwork",
-      size: size,
-      amount: AMOUNT_RAW,
-      currency: CURRENCY_CODE || "GBP",
-      quantity: 1,
-      image: MAIN_IMAGE
-    };
-    items.push(item);
-    saveCart(items);
-    updateCartBadge();
-
-    // 轻提示（不跳转，不弹支付）
-    try {
-      var btn = document.querySelector(".product-cart button");
-      if (btn) {
-        btn.disabled = true;
-        var old = btn.textContent;
-        btn.textContent = "Added ✓";
-        setTimeout(function(){ btn.textContent = old; btn.disabled = false; }, 1200);
-      }
-    } catch(_) {}
-  }
-
-  function updateCartBadge() {
-    var badge = document.getElementById("fz-cart-count");
-    if (!badge) return;
-    var count = loadCart().length;
-    badge.textContent = count;
-    badge.hidden = !(count > 0);
-  }
-
-  // ===== Header 抽屉渲染 & 兜底交互 =====
-  function renderCartDrawer() {
-    var content = document.getElementById("fz-cart-content");
-    if (!content) return;
-
-    var items = loadCart();
-    if (!items.length) {
-      content.innerHTML = "<p>当前为空。</p>";
-    } else {
-      var total = 0;
-      var html = '<ul style="list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:12px;">';
-      items.forEach(function(it, idx){
-        var price = parseFloat(it.amount)||0, qty = it.quantity||1;
-        total += price*qty;
-        html += '<li style="display:grid;grid-template-columns:64px 1fr auto;gap:12px;align-items:center;">'
-          + (it.image ? '<img src="'+it.image+'" alt="" style="width:64px;height:64px;object-fit:cover;border:1px solid #eee;">'
-                       : '<div style="width:64px;height:64px;background:#f2f2f2"></div>')
-          + '<div><div style="font-weight:600;">'+escapeHtml(it.name)+'</div>'
-          + '<div style="color:#666;font-size:.9rem;">Size: '+escapeHtml(it.size||'')+'</div></div>'
-          + '<div style="font-weight:600;text-align:right;">'+formatCurrency(price, it.currency)+'</div>'
-          + '</li>';
-      });
-      html += '</ul><hr style="margin:16px 0;">'
-        + '<div style="display:flex;justify-content:space-between;font-weight:700;">'
-        + '<span>Total</span><span>'+formatCurrency(total, items[0]?.currency || CURRENCY_CODE || "GBP")+'</span></div>';
-      content.innerHTML = html;
-    }
-
-    // 把“去结算（占位）”变成真正结账
-    var footerBtn = document.querySelector('#fz-cart-drawer .fz-drawer__footer a');
-    if (footerBtn) {
-      footerBtn.textContent = "Checkout with PayPal";
-      footerBtn.href = "#";
-      footerBtn.onclick = function(e){ e.preventDefault(); checkoutCartToPayPal(); };
-    }
-  }
-
-  function openCartDrawer() {
-    var drawer = document.getElementById("fz-cart-drawer");
-    if (!drawer) return;
-    renderCartDrawer();
-    drawer.hidden = false;
-  }
-  function closeCartDrawer() {
-    var drawer = document.getElementById("fz-cart-drawer");
-    if (drawer) drawer.hidden = true;
-  }
-
-  // 统一结账：将 localStorage 里的多商品上传到 PayPal（若未配置则提示）
-  function checkoutCartToPayPal() {
-    var items = loadCart();
-    if (!items.length) { openCartDrawer(); return; }
-    if (!business) { alert("PayPal 尚未配置。可先收集作品，待账号就绪再结账。"); return; }
-
-    var form = document.createElement("form");
-    form.method = "post";
-    form.action = endpoint;
-    form.target = "_blank";
-
-    function add(name, value) {
-      var i = document.createElement("input");
-      i.type = "hidden"; i.name = name; i.value = String(value);
-      form.appendChild(i);
-    }
-
-    add("cmd", "_cart");
-    add("upload", "1");
-    add("business", business);
-    add("currency_code", CURRENCY_CODE || "GBP"); // 全局币种
-
-    items.forEach(function(it, idx){
-      var n = idx + 1;
-      add("item_name_" + n, it.name);
-      add("amount_" + n, it.amount);
-      add("quantity_" + n, it.quantity || 1);
-      add("on0_" + n, "Size");
-      add("os0_" + n, it.size || "");
-    });
-
-    document.body.appendChild(form);
-    form.submit();
-    form.remove();
-  }
-
-  // ===== “立即购买”仍可用（可选）=====
-  function directBuy() {
-    if (!business) { alert("PayPal 尚未配置。请先通过购物篮汇总作品，稍后再支付。"); return; }
-    var size = readSize();
-    var form = document.createElement("form");
-    form.method = "post";
-    form.action = endpoint;
-    form.target = "_blank";
-
-    function add(n,v){ if(v==null||v==="") return; var i=document.createElement("input"); i.type="hidden"; i.name=n; i.value=String(v); form.appendChild(i); }
-    add("cmd", "_xclick");
-    add("business", business);
-    add("item_name", ITEM_NAME || document.title || "Artwork");
-    add("amount", AMOUNT_RAW);
-    add("currency_code", CURRENCY_CODE || "GBP");
-    add("os0", size);
-
-    document.body.appendChild(form);
-    form.submit();
-    form.remove();
-  }
-
-  // ===== 兜底：Header 三个按钮的基础交互（仅本页；不覆盖你全站 fz-ui.js）=====
-  function wireHeaderFallback() {
-    // 搜索
-    var searchBtn   = document.getElementById("fz-search-btn");
-    var searchPanel = document.getElementById("fz-search-panel");
-    if (searchBtn && searchPanel) {
-      searchBtn.addEventListener("click", function(){ searchPanel.hidden = false; });
-      document.querySelectorAll('[data-close="fz-search-panel"]').forEach(function(el){
-        el.addEventListener("click", function(){ searchPanel.hidden = true; });
-      });
-    }
-    // 登录菜单
-    var loginBtn  = document.getElementById("fz-login-btn");
-    var loginMenu = document.getElementById("fz-login-menu");
-    if (loginBtn && loginMenu) {
-      loginBtn.addEventListener("click", function(){
-        var expanded = loginBtn.getAttribute("aria-expanded") === "true";
-        loginBtn.setAttribute("aria-expanded", expanded ? "false" : "true");
-        loginMenu.hidden = expanded;
-      });
-      document.addEventListener("click", function(e){
-        if (!loginMenu.hidden && !loginMenu.contains(e.target) && e.target !== loginBtn) {
-          loginMenu.hidden = true; loginBtn.setAttribute("aria-expanded","false");
-        }
-      });
-    }
-    // 购物篮抽屉
-    var cartBtn = document.getElementById("fz-cart-btn");
-    if (cartBtn) cartBtn.addEventListener("click", function(){ openCartDrawer(); });
-    document.querySelectorAll('[data-close="fz-cart-drawer"]').forEach(function(el){
-      el.addEventListener("click", function(){ closeCartDrawer(); });
-    });
-    var closeX = document.querySelector('#fz-cart-drawer .fz-close');
-    if (closeX) closeX.addEventListener("click", function(){ closeCartDrawer(); });
-
-    updateCartBadge(); // 初始化徽标
-  }
-
-  // ===== 事件绑定 =====
-  document.addEventListener("DOMContentLoaded", function () {
-    var buyBtn  = document.querySelector(".product-paypal button");
-    var cartBtn = document.querySelector(".product-cart button");
-
-    if (buyBtn)  buyBtn.addEventListener("click", function(e){ e.preventDefault(); directBuy(); });
-    if (cartBtn) cartBtn.addEventListener("click", function(e){ e.preventDefault(); addCurrentToCart(); });
-
-    wireHeaderFallback(); // 只在本页兜底绑定，不会影响全站其它页面
-  });
-})();
+document.addEventListener('DOMContentLoaded', function () {
+  try {
+    var cart = JSON.parse(localStorage.getItem('fz_cart') || '[]');
+    var cnt = cart.reduce((n,i)=>n+(i.qty||1),0);
+    var badge = document.getElementById('fz-cart-count');
+    if (badge) { badge.hidden = cnt<=0; badge.textContent = String(cnt); }
+  } catch(e){}
+});
 </script>
