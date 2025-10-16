@@ -3,16 +3,16 @@
     {% assign currency = page.currency | default: site.default_currency | default: 'GBP' %}
     {% capture currency_symbol %}{% case currency %}{% when 'GBP' %}£{% when 'USD' %}${% when 'EUR' %}€{% else %}{{ currency }}{% endcase %}{% endcapture %}
 
-    <!-- 1. 标题 -->
+    <!-- 1) 标题 -->
     <h1 class="fz-title">{{ page.title }}</h1>
 
-    <!-- 2. 价格 + 3. Taxes -->
+    <!-- 2) 价格 + 3) 税 -->
     {% if page.price %}
       <p class="fz-price-line">{{ currency_symbol | strip }}{{ page.price }}</p>
       <p class="fz-tax">Taxes included.</p>
     {% endif %}
 
-    <!-- 4. Size：A5 / A4（在价格下、按钮上） -->
+    <!-- 4) Size：A5 / A4（价格下面、按钮上面） -->
     <div class="fz-field">
       <div class="fz-field__label">Size</div>
       <div class="fz-pills" id="fz-size-pills">
@@ -23,7 +23,7 @@
       </div>
     </div>
 
-    <!-- 5. Pay via PayPal（上） -->
+    <!-- 5) PayPal（上） -->
     <div class="fz-buy">
       {% if site.paypal_business_id and page.price %}
       <form id="fz-paypal-form" action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_blank" style="width:100%">
@@ -38,7 +38,7 @@
       <a class="fz-btn fz-btn--primary" href="https://www.paypal.com" target="_blank" rel="noopener" style="width:100%">Pay via PayPal</a>
       {% endif %}
 
-      <!-- 6. Add to Cart（在 PayPal 下面，等宽） -->
+      <!-- 6) Add to Cart（下，等宽） -->
       <button class="fz-btn js-add-to-cart"
         style="width:100%"
         data-sku="{{ page.sku | default: page.slug | default: page.title | slugify }}"
@@ -51,15 +51,23 @@
       >Add to Cart</button>
     </div>
 
-    <!-- 7. 作品介绍（在按钮下面） -->
+    <!-- 7) 作品介绍：优先 front matter 的 description；否则从正文里自动剔除误贴的 '--- ... ---' 再显示 -->
+    {% assign body = content | strip %}
     {% if page.description %}
       <div class="fz-prop" style="margin-top:14px;">{{ page.description }}</div>
-    {% endif %}
-    {% if content %}
-      <div class="fz-prop" style="margin-top:6px;">{{ content }}</div>
+    {% elsif body != '' %}
+      {%- comment -%}
+        如果正文里误贴了第二个 front matter（形如：--- layout: ... ---），把它剔除，只拿最后一段文字。
+      {%- endcomment -%}
+      {% if body contains '---' and body contains 'layout:' %}
+        {% assign body = body | split: '---' | last | strip %}
+      {% endif %}
+      {% if body != '' %}
+        <div class="fz-prop" style="margin-top:14px;">{{ body }}</div>
+      {% endif %}
     {% endif %}
 
-    <!-- 仅本页：让 PayPal item_name 带上所选尺寸 -->
+    <!-- 让 PayPal item_name 带上所选尺寸（保持你的既有逻辑） -->
     <script>
       (function(){
         var el=document.getElementById('pp_item_name'); if(!el) return;
