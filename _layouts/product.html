@@ -3,7 +3,6 @@ layout: default
 ---
 
 <style>
-/* 仅此页：保证左图右信息；不动你现有的右栏样式 */
 .fz-product{max-width:1100px;margin:32px auto;display:grid;grid-template-columns:1.1fr .9fr;gap:36px}
 @media (max-width:900px){.fz-product{grid-template-columns:1fr;gap:22px}}
 .fz-hero{border:1px solid #eee;background:#fafafa;border-radius:10px;overflow:hidden}
@@ -12,10 +11,10 @@ layout: default
 .fz-thumbs img{width:80px;height:80px;object-fit:cover;border:1px solid #eee;border-radius:6px;cursor:pointer}
 </style>
 
-{% assign slug = page.slug | default: page.title | slugify %}
+{% assign slug_lc   = page.slug | default: page.title | slugify %}
+{% assign title_dash = page.title | default: page.slug | replace: ' ', '-' %}
 
 <main class="fz-product">
-  <!-- 左：主图 + 缩略图 -->
   <section>
     <div class="fz-hero">
       <img id="fz-hero-img" class="fz-autoimg"
@@ -32,12 +31,21 @@ layout: default
              "{{ page.photo }}",
              {% if page.images %}"{{ page.images | first }}",{% endif %}
              {% if page.photos %}"{{ page.photos  | first }}",{% endif %}
-             "/assets/images/originals/{{ slug }}.jpg",
-             "/assets/images/originals/{{ slug }}.jpeg",
-             "/assets/images/originals/{{ slug }}.png",
-             "/assets/images/originals/{{ slug }}.webp",
-             "/assets/images/originals/{{ slug }}/hero.jpg",
-             "/assets/images/originals/{{ slug }}/cover.jpg"
+
+             "/assets/images/originals/{{ title_dash }}.jpg",
+             "/assets/images/originals/{{ title_dash }}.jpeg",
+             "/assets/images/originals/{{ title_dash }}.png",
+             "/assets/images/originals/{{ title_dash }}.webp",
+
+             "/assets/images/originals/{{ slug_lc }}.jpg",
+             "/assets/images/originals/{{ slug_lc }}.jpeg",
+             "/assets/images/originals/{{ slug_lc }}.png",
+             "/assets/images/originals/{{ slug_lc }}.webp",
+
+             "/assets/images/originals/{{ title_dash }}/hero.jpg",
+             "/assets/images/originals/{{ slug_lc }}/hero.jpg",
+             "/assets/images/originals/{{ title_dash }}/cover.jpg",
+             "/assets/images/originals/{{ slug_lc }}/cover.jpg"
            ]'>
     </div>
 
@@ -52,48 +60,31 @@ layout: default
     {% endif %}
   </section>
 
-  <!-- 右：信息（保持你当前顺序与样式，不再赘述） -->
+  <!-- 右侧信息区保持你现有的内容与顺序（不改动） -->
   <aside>
     {{ content }}
   </aside>
 </main>
 
-<!-- 仅本页：自动加载候选主图 + 缩略图切换 -->
 <script>
 (function(){
   const base='{{ "" | relative_url }}';
   const abs = s => /^https?:\/\//.test(s) || s.startsWith('data:');
-  function normalize(p){
-    if(!p) return null;
-    p = String(p).trim();
-    if(!p) return null;
-    if(abs(p)) return p;
-    if(!p.startsWith('/')) p = '/' + p;
-    return base + p;
-  }
+  function norm(p){ if(!p) return null; p=String(p).trim(); if(!p) return null; if(abs(p)) return p; if(!p.startsWith('/')) p='/'+p; return base+p; }
 
   // 自动主图
-  const hero = document.getElementById('fz-hero-img');
+  const hero=document.getElementById('fz-hero-img');
   if(hero){
-    let list=[];
-    try{ list = JSON.parse(hero.getAttribute('data-candidates')||'[]').filter(Boolean); }catch(e){}
-    let i=-1, tried=new Set();
-    function next(){
-      i++;
-      while(i<list.length && tried.has(list[i])) i++;
-      if(i>=list.length){ hero.src='https://via.placeholder.com/900x900?text=Artwork'; return; }
-      tried.add(list[i]);
-      const src = normalize(list[i]);
-      if(src){ hero.src = src; } else { next(); }
-    }
-    hero.addEventListener('error', next);
-    next();
+    let list=[]; try{ list=JSON.parse(hero.getAttribute('data-candidates')||'[]').filter(Boolean);}catch(e){}
+    let i=-1; const tried=new Set();
+    function next(){ i++; while(i<list.length && tried.has(list[i])) i++; if(i>=list.length){ hero.src='https://via.placeholder.com/900x900?text=Artwork'; return; } tried.add(list[i]); const src=norm(list[i]); if(src){ hero.src=src; } else { next(); } }
+    hero.addEventListener('error', next); next();
   }
 
-  // 点击缩略图切换主图（沿用你已有结构）
-  const thumbs = document.getElementById('fz-thumbs');
+  // 缩略图切换
+  const thumbs=document.getElementById('fz-thumbs');
   thumbs && hero && thumbs.addEventListener('click', e=>{
-    const t = e.target; if(t && t.dataset.hero){ hero.src = t.dataset.hero; }
+    const t=e.target; if(t && t.dataset.hero){ hero.src=t.dataset.hero; }
   });
 })();
 </script>
