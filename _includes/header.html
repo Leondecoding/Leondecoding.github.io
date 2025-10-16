@@ -1,61 +1,75 @@
-<!-- _includes/header.html  — 注意：不要有任何 front-matter（不要写 ---） -->
-<header class="site-header">
-  <div class="container header-bar">
-    <a class="site-logo" href="{{ '/' | relative_url }}" aria-label="Home">
-      <img src="{{ '/assets/logo.svg' | relative_url }}" alt="FZ Studio" />
+<!-- 文件：_includes/header.html（注意：不要有 --- front-matter） -->
+<header class="fz-site-header">
+  <div class="fz-header-inner">
+    <!-- 左：Logo -->
+    <a class="fz-logo" href="{{ '/' | relative_url }}" aria-label="FZ Studio Home">
+      {% assign _logo = site.logo | default: '/assets/images/logo-fzs.svg' %}
+      <img src="{{ _logo | relative_url }}" alt="{{ site.title | default: 'FZ Studio' }}">
     </a>
 
-    <nav class="site-nav">
-      <a href="{{ '/' | relative_url }}">HOME</a>
-      <a href="{{ '/our-story/' | relative_url }}">OUR STORY</a>
-      <a href="{{ '/blog/' | relative_url }}">BLOG</a>
-      <a href="{{ '/original-art/' | relative_url }}">ORIGINAL ART</a>
-      <a href="{{ '/art-prints/' | relative_url }}">ART PRINTS</a>
-      <a href="{{ '/greeting-cards/' | relative_url }}">GREETING CARDS</a>
-      <a href="{{ '/contact/' | relative_url }}">CONTACT</a>
+    <!-- 中：主导航（保持你之前的顺序/文案） -->
+    {% assign _url = page.url | default: '' %}
+    {% assign is_original = _url contains '/original-art/' or page.collection == 'originals' %}
+    {% assign is_prints   = _url contains '/art-prints/'  or page.collection == 'artprints' %}
+    {% assign is_cards    = _url contains '/greeting-cards/' or page.collection == 'cards' %}
+    {% assign is_blog     = _url contains '/blog/' or page.collection == 'posts' %}
+    <nav class="fz-nav" aria-label="Primary">
+      <a href="{{ '/' | relative_url }}" class="fz-nav__link{% if _url == '/' %} is-active{% endif %}">HOME</a>
+      <a href="{{ '/our-story/' | relative_url }}" class="fz-nav__link{% if _url contains '/our-story/' %} is-active{% endif %}">OUR STORY</a>
+      <a href="{{ '/blog/' | relative_url }}" class="fz-nav__link{% if is_blog %} is-active{% endif %}">BLOG</a>
+      <a href="{{ '/original-art/' | relative_url }}" class="fz-nav__link{% if is_original %} is-active{% endif %}">ORIGINAL ART</a>
+      <a href="{{ '/art-prints/' | relative_url }}" class="fz-nav__link{% if is_prints %} is-active{% endif %}">ART PRINTS</a>
+      <a href="{{ '/greeting-cards/' | relative_url }}" class="fz-nav__link{% if is_cards %} is-active{% endif %}">GREETING CARDS</a>
+      <a href="{{ '/contact/' | relative_url }}" class="fz-nav__link{% if _url contains '/contact/' %} is-active{% endif %}">CONTACT</a>
     </nav>
 
-    <div class="site-actions">
-      <button id="fz-search-btn" aria-controls="fz-search-panel" aria-expanded="false" aria-label="Search">🔍</button>
-      <button id="fz-login-btn"  aria-controls="fz-login-menu"  aria-expanded="false" aria-label="Account">👤</button>
-      <button id="fz-cart-btn"   aria-controls="fz-cart-drawer" aria-expanded="false" aria-label="Cart">
-        🛒 <span id="fz-cart-count" hidden>0</span>
+    <!-- 右：搜索 / 登录 / 购物篮 -->
+    <div class="fz-actions">
+      <button class="fz-icon-btn" id="fz-search-btn" aria-label="搜索" aria-haspopup="dialog" aria-controls="fz-search-panel">
+        <!-- 你的图标样式会来自现有CSS，这里只保留语义 -->
+        🔍
+      </button>
+      <button class="fz-icon-btn" id="fz-login-btn" aria-label="登录" aria-haspopup="menu" aria-controls="fz-login-menu" aria-expanded="false">👤</button>
+      <button class="fz-icon-btn" id="fz-cart-btn" aria-label="购物篮" aria-haspopup="dialog" aria-controls="fz-cart-drawer">
+        🛒 <span class="fz-badge" id="fz-cart-count" hidden>0</span>
       </button>
     </div>
   </div>
 </header>
 
 <!-- 搜索面板 -->
-<div id="fz-search-panel" hidden>
-  <button data-close="fz-search-panel" aria-label="Close">×</button>
-  <form action="{{ '/search/' | relative_url }}" method="get">
-    <input type="search" name="q" placeholder="Search…" />
-  </form>
+<div class="fz-panel" id="fz-search-panel" role="dialog" aria-modal="true" aria-labelledby="fz-search-title" hidden>
+  <div class="fz-panel__backdrop" data-close="fz-search-panel"></div>
+  <div class="fz-panel__body" role="document">
+    <button class="fz-close" data-close="fz-search-panel" aria-label="关闭搜索">×</button>
+    <h2 id="fz-search-title">搜索</h2>
+    <form action="{{ '/search/' | relative_url }}" method="get" role="search">
+      <input class="fz-input" type="search" name="q" placeholder="搜索…" autofocus>
+      <button class="fz-btn fz-btn--primary" type="submit">搜索</button>
+    </form>
+  </div>
 </div>
 
 <!-- 登录菜单（占位） -->
-<div id="fz-login-menu" hidden>
-  <a href="{{ '/account/login/' | relative_url }}">Log in</a>
-  <a href="{{ '/account/register/' | relative_url }}">Register</a>
+<div class="fz-menu" id="fz-login-menu" role="menu" hidden>
+  <ul>
+    <li><a href="#" role="menuitem">登录</a></li>
+    <li><a href="#" role="menuitem">注册</a></li>
+  </ul>
 </div>
 
 <!-- 购物车抽屉 -->
-<aside id="fz-cart-drawer" hidden>
-  <button class="fz-close" data-close="fz-cart-drawer" aria-label="Close">×</button>
-  <div id="fz-cart-content"></div>
-  <div class="fz-drawer__footer">
-    <a href="#" id="fz-checkout-link">Checkout</a>
+<aside class="fz-drawer" id="fz-cart-drawer" role="dialog" aria-modal="true" aria-labelledby="fz-cart-title" hidden>
+  <div class="fz-drawer__backdrop" data-close="fz-cart-drawer"></div>
+  <div class="fz-drawer__panel">
+    <header class="fz-drawer__header">
+      <h2 id="fz-cart-title">购物篮</h2>
+      <button class="fz-close" data-close="fz-cart-drawer" aria-label="关闭购物篮">×</button>
+    </header>
+    <div class="fz-drawer__content" id="fz-cart-content"><p>当前为空。</p></div>
+    <footer class="fz-drawer__footer"><a class="fz-btn fz-btn--primary" href="#">去结算</a></footer>
   </div>
 </aside>
 
-<!-- 初始化角标（不与 fz-ui.js 冲突） -->
-<script>
-document.addEventListener('DOMContentLoaded', function () {
-  try {
-    var cart = JSON.parse(localStorage.getItem('fz_cart') || '[]');
-    var cnt = cart.reduce((n,i)=>n+(i.qty||1),0);
-    var badge = document.getElementById('fz-cart-count');
-    if (badge) { badge.hidden = cnt<=0; badge.textContent = String(cnt); }
-  } catch(e){}
-});
-</script>
+<!-- 只加载你现有的交互脚本（别的都不加） -->
+<script defer src="{{ '/assets/js/fz-ui.js' | relative_url }}"></script>
