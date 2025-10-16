@@ -3,7 +3,7 @@ layout: default
 ---
 
 <div class="container product-page">
-  <!-- 保持两列布局（即使站点样式未加载也能成立） -->
+  <!-- 保持两列布局（与上一版一致） -->
   <div class="product-grid" style="display:grid;grid-template-columns:minmax(260px,1fr) minmax(320px,1fr);gap:64px;align-items:start;padding-left:30px;">
 
     <!-- 左侧：作品主图（字段多路 + 标题/slug 兜底） -->
@@ -81,7 +81,7 @@ layout: default
       {% assign default_size = page.selected_size | default: page.size | default: 'A4' %}
 
       <div class="product-actions" style="display:flex;flex-direction:column;gap:8px;max-width:420px;">
-        <!-- 注意：不设置 action/method；按钮用 type="button"，避免站内 POST 触发 405 -->
+        <!-- 注意：不设置 action/method；按钮 type="button"，避免站内 POST(405) -->
         <form class="product-paypal">
           <input type="hidden" name="item_name" value="{{ page.title | default: file_display }}">
           {% if price_raw %}<input type="hidden" name="amount" value="{{ price_raw }}">{% endif %}
@@ -97,111 +97,125 @@ layout: default
         </form>
       </div>
 
-      {% assign content_raw = content %}
-      {% if content_raw contains '---' and content_raw contains 'layout:' %}
-        {% assign parts = content_raw | split: '---' %}
-        {% if parts.size > 2 %}{% assign content_clean = parts[2] %}{% else %}{% assign content_clean = content_raw %}{% endif %}
-      {% else %}
-        {% assign content_clean = content_raw %}
-      {% endif %}
-      <div class="product-description" style="margin-top:16px;max-width:65ch;">{{ content_clean }}</div>
+      <!-- 描述正文（不再做 front-matter 清洗，避免渲染出 '---'） -->
+      <div class="product-description" style="margin-top:16px;max-width:65ch;">{{ content }}</div>
     </div>
 
   </div>
 </div>
 
-<!-- 仅做两件事：1) Add to Cart 写入 localStorage（不弹支付） 2) 立即购买直达 PayPal（若配置） -->
+<!-- 只做两件事：
+     1) Add to Cart -> 写入 localStorage:fz_cart（不弹支付、不干扰 Header 脚本）
+     2) 可选：Pay via PayPal（若未来配置账号才会生效；现在只提示）
+-->
 <script>
 (function () {
-  // —— 读取 Jekyll 变量（安全转义）——
-  var MODE             = {{ site.paypal_mode | default: 'disabled' | jsonify }}; // 'sandbox' | 'live' | 'disabled'
-  var BUSINESS_LIVE    = {{ site.paypal_business | jsonify }};
-  var BUSINESS_SANDBOX = {{ site.paypal_business_sandbox | jsonify }};
-  var ITEM_NAME        = {{ page.item_name | default: page.title | jsonify }};
-  var AMOUNT_RAW       = {{ price_raw | jsonify }};
-  var CURRENCY_CODE    = {{ page.currency | default: site.currency | default: 'GBP' | jsonify }};
-  var DEFAULT_SIZE     = {{ default_size | jsonify }};
-  var MAIN_IMAGE       = {{ main_image_url | jsonify }};
+  // 变量注入（保持你之前的取值逻辑）
+  var ITEM_NAME     = {{ page.item_name | default: page.title | jsonify }};
+  var AMOUNT_RAW    = {{ price_raw | jsonify }};
+  var CURRENCY_CODE = {{ page.currency | default: site.currency | default: 'GBP' | jsonify }};
+  var DEFAULT_SIZE  = {{ default_size | jsonify }};
+  var MAIN_IMAGE    = {{ main_image_url | jsonify }};
+  var PRODUCT_URL   = {{ page.url | default: nil | jsonify }} || window.location.pathname;
 
-  // —— PayPal 端点（仅用于“立即购买”）——
-  var endpoint = MODE === "sandbox"
-    ? "https://www.sandbox.paypal.com/cgi-bin/webscr"
-    : "https://www.paypal.com/cgi-bin/webscr";
+  // PayPal（先留口，未配置时不做任何跳转）
+  var MODE          = {{ site.paypal_mode | default: 'disabled' | jsonify }}; // 'sandbox'|'live'|'disabled'
+  var BUSINESS_LIVE = {{ site.paypal_business | jsonify }};
+  var BUSINESS_SANDBOX = {{ site.paypal_business_sandbox | jsonify }};
+  var endpoint = MODE === "sandbox" ? "https://www.sandbox.paypal.com/cgi-bin/webscr" : "https://www.paypal.com/cgi-bin/webscr";
   var business = MODE === "sandbox" ? (BUSINESS_SANDBOX || BUSINESS_LIVE) : BUSINESS_LIVE;
 
-  // —— 读取尺寸（os0）——
+  // 读取尺寸（os0）
   function readSize() {
     var hidden = document.querySelector('.product-paypal input[name="os0"]');
     return hidden ? hidden.value : (DEFAULT_SIZE || "");
   }
 
-  // —— 本地购物车（最小实现，不影响全站其它脚本）——
-  var CART_KEY = "fz_cart"; // 若你的头部脚本使用别的键名，请告诉我再对齐
+  // === 购物车本地存储（键名与徽标：来自 header.html 的结构） ===
+  // 键名：fz_cart；徽标元素：#fz-cart-count（见 header.html） :contentReference[oaicite:0]{index=0}
+  var CART_KEY = "fz_cart";
+
   function loadCart() {
-    try { return JSON.parse(localStorage.getItem(CART_KEY) || "[]"); } catch(e) { return []; }
+    try { return JSON.parse(localStorage.getItem(CART_KEY) || "[]"); }
+    catch(e) { return []; }
   }
   function saveCart(items) { localStorage.setItem(CART_KEY, JSON.stringify(items)); }
+
+  function updateBadge() {
+    var badge = document.getElementById("fz-cart-count");
+    if (!badge) return;
+    var count = loadCart().length;
+    badge.textContent = count;
+    badge.hidden = !(count > 0);
+  }
+
   function addCurrentToCart() {
     var items = loadCart();
     var size  = readSize();
-    var item = {
-      name: ITEM_NAME || document.title || "Artwork",
-      size: size,
-      amount: AMOUNT_RAW,
-      currency: CURRENCY_CODE || "GBP",
-      quantity: 1,
-      image: MAIN_IMAGE
-    };
-    items.push(item);
+
+    var id = PRODUCT_URL + "::" + (size || "");
+    var existing = items.find(function(it){ return it.id === id; });
+
+    if (existing) {
+      existing.quantity = (existing.quantity || 1) + 1;
+    } else {
+      items.push({
+        id: id,
+        url: PRODUCT_URL,
+        name: ITEM_NAME || document.title || "Artwork",
+        size: size,
+        amount: AMOUNT_RAW,
+        currency: CURRENCY_CODE || "GBP",
+        quantity: 1,
+        image: MAIN_IMAGE
+      });
+    }
+
     saveCart(items);
+    updateBadge();
 
-    // 派发一个自定义事件，便于全站其它脚本（若有）更新购物车徽标
-    var ev = new CustomEvent("fz:cart:updated", { detail: { count: items.length, items: items } });
-    document.dispatchEvent(ev);
-
-    // 轻提示（不打断用户流程，也不弹支付）
+    // 通知全站其它脚本（若有监听）
     try {
-      var btn = document.querySelector(".product-cart button");
-      if (btn) {
-        btn.disabled = true;
-        var old = btn.textContent;
-        btn.textContent = "Added ✓";
-        setTimeout(function(){ btn.textContent = old; btn.disabled = false; }, 1200);
-      }
+      document.dispatchEvent(new CustomEvent("fz:cart:updated", { detail: { items: items, count: items.length } }));
     } catch(_) {}
+
+    // 按钮轻提示（不影响布局/脚本）
+    var btn = document.querySelector(".product-cart button");
+    if (btn) {
+      var old = btn.textContent;
+      btn.disabled = true;
+      btn.textContent = "Added ✓";
+      setTimeout(function(){ btn.textContent = old; btn.disabled = false; }, 1200);
+    }
   }
 
-  // —— 立即购买（_xclick）——
   function directBuy() {
     if (!business) {
-      alert("PayPal 尚未配置。请先使用右上角购物车收集作品，等账号就绪后再支付。");
+      // 现在先不直达支付，提示从购物篮结算即可
+      alert("已加入购物篮后，请通过右上角购物篮统一结账。等 PayPal 账号配置好后会在此直达支付。");
       return;
     }
-    var size = readSize();
+    // 如需开启“立即购买”，解开下面代码即可（保持最小字段集 _xclick）
     var form = document.createElement("form");
     form.method = "post";
     form.action = endpoint;
     form.target = "_blank";
-
     function add(n,v){ if(v==null||v==="") return; var i=document.createElement("input"); i.type="hidden"; i.name=n; i.value=String(v); form.appendChild(i); }
     add("cmd", "_xclick");
     add("business", business);
     add("item_name", ITEM_NAME || document.title || "Artwork");
     add("amount", AMOUNT_RAW);
     add("currency_code", CURRENCY_CODE || "GBP");
-    add("os0", size);
-
-    document.body.appendChild(form);
-    form.submit();
-    form.remove();
+    add("os0", readSize());
+    document.body.appendChild(form); form.submit(); form.remove();
   }
 
-  // —— 仅绑定本页两个按钮；不接管 Header 上的搜索/登录/购物车 —— 
   document.addEventListener("DOMContentLoaded", function () {
     var buyBtn  = document.querySelector(".product-paypal button");
     var cartBtn = document.querySelector(".product-cart button");
-    if (buyBtn)  buyBtn.addEventListener("click", function(e){ e.preventDefault(); directBuy(); });
     if (cartBtn) cartBtn.addEventListener("click", function(e){ e.preventDefault(); addCurrentToCart(); });
+    if (buyBtn)  buyBtn.addEventListener("click", function(e){ e.preventDefault(); directBuy(); });
+    updateBadge(); // 刷新右上角徽标
   });
 })();
 </script>
