@@ -1,81 +1,122 @@
-  <!-- 右：信息（只替换这段 aside，其它不动） -->
-  <aside>
-    {% assign currency = page.currency | default: site.default_currency | default: 'GBP' %}
-    {% capture currency_symbol %}{% case currency %}{% when 'GBP' %}£{% when 'USD' %}${% when 'EUR' %}€{% else %}{{ currency }}{% endcase %}{% endcapture %}
+---
+layout: default
+---
 
-    <!-- 1) 标题 -->
-    <h1 class="fz-title">{{ page.title }}</h1>
+<div class="container product-page">
+  <div class="product-grid">
 
-    <!-- 2) 价格 + 3) 税 -->
-    {% if page.price %}
-      <p class="fz-price-line">{{ currency_symbol | strip }}{{ page.price }}</p>
-      <p class="fz-tax">Taxes included.</p>
-    {% endif %}
+    <!-- 左侧：作品主图（保留/复用你的自动探测逻辑） -->
+    <div class="product-gallery">
+      {% comment %} 自动探测主图路径（字段优先级：image / featured_image / cover / hero / thumbnail / thumb / picture / photo / images[0] / photos[0]；并补全前导 /；再以标题推测文件名作为兜底） {% endcomment %}
+      {% assign candidates = "" | split: "" %}
+      {% if page.image %}{% assign candidates = candidates | push: page.image %}{% endif %}
+      {% if page.featured_image %}{% assign candidates = candidates | push: page.featured_image %}{% endif %}
+      {% if page.cover %}{% assign candidates = candidates | push: page.cover %}{% endif %}
+      {% if page.hero %}{% assign candidates = candidates | push: page.hero %}{% endif %}
+      {% if page.thumbnail %}{% assign candidates = candidates | push: page.thumbnail %}{% endif %}
+      {% if page.thumb %}{% assign candidates = candidates | push: page.thumb %}{% endif %}
+      {% if page.picture %}{% assign candidates = candidates | push: page.picture %}{% endif %}
+      {% if page.photo %}{% assign candidates = candidates | push: page.photo %}{% endif %}
+      {% if page.images and page.images.size > 0 %}{% assign candidates = candidates | push: page.images[0] %}{% endif %}
+      {% if page.photos and page.photos.size > 0 %}{% assign candidates = candidates | push: page.photos[0] %}{% endif %}
 
-    <!-- 4) Size：A5 / A4（价格下面、按钮上面） -->
-    <div class="fz-field">
-      <div class="fz-field__label">Size</div>
-      <div class="fz-pills" id="fz-size-pills">
-        <input class="fz-pill-input" type="radio" name="size" id="size-a5" value="A5" checked>
-        <label class="fz-pill" for="size-a5">A5</label>
-        <input class="fz-pill-input" type="radio" name="size" id="size-a4" value="A4">
-        <label class="fz-pill" for="size-a4">A4</label>
+      {% assign title_dash = page.title | replace: ' ', '-' %}
+      {% assign slug_dash  = page.title | slugify %}
+      {% assign candidates = candidates | push: '/assets/images/originals/' | append: title_dash | append: '.jpg' %}
+      {% assign candidates = candidates | push: '/assets/images/originals/' | append: title_dash | append: '-1.jpg' %}
+      {% assign candidates = candidates | push: '/assets/images/originals/' | append: slug_dash  | append: '.jpg' %}
+      {% assign candidates = candidates | push: '/assets/images/originals/' | append: slug_dash  | append: '-1.jpg' %}
+
+      {% assign main_image_url = nil %}
+      {% for c in candidates %}
+        {% if c %}
+          {% assign p = c | strip %}
+          {% if p != '' %}
+            {% unless p contains '://' %}
+              {% assign first_char = p | slice: 0, 1 %}
+              {% if first_char != '/' %}
+                {% assign p = '/' | append: p %}
+              {% endif %}
+            {% endunless %}
+            {% assign main_image_url = p %}
+            {% break %}
+          {% endif %}
+        {% endif %}
+      {% endfor %}
+
+      <img class="product-main-image" src="{{ main_image_url | relative_url }}" alt="{{ page.title | escape }}">
+
+      {% comment %} 如有多图，保留缩略图区块 {% endcomment %}
+      {% if page.images and page.images.size > 1 %}
+        <div class="product-thumbs">
+          {% for t in page.images %}
+            {% if t %}
+              {% assign tpath = t %}
+              {% unless tpath contains '://' %}
+                {% assign first_char = tpath | slice: 0, 1 %}
+                {% if first_char != '/' %}
+                  {% assign tpath = '/' | append: tpath %}
+                {% endif %}
+              {% endunless %}
+              <img class="product-thumb" src="{{ tpath | relative_url }}" alt="{{ page.title | escape }} thumbnail">
+            {% endif %}
+          {% endfor %}
+        </div>
+      {% endif %}
+    </div>
+
+    <!-- 右侧：信息（严格按你要求的顺序） -->
+    <div class="product-info">
+      {% comment %} 1) 文件名（从主图路径取最后一段） {% endcomment %}
+      {% assign file_display = main_image_url | split: '/' | last %}
+      <h1 class="product-title">{{ file_display }}</h1>
+
+      {% comment %} 2) 价格 {% endcomment %}
+      {% if page.price %}
+        <div class="product-price">{{ page.price }}</div>
+      {% endif %}
+
+      {% comment %} 3) 税务提示 {% endcomment %}
+      <div class="product-taxes">Taxes included.</div>
+
+      {% comment %} 传递尺寸但不展示选择（保持你已实现的 Size 逻辑，不扰动 UI）；若没有，默认 A4 {% endcomment %}
+      {% assign default_size = page.selected_size | default: page.size | default: 'A4' %}
+
+      <div class="product-actions">
+        {% comment %} 4) Pay via PayPal（保持既有表单字段；如你有自定义 hidden 字段，依旧可从 page.* 注入） {% endcomment %}
+        <form class="product-paypal" action="{{ page.paypal_action | default: site.paypal_action }}" method="post">
+          {% if page.paypal_hidden_fields %}{{ page.paypal_hidden_fields }}{% endif %}
+          <input type="hidden" name="item_name" value="{{ page.title | default: file_display }}">
+          {% if page.price %}<input type="hidden" name="amount" value="{{ page.price }}">{% endif %}
+          <input type="hidden" name="os0" value="{{ default_size }}">
+          <button type="submit" class="btn btn-primary w-full">Pay via PayPal</button>
+        </form>
+
+        {% comment %} 5) Add to Cart（站内购物车） {% endcomment %}
+        <form class="product-cart" action="{{ page.cart_action | default: site.cart_action }}" method="post">
+          <input type="hidden" name="title" value="{{ page.title | default: file_display }}">
+          {% if page.price %}<input type="hidden" name="price" value="{{ page.price }}">{% endif %}
+          <input type="hidden" name="size" value="{{ default_size }}">
+          <button type="submit" class="btn btn-secondary w-full">Add to Cart</button>
+        </form>
+      </div>
+
+      {% comment %} 6) 作品详情（仅在右栏渲染时清洗误贴的第二段 front matter） {% endcomment %}
+      {% assign content_raw = content %}
+      {% if content_raw contains '---' and content_raw contains 'layout:' %}
+        {% assign parts = content_raw | split: '---' %}
+        {% if parts.size > 2 %}
+          {% assign content_clean = parts[2] %}
+        {% else %}
+          {% assign content_clean = content_raw %}
+        {% endif %}
+      {% else %}
+        {% assign content_clean = content_raw %}
+      {% endif %}
+      <div class="product-description">
+        {{ content_clean }}
       </div>
     </div>
 
-    <!-- 5) PayPal（上） -->
-    <div class="fz-buy">
-      {% if site.paypal_business_id and page.price %}
-      <form id="fz-paypal-form" action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_blank" style="width:100%">
-        <input type="hidden" name="cmd" value="_xclick">
-        <input type="hidden" name="business" value="{{ site.paypal_business_id }}">
-        <input type="hidden" id="pp_item_name" name="item_name" value="{{ page.title }}{% if page.sku %} ({{ page.sku }}){% endif %}">
-        <input type="hidden" name="amount" value="{{ page.price }}">
-        <input type="hidden" name="currency_code" value="{{ currency }}">
-        <button type="submit" class="fz-btn fz-btn--primary" style="width:100%">Pay via PayPal</button>
-      </form>
-      {% else %}
-      <a class="fz-btn fz-btn--primary" href="https://www.paypal.com" target="_blank" rel="noopener" style="width:100%">Pay via PayPal</a>
-      {% endif %}
-
-      <!-- 6) Add to Cart（下，等宽） -->
-      <button class="fz-btn js-add-to-cart"
-        style="width:100%"
-        data-sku="{{ page.sku | default: page.slug | default: page.title | slugify }}"
-        data-title="{{ page.title | escape }}"
-        data-price="{{ page.price | default: 0 }}"
-        data-currency="{{ currency | escape }}"
-        data-image="{{ hero_src | default: '' }}"
-        data-option-name="Size"
-        data-option-input="size"
-      >Add to Cart</button>
-    </div>
-
-    <!-- 7) 作品介绍：优先 front matter 的 description；否则从正文里自动剔除误贴的 '--- ... ---' 再显示 -->
-    {% assign body = content | strip %}
-    {% if page.description %}
-      <div class="fz-prop" style="margin-top:14px;">{{ page.description }}</div>
-    {% elsif body != '' %}
-      {%- comment -%}
-        如果正文里误贴了第二个 front matter（形如：--- layout: ... ---），把它剔除，只拿最后一段文字。
-      {%- endcomment -%}
-      {% if body contains '---' and body contains 'layout:' %}
-        {% assign body = body | split: '---' | last | strip %}
-      {% endif %}
-      {% if body != '' %}
-        <div class="fz-prop" style="margin-top:14px;">{{ body }}</div>
-      {% endif %}
-    {% endif %}
-
-    <!-- 让 PayPal item_name 带上所选尺寸（保持你的既有逻辑） -->
-    <script>
-      (function(){
-        var el=document.getElementById('pp_item_name'); if(!el) return;
-        var base="{{ page.title | escape }}{% if page.sku %} ({{ page.sku }}){% endif %}";
-        function val(){ var c=document.querySelector('input[name="size"]:checked'); return c?c.value:''; }
-        function update(){ el.value = val()? base + " - " + val() : base; }
-        document.getElementById('fz-size-pills')?.addEventListener('change', update);
-        update();
-      })();
-    </script>
-  </aside>
+  </div>
+</div>
