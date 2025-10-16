@@ -109,22 +109,18 @@ layout: default
 
   </div>
 </div>
-<!-- PayPal wiring (non-invasive). Append this block at the very end of _layouts/product.html -->
+
+<!-- PayPal wiring: intercept form submits and send to PayPal; keeps DOM/visuals unchanged -->
 <script>
 (function () {
-  // ---- Safely inject Jekyll variables (jsonify ensures proper escaping) ----
+  // ---- Inject Jekyll values safely ----
   var PAYPAL_BUSINESS = {{ site.paypal_business | jsonify }};
   var ITEM_NAME       = {{ page.item_name | default: page.title | jsonify }};
   var AMOUNT_RAW      = {{ price_raw | jsonify }};
   var CURRENCY_CODE   = {{ page.currency | default: site.currency | default: 'GBP' | jsonify }};
   var DEFAULT_SIZE    = {{ default_size | jsonify }};
 
-  // If business email not set, keep page behavior unchanged and warn in console
-  if (!PAYPAL_BUSINESS || PAYPAL_BUSINESS === "null" || PAYPAL_BUSINESS === "") {
-    console.warn("[product.html] site.paypal_business is missing; PayPal submission is disabled.");
-  }
-
-  // Read size (os0) from the page: prefer existing inputs named "os0"; fallback to default_size
+  // Helper: read os0 (size) from current page or fallback
   function readSizeFromPage() {
     var sel = document.querySelector('select[name="os0"]');
     if (sel) return sel.value;
@@ -132,7 +128,7 @@ layout: default
     var radios = document.querySelectorAll('input[type="radio"][name="os0"]');
     if (radios && radios.length) {
       for (var i = 0; i < radios.length; i++) if (radios[i].checked) return radios[i].value;
-      return radios[0].value; // none checked -> first value
+      return radios[0].value;
     }
 
     var input = document.querySelector('input[name="os0"]');
@@ -141,10 +137,8 @@ layout: default
     return (DEFAULT_SIZE || "");
   }
 
-  // Build-and-submit form to PayPal (opens a new tab)
+  // Build & submit to PayPal
   function submitToPayPal(extraFields) {
-    if (!PAYPAL_BUSINESS || PAYPAL_BUSINESS === "null" || PAYPAL_BUSINESS === "") return;
-
     var form = document.createElement("form");
     form.method = "post";
     form.action = "https://www.paypal.com/cgi-bin/webscr";
@@ -159,13 +153,13 @@ layout: default
       form.appendChild(input);
     }
 
-    // Common fields
+    // Required common fields
     add("business", PAYPAL_BUSINESS);
     add("item_name", ITEM_NAME);
     add("amount", AMOUNT_RAW);
     add("currency_code", CURRENCY_CODE);
 
-    // Extra fields for the chosen flow
+    // Flow-specific
     Object.keys(extraFields).forEach(function (k) { add(k, extraFields[k]); });
 
     document.body.appendChild(form);
@@ -175,14 +169,21 @@ layout: default
 
   function handle(flow) {
     var size = readSizeFromPage();
+    if (!PAYPAL_BUSINESS || PAYPAL_BUSINESS === "null" || PAYPAL_BUSINESS === "") {
+      alert("PayPal is not configured. Please set 'site.paypal_business' in _config.yml.");
+      return;
+    }
+    if (!AMOUNT_RAW || AMOUNT_RAW === "null" || AMOUNT_RAW === "") {
+      alert("Missing price for this item. Please set 'price' on the page.");
+      return;
+    }
+
     if (flow === "buy") {
-      // Instant Buy (_xclick) – keep using existing os0
       submitToPayPal({
         cmd: "_xclick",
         os0: size
       });
     } else if (flow === "cart") {
-      // Add to Cart (PayPal cart)
       submitToPayPal({
         cmd: "_cart",
         add: "1",
@@ -192,44 +193,29 @@ layout: default
     }
   }
 
-  function textOf(el) {
-    return (el.tagName === "INPUT") ? (el.value || "") : (el.textContent || "");
-  }
+  // 1) 强拦截：捕获 submit 事件（包括回车提交），仅针对这两个表单
+  document.addEventListener("submit", function (ev) {
+    var f = ev.target;
+    if (!(f && f.classList)) return;
+    if (f.classList.contains("product-paypal")) {
+      ev.preventDefault(); ev.stopImmediatePropagation();
+      handle("buy");
+    } else if (f.classList.contains("product-cart")) {
+      ev.preventDefault(); ev.stopImmediatePropagation();
+      handle("cart");
+    }
+  }, true); // capture 阶段，确保早于默认提交
 
-  function wire(el, flow) {
-    el.addEventListener("click", function (ev) {
-      if (!PAYPAL_BUSINESS) return; // allow normal behavior if not configured
-      ev.preventDefault();
-      ev.stopPropagation();
+  // 2) 兜底：按钮点击时也拦截
+  function attachClick(selector, flow) {
+    var btn = document.querySelector(selector);
+    if (!btn) return;
+    btn.addEventListener("click", function (ev) {
+      ev.preventDefault(); ev.stopPropagation();
       handle(flow);
     }, { passive: false });
-
-    // If the button sits inside a <form>, prevent that form from posting to the site
-    var parentForm = el.closest("form");
-    if (parentForm) {
-      parentForm.addEventListener("submit", function (ev) {
-        if (!PAYPAL_BUSINESS) return;
-        var submitterText = (document.activeElement && textOf(document.activeElement).trim()) || "";
-        if (submitterText === "Pay via PayPal") {
-          ev.preventDefault(); ev.stopImmediatePropagation(); handle("buy");
-        } else if (submitterText === "Add to Cart") {
-          ev.preventDefault(); ev.stopImmediatePropagation(); handle("cart");
-        }
-      }, { passive: false });
-    }
   }
-
-  document.addEventListener("DOMContentLoaded", function () {
-    // Find buttons/links/inputs by visible label text (exact match).
-    var candidates = document.querySelectorAll('button, a, input[type="button"], input[type="submit"]');
-    candidates.forEach(function (el) {
-      var txt = textOf(el).trim();
-      if (txt === "Pay via PayPal") {
-        wire(el, "buy");
-      } else if (txt === "Add to Cart") {
-        wire(el, "cart");
-      }
-    });
-  });
+  attachClick(".product-paypal button[type='submit']", "buy");
+  attachClick(".product-cart button[type='submit']", "cart");
 })();
 </script>
