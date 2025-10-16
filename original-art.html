@@ -7,7 +7,9 @@ permalink: /original-art/
 <main class="fz-grid fz-grid--4">
   {% assign items = site.originals | sort: 'date' | reverse | slice: 0, 8 %}
   {% for item in items %}
-    {% assign slug = item.slug | default: item.title | slugify %}
+    {% assign slug_lc = item.slug | default: item.title | slugify %}
+    {% assign title_dash = item.title | default: item.slug | replace: ' ', '-' %}
+
     <a class="fz-card" href="{{ item.url | relative_url }}">
       <div class="fz-card__img">
         <img class="fz-autoimg"
@@ -24,52 +26,7 @@ permalink: /original-art/
                "{{ item.photo }}",
                {% if item.images %}"{{ item.images | first }}",{% endif %}
                {% if item.photos %}"{{ item.photos  | first }}",{% endif %}
-               "/assets/images/originals/{{ slug }}.jpg",
-               "/assets/images/originals/{{ slug }}.jpeg",
-               "/assets/images/originals/{{ slug }}.png",
-               "/assets/images/originals/{{ slug }}.webp",
-               "/assets/images/originals/{{ slug }}/hero.jpg",
-               "/assets/images/originals/{{ slug }}/cover.jpg"
-             ]'>
-      </div>
-      <div class="fz-card__meta">
-        <span>{{ item.title }}</span>
-        {% if item.price %}
-          {% assign c = item.currency | default: 'GBP' %}
-          <span class="fz-price">{% case c %}{% when 'USD' %}${% when 'EUR' %}€{% else %}£{% endcase %}{{ item.price }}</span>
-        {% endif %}
-      </div>
-    </a>
-  {% endfor %}
-</main>
 
-<!-- 仅本页：自动加载候选封面图 -->
-<script>
-(function(){
-  const base='{{ "" | relative_url }}';
-  const abs = s => /^https?:\/\//.test(s) || s.startsWith('data:');
-  function normalize(p){
-    if(!p) return null;
-    p = String(p).trim();
-    if(!p) return null;
-    if(abs(p)) return p;
-    if(!p.startsWith('/')) p = '/' + p;
-    return base + p;
-  }
-  document.querySelectorAll('img.fz-autoimg').forEach(img=>{
-    let list=[];
-    try{ list = JSON.parse(img.getAttribute('data-candidates')||'[]').filter(Boolean); }catch(e){}
-    let i=-1, tried=new Set();
-    function next(){
-      i++;
-      while(i<list.length && tried.has(list[i])) i++;
-      if(i>=list.length){ img.src='https://via.placeholder.com/800x800?text=Artwork'; return; }
-      tried.add(list[i]);
-      const src = normalize(list[i]);
-      if(src){ img.src = src; } else { next(); }
-    }
-    img.addEventListener('error', next);
-    next();
-  });
-})();
-</script>
+               "/assets/images/originals/{{ title_dash }}.jpg",
+               "/assets/images/originals/{{ title_dash }}.jpeg",
+               "/assets/images/originals/{{ title_dash }}.png",
