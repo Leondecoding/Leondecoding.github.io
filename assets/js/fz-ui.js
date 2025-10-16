@@ -1,40 +1,119 @@
-/* === Cart: capture selected option (Size) === */
-(function () {
-  const $$ = (s,c=document)=>Array.from(c.querySelectorAll(s));
-  function getSelectedValue(btn){
-    const inputName = btn.dataset.optionInput; // e.g. "size"
-    if(!inputName) return '';
-    const wrap = btn.closest('.fz-product') || document;
-    const picked = wrap.querySelector(`input[name="${inputName}"]:checked`);
-    return picked ? picked.value : '';
-  }
+---
+layout: default
+---
 
-  $$('.js-add-to-cart').forEach(btn=>{
-    btn.addEventListener('click', ()=>{
-      const storeKey = 'fz_cart';
-      const getCart = ()=>{ try { return JSON.parse(localStorage.getItem(storeKey)||'[]'); } catch(e){ return []; } };
-      const setCart = (arr)=>localStorage.setItem(storeKey, JSON.stringify(arr));
-      const badge = document.getElementById('fz-cart-count');
-      const updateBadge = ()=>{ const cnt = getCart().reduce((n,i)=>n+(i.qty||1),0); if(badge){ badge.hidden = cnt<=0; badge.textContent = String(cnt); } };
+<div class="container product-page">
+  <!-- 两列布局（保持不变） -->
+  <div class="product-grid" style="display:grid;grid-template-columns:minmax(260px,1fr) minmax(320px,1fr);gap:64px;align-items:start;padding-left:30px;">
 
-      const optionName = btn.dataset.optionName || '';
-      const optionValue = getSelectedValue(btn);
-      const title = btn.dataset.title + (optionValue ? ` - ${optionValue}` : '');
-      const sku = (btn.dataset.sku || 'item') + (optionValue ? `-${optionValue}` : '');
+    <!-- 左侧：作品主图（候选字段 + 标题/slug 兜底） -->
+    <div class="product-gallery">
+      {% assign candidates = '' | split: '' %}
+      {% if page.image %}{% assign candidates = candidates | push: page.image %}{% endif %}
+      {% if page.featured_image %}{% assign candidates = candidates | push: page.featured_image %}{% endif %}
+      {% if page.cover %}{% assign candidates = candidates | push: page.cover %}{% endif %}
+      {% if page.hero %}{% assign candidates = candidates | push: page.hero %}{% endif %}
+      {% if page.thumbnail %}{% assign candidates = candidates | push: page.thumbnail %}{% endif %}
+      {% if page.thumb %}{% assign candidates = candidates | push: page.thumb %}{% endif %}
+      {% if page.picture %}{% assign candidates = candidates | push: page.picture %}{% endif %}
+      {% if page.photo %}{% assign candidates = candidates | push: page.photo %}{% endif %}
+      {% if page.images and page.images.size > 0 %}{% assign candidates = candidates | push: page.images[0] %}{% endif %}
+      {% if page.photos and page.photos.size > 0 %}{% assign candidates = candidates | push: page.photos[0] %}{% endif %}
 
-      const item = {
-        sku, title,
-        price: parseFloat(btn.dataset.price||'0'),
-        currency: btn.dataset.currency || '',
-        image: btn.dataset.image || '',
-        qty: 1,
-        options: optionValue ? [{ name: optionName || 'Option', value: optionValue }] : []
-      };
+      {% assign title_dash = page.title | replace: ' ', '-' %}
+      {% assign slug_dash  = page.title | slugify %}
+      {% capture cand1 %}/assets/images/originals/{{ title_dash }}.jpg{% endcapture %}
+      {% capture cand2 %}/assets/images/originals/{{ title_dash }}-1.jpg{% endcapture %}
+      {% capture cand3 %}/assets/images/originals/{{ slug_dash }}.jpg{% endcapture %}
+      {% capture cand4 %}/assets/images/originals/{{ slug_dash }}-1.jpg{% endcapture %}
+      {% assign candidates = candidates | push: cand1 | push: cand2 | push: cand3 | push: cand4 %}
 
-      const cart = getCart();
-      const exist = cart.find(x=>x.sku===item.sku);
-      if(exist){ exist.qty=(exist.qty||1)+1; } else { cart.push(item); }
-      setCart(cart); updateBadge();
-    });
-  });
-})();
+      {% assign main_image_url = nil %}
+      {% for c in candidates %}
+        {% if c %}
+          {% assign p = c | strip %}
+          {% if p != '' %}
+            {% unless p contains '://' %}
+              {% assign first_char = p | slice: 0, 1 %}
+              {% if first_char != '/' %}{% assign p = '/' | append: p %}{% endif %}
+            {% endunless %}
+            {% assign main_image_url = p %}
+            {% break %}
+          {% endif %}
+        {% endif %}
+      {% endfor %}
+
+      <img class="product-main-image" src="{{ main_image_url | relative_url }}" alt="{{ page.title | escape }}" style="max-width:100%;height:auto;display:block;"/>
+
+      {% if page.images and page.images.size > 1 %}
+        <div class="product-thumbs" style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;">
+          {% for t in page.images %}
+            {% if t %}
+              {% assign tpath = t %}
+              {% unless tpath contains '://' %}
+                {% assign first_char = tpath | slice: 0, 1 %}
+                {% if first_char != '/' %}{% assign tpath = '/' | append: tpath %}{% endif %}
+              {% endunless %}
+              <img class="product-thumb" src="{{ tpath | relative_url }}" alt="{{ page.title | escape }} thumbnail" style="width:72px;height:auto;border:1px solid #eee;padding:2px;"/>
+            {% endif %}
+          {% endfor %}
+        </div>
+      {% endif %}
+    </div>
+
+    <!-- 右侧：信息（严格顺序） -->
+    <!-- 加上 .fz-product 以便 fz-ui.js 在此作用域内寻找选项输入 -->
+    <div class="product-info fz-product" style="margin-top: 32px;">
+      {% assign file_display = main_image_url | split: '/' | last %}
+      {% if file_display == '' or file_display == nil %}{% assign file_display = page.title %}{% endif %}
+      <h1 class="product-title" style="margin:0 0 8px 0;">{{ file_display }}</h1>
+
+      {% assign price_raw = page.price | default: page.price_gbp | default: page.priceGBP | default: page.amount | default: page.cost | default: page.Price %}
+      {% assign curr = page.currency | upcase | default: site.currency | upcase %}
+      {% assign sym = '' %}
+      {% if curr == 'GBP' %}{% assign sym = '£' %}{% elsif curr == 'USD' %}{% assign sym = '$' %}{% elsif curr == 'EUR' %}{% assign sym = '€' %}{% elsif curr == 'CNY' or curr == 'JPY' %}{% assign sym = '¥' %}{% elsif curr == 'HKD' %}{% assign sym = 'HK$' %}{% elsif curr == 'TWD' %}{% assign sym = 'NT$' %}{% endif %}
+      {% if price_raw %}
+        <div class="product-price" style="font-size:1.125rem;font-weight:600;margin-bottom:6px;">{% if sym != '' %}{{ sym }}{{ price_raw }}{% else %}{{ price_raw }}{% if curr %} {{ curr }}{% endif %}{% endif %}</div>
+      {% endif %}
+
+      <div class="product-taxes" style="color:#555;margin-bottom:12px;">Taxes included.</div>
+
+      {% assign default_size = page.selected_size | default: page.size | default: 'A4' %}
+      {% assign currency_code = page.currency | default: site.currency | default: 'GBP' %}
+      {% assign sku_base = page.sku | default: page.slug | default: page.title | slugify %}
+
+      <div class="product-actions" style="display:flex;flex-direction:column;gap:8px;max-width:420px;">
+        <!-- 为将来 PayPal 立即购买保留字段（当前按钮不跳转） -->
+        <form class="product-paypal">
+          <input type="hidden" name="item_name" value="{{ page.title | default: file_display }}">
+          {% if price_raw %}<input type="hidden" name="amount" value="{{ price_raw }}">{% endif %}
+          <input type="hidden" name="os0" value="{{ default_size }}">
+          <button type="button" style="width:100%;padding:12px 16px;">Pay via PayPal</button>
+        </form>
+
+        <!-- 购物车按钮：严格按 fz-ui.js 的约定提供 data-* 属性 -->
+        <!-- fz-ui.js 会在 .fz-product 范围内读取 data-option-input 指向的选项（此处为隐藏单选 name="size"） -->
+        <form class="product-cart">
+          <!-- 隐藏单选：不改变视觉，但保证能读到尺寸 -->
+          <input type="radio" name="size" value="{{ default_size }}" checked style="display:none;">
+          <button
+            type="button"
+            class="js-add-to-cart"
+            data-title="{{ page.title | default: file_display | escape }}"
+            {% if price_raw %}data-price="{{ price_raw }}"{% endif %}
+            data-currency="{{ currency_code }}"
+            data-image="{{ main_image_url | relative_url }}"
+            data-sku="{{ sku_base }}"
+            data-option-input="size"
+            data-option-name="Size"
+            style="width:100%;padding:12px 16px;"
+          >Add to Cart</button>
+        </form>
+      </div>
+
+      <!-- 描述正文 -->
+      <div class="product-description" style="margin-top:16px;max-width:65ch;">{{ content }}</div>
+    </div>
+
+  </div>
+</div>
