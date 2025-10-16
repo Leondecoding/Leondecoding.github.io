@@ -7,36 +7,30 @@ permalink: /original-art/
 <main class="fz-grid fz-grid--4">
   {% assign items = site.originals | sort: 'date' | reverse | slice: 0, 8 %}
   {% for item in items %}
-    {%- comment -%}
-      1) 优先从常见单图字段取
-      2) 再退回到数组第一张
-      3) 绝不对绝对URL套 relative_url
-      4) 自动补 "/" 前缀
-    {%- endcomment -%}
-    {% assign _keys = "image,featured_image,cover,hero,thumbnail,thumb,picture,photo" | split: "," %}
-    {% assign cover = nil %}
-    {% for k in _keys %}
-      {% if cover == nil and item[k] %}{% assign cover = item[k] %}{% endif %}
-    {% endfor %}
-    {% if cover == nil and item.images %}{% assign cover = item.images | first %}{% endif %}
-    {% if cover == nil and item.photos %}{% assign cover = item.photos | first %}{% endif %}
-
-    {% if cover %}
-      {% if cover contains '://' %}
-        {% assign img_src = cover %}
-      {% else %}
-        {% if cover | slice: 0, 1 != '/' %}{% assign cover = '/' | append: cover %}{% endif %}
-        {% assign img_src = cover | relative_url %}
-      {% endif %}
-    {% else %}
-      {% assign img_src = 'https://via.placeholder.com/800x800?text=Artwork' %}
-    {% endif %}
-
+    {% assign slug = item.slug | default: item.title | slugify %}
     <a class="fz-card" href="{{ item.url | relative_url }}">
       <div class="fz-card__img">
-        <img src="{{ img_src }}"
+        <img class="fz-autoimg"
              alt="{{ item.title }}"
-             onerror="this.onerror=null;this.src='https://via.placeholder.com/800x800?text=Artwork';">
+             src="https://via.placeholder.com/800x800?text=Loading"
+             data-candidates='[
+               "{{ item.image }}",
+               "{{ item.featured_image }}",
+               "{{ item.cover }}",
+               "{{ item.hero }}",
+               "{{ item.thumbnail }}",
+               "{{ item.thumb }}",
+               "{{ item.picture }}",
+               "{{ item.photo }}",
+               {% if item.images %}"{{ item.images | first }}",{% endif %}
+               {% if item.photos %}"{{ item.photos  | first }}",{% endif %}
+               "/assets/images/originals/{{ slug }}.jpg",
+               "/assets/images/originals/{{ slug }}.jpeg",
+               "/assets/images/originals/{{ slug }}.png",
+               "/assets/images/originals/{{ slug }}.webp",
+               "/assets/images/originals/{{ slug }}/hero.jpg",
+               "/assets/images/originals/{{ slug }}/cover.jpg"
+             ]'>
       </div>
       <div class="fz-card__meta">
         <span>{{ item.title }}</span>
@@ -48,3 +42,34 @@ permalink: /original-art/
     </a>
   {% endfor %}
 </main>
+
+<!-- 仅本页：自动加载候选封面图 -->
+<script>
+(function(){
+  const base='{{ "" | relative_url }}';
+  const abs = s => /^https?:\/\//.test(s) || s.startsWith('data:');
+  function normalize(p){
+    if(!p) return null;
+    p = String(p).trim();
+    if(!p) return null;
+    if(abs(p)) return p;
+    if(!p.startsWith('/')) p = '/' + p;
+    return base + p;
+  }
+  document.querySelectorAll('img.fz-autoimg').forEach(img=>{
+    let list=[];
+    try{ list = JSON.parse(img.getAttribute('data-candidates')||'[]').filter(Boolean); }catch(e){}
+    let i=-1, tried=new Set();
+    function next(){
+      i++;
+      while(i<list.length && tried.has(list[i])) i++;
+      if(i>=list.length){ img.src='https://via.placeholder.com/800x800?text=Artwork'; return; }
+      tried.add(list[i]);
+      const src = normalize(list[i]);
+      if(src){ img.src = src; } else { next(); }
+    }
+    img.addEventListener('error', next);
+    next();
+  });
+})();
+</script>
