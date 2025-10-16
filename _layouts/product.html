@@ -78,10 +78,16 @@ layout: default
       {% endif %}
       <h1 class="product-title" style="margin:0 0 8px 0;">{{ file_display }}</h1>
 
-      {% comment %} 2) 价格（多字段兜底） {% endcomment %}
-      {% assign price_val = page.price | default: page.price_gbp | default: page.priceGBP | default: page.amount | default: page.cost | default: page.Price %}
-      {% if price_val %}
-        <div class="product-price" style="font-size:1rem;margin-bottom:4px;">{{ price_val }}</div>
+      {% comment %} 2) 价格（多字段兜底 + 货币符号） {% endcomment %}
+      {% assign price_raw = page.price | default: page.price_gbp | default: page.priceGBP | default: page.amount | default: page.cost | default: page.Price %}
+      {% assign curr = page.currency | upcase | default: site.currency | upcase %}
+      {% assign sym = '' %}
+      {% if curr == 'GBP' %}{% assign sym = '£' %}{% elsif curr == 'USD' %}{% assign sym = '$' %}{% elsif curr == 'EUR' %}{% assign sym = '€' %}{% elsif curr == 'CNY' %}{% assign sym = '¥' %}{% elsif curr == 'JPY' %}{% assign sym = '¥' %}{% elsif curr == 'HKD' %}{% assign sym = 'HK$' %}{% elsif curr == 'TWD' %}{% assign sym = 'NT$' %}{% endif %}
+      {% capture price_display %}
+        {% if sym != '' %}{{ sym }}{{ price_raw }}{% elsif curr %}{{ price_raw }} {{ curr }}{% else %}{{ price_raw }}{% endif %}
+      {% endcapture %}
+      {% if price_raw %}
+        <div class="product-price" style="font-size:1.125rem;font-weight:600;margin-bottom:6px;">{{ price_display | strip }}</div>
       {% endif %}
 
       {% comment %} 3) 税务提示 {% endcomment %}
