@@ -1,75 +1,132 @@
-<!-- 文件：_includes/header.html（注意：不要有 --- front-matter） -->
-<header class="fz-site-header">
-  <div class="fz-header-inner">
-    <!-- 左：Logo -->
-    <a class="fz-logo" href="{{ '/' | relative_url }}" aria-label="FZ Studio Home">
-      {% assign _logo = site.logo | default: '/assets/images/logo-fzs.svg' %}
-      <img src="{{ _logo | relative_url }}" alt="{{ site.title | default: 'FZ Studio' }}">
-    </a>
+/* fz-ui.js — clean build-safe version (no Liquid inside) */
+(function () {
+  const $$ = (s, c = document) => Array.from(c.querySelectorAll(s));
+  const $  = (s, c = document) => c.querySelector(s);
 
-    <!-- 中：主导航（保持你之前的顺序/文案） -->
-    {% assign _url = page.url | default: '' %}
-    {% assign is_original = _url contains '/original-art/' or page.collection == 'originals' %}
-    {% assign is_prints   = _url contains '/art-prints/'  or page.collection == 'artprints' %}
-    {% assign is_cards    = _url contains '/greeting-cards/' or page.collection == 'cards' %}
-    {% assign is_blog     = _url contains '/blog/' or page.collection == 'posts' %}
-    <nav class="fz-nav" aria-label="Primary">
-      <a href="{{ '/' | relative_url }}" class="fz-nav__link{% if _url == '/' %} is-active{% endif %}">HOME</a>
-      <a href="{{ '/our-story/' | relative_url }}" class="fz-nav__link{% if _url contains '/our-story/' %} is-active{% endif %}">OUR STORY</a>
-      <a href="{{ '/blog/' | relative_url }}" class="fz-nav__link{% if is_blog %} is-active{% endif %}">BLOG</a>
-      <a href="{{ '/original-art/' | relative_url }}" class="fz-nav__link{% if is_original %} is-active{% endif %}">ORIGINAL ART</a>
-      <a href="{{ '/art-prints/' | relative_url }}" class="fz-nav__link{% if is_prints %} is-active{% endif %}">ART PRINTS</a>
-      <a href="{{ '/greeting-cards/' | relative_url }}" class="fz-nav__link{% if is_cards %} is-active{% endif %}">GREETING CARDS</a>
-      <a href="{{ '/contact/' | relative_url }}" class="fz-nav__link{% if _url contains '/contact/' %} is-active{% endif %}">CONTACT</a>
-    </nav>
+  // ========== CART STORAGE ==========
+  const STORE_KEY = 'fz_cart';
+  const loadCart  = () => { try { return JSON.parse(localStorage.getItem(STORE_KEY) || '[]'); } catch(e){ return []; } };
+  const saveCart  = (arr) => localStorage.setItem(STORE_KEY, JSON.stringify(arr));
+  const cartCount = () => loadCart().reduce((n,i)=>n + (i.qty || 1), 0);
 
-    <!-- 右：搜索 / 登录 / 购物篮 -->
-    <div class="fz-actions">
-      <button class="fz-icon-btn" id="fz-search-btn" aria-label="搜索" aria-haspopup="dialog" aria-controls="fz-search-panel">
-        <!-- 你的图标样式会来自现有CSS，这里只保留语义 -->
-        🔍
-      </button>
-      <button class="fz-icon-btn" id="fz-login-btn" aria-label="登录" aria-haspopup="menu" aria-controls="fz-login-menu" aria-expanded="false">👤</button>
-      <button class="fz-icon-btn" id="fz-cart-btn" aria-label="购物篮" aria-haspopup="dialog" aria-controls="fz-cart-drawer">
-        🛒 <span class="fz-badge" id="fz-cart-count" hidden>0</span>
-      </button>
-    </div>
-  </div>
-</header>
+  function updateBadge() {
+    const badge = $('#fz-cart-count');
+    if (!badge) return;
+    const n = cartCount();
+    badge.textContent = String(n);
+    badge.hidden = n <= 0;
+  }
 
-<!-- 搜索面板 -->
-<div class="fz-panel" id="fz-search-panel" role="dialog" aria-modal="true" aria-labelledby="fz-search-title" hidden>
-  <div class="fz-panel__backdrop" data-close="fz-search-panel"></div>
-  <div class="fz-panel__body" role="document">
-    <button class="fz-close" data-close="fz-search-panel" aria-label="关闭搜索">×</button>
-    <h2 id="fz-search-title">搜索</h2>
-    <form action="{{ '/search/' | relative_url }}" method="get" role="search">
-      <input class="fz-input" type="search" name="q" placeholder="搜索…" autofocus>
-      <button class="fz-btn fz-btn--primary" type="submit">搜索</button>
-    </form>
-  </div>
-</div>
+  function getSelectedValue(btn){
+    const inputName = btn.dataset.optionInput; // e.g. "size"
+    if(!inputName) return '';
+    const wrap = btn.closest('.fz-product') || document;
+    const picked = wrap.querySelector('input[name="'+inputName+'"]:checked');
+    return picked ? picked.value : '';
+  }
 
-<!-- 登录菜单（占位） -->
-<div class="fz-menu" id="fz-login-menu" role="menu" hidden>
-  <ul>
-    <li><a href="#" role="menuitem">登录</a></li>
-    <li><a href="#" role="menuitem">注册</a></li>
-  </ul>
-</div>
+  function addToCartFromButton(btn) {
+    const optionName  = btn.dataset.optionName || 'Option';
+    const optionValue = getSelectedValue(btn);
+    const title = (btn.dataset.title || 'Artwork') + (optionValue ? (' - ' + optionValue) : '');
+    const sku   = (btn.dataset.sku   || 'item')    + (optionValue ? ('-' + optionValue) : '');
 
-<!-- 购物车抽屉 -->
-<aside class="fz-drawer" id="fz-cart-drawer" role="dialog" aria-modal="true" aria-labelledby="fz-cart-title" hidden>
-  <div class="fz-drawer__backdrop" data-close="fz-cart-drawer"></div>
-  <div class="fz-drawer__panel">
-    <header class="fz-drawer__header">
-      <h2 id="fz-cart-title">购物篮</h2>
-      <button class="fz-close" data-close="fz-cart-drawer" aria-label="关闭购物篮">×</button>
-    </header>
-    <div class="fz-drawer__content" id="fz-cart-content"><p>当前为空。</p></div>
-    <footer class="fz-drawer__footer"><a class="fz-btn fz-btn--primary" href="#">去结算</a></footer>
-  </div>
-</aside>
+    const item = {
+      sku,
+      title,
+      price: parseFloat(btn.dataset.price || '0'),
+      currency: btn.dataset.currency || 'GBP',
+      image: btn.dataset.image || '',
+      qty: 1,
+      options: optionValue ? [{ name: optionName, value: optionValue }] : []
+    };
 
-<!-- 只加载你现有的交互脚本（别的都不加） -->
-<script defer src="{{ '/assets/js/fz-ui.js' | relative_url }}"></script>
+    const cart = loadCart();
+    const exist = cart.find(x => x.sku === item.sku);
+    if (exist) exist.qty = (exist.qty || 1) + 1;
+    else cart.push(item);
+    saveCart(cart);
+    updateBadge();
+
+    // 小提示
+    const old = btn.textContent;
+    btn.disabled = true;
+    btn.textContent = 'Added ✓';
+    setTimeout(() => { btn.textContent = old; btn.disabled = false; }, 900);
+  }
+
+  // ========== HEADER INTERACTIONS ==========
+  function openEl(id){ const el = $('#'+id); if (el) el.hidden = false; }
+  function closeEl(id){ const el = $('#'+id); if (el) el.hidden = true; }
+
+  function renderCartDrawer() {
+    const box = $('#fz-cart-content');
+    if (!box) return;
+    const items = loadCart();
+    if (!items.length) {
+      box.innerHTML = '<p>当前为空。</p>';
+      return;
+    }
+    let total = 0;
+    const html = items.map(it => {
+      const p = parseFloat(it.price)||0, q = it.qty||1;
+      total += p*q;
+      const opt = (it.options && it.options[0]) ? ` <span style="color:#666;font-size:.9em;">(${it.options[0].name}: ${it.options[0].value})</span>` : '';
+      return `
+      <div style="display:grid;grid-template-columns:64px 1fr auto;gap:12px;align-items:center;">
+        ${it.image ? `<img src="${it.image}" alt="" style="width:64px;height:64px;object-fit:cover;border:1px solid #eee;">` : `<div style="width:64px;height:64px;background:#f4f4f4"></div>`}
+        <div><div style="font-weight:600;">${it.title}</div>${opt}</div>
+        <div style="font-weight:600;">${formatCurrency(p, it.currency)} × ${q}</div>
+      </div>`;
+    }).join('');
+    box.innerHTML = html + `<hr style="margin:12px 0;">
+      <div style="display:flex;justify-content:space-between;font-weight:700;">
+        <span>Total</span><span>${formatCurrency(total, (items[0] && items[0].currency) || 'GBP')}</span>
+      </div>`;
+  }
+
+  function formatCurrency(v, code) {
+    const sym = (code==='GBP')?'£':(code==='USD')?'$':(code==='EUR')?'€':((code==='JPY'||code==='CNY')?'¥':(code==='HKD')?'HK$':(code==='TWD')?'NT$':''));
+    const n = (typeof v === 'number') ? v : parseFloat(v || '0');
+    return (sym || '') + (isFinite(n) ? n.toFixed(2) : v) + (sym ? '' : (' ' + (code || '')));
+  }
+
+  // ========== BOOT ==========
+  document.addEventListener('DOMContentLoaded', () => {
+    // Add to cart
+    $$('.js-add-to-cart').forEach(btn => {
+      btn.addEventListener('click', () => addToCartFromButton(btn));
+      btn._fzWired = true;
+    });
+
+    // 搜索面板
+    const searchBtn = $('#fz-search-btn');
+    if (searchBtn) searchBtn.addEventListener('click', () => openEl('fz-search-panel'));
+    $$('#fz-search-panel [data-close="fz-search-panel"]').forEach(el => el.addEventListener('click', () => closeEl('fz-search-panel')));
+
+    // 登录菜单
+    const loginBtn  = $('#fz-login-btn');
+    const loginMenu = $('#fz-login-menu');
+    if (loginBtn && loginMenu) {
+      loginBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const open = loginMenu.hidden;
+        loginMenu.hidden = !open;
+        loginBtn.setAttribute('aria-expanded', String(open));
+      });
+      document.addEventListener('click', (e) => {
+        if (!loginMenu.hidden && !loginMenu.contains(e.target) && e.target !== loginBtn) {
+          loginMenu.hidden = true;
+          loginBtn.setAttribute('aria-expanded', 'false');
+        }
+      });
+    }
+
+    // 购物车抽屉
+    const cartBtn   = $('#fz-cart-btn');
+    if (cartBtn) cartBtn.addEventListener('click', () => { renderCartDrawer(); openEl('fz-cart-drawer'); });
+    $$('#fz-cart-drawer [data-close="fz-cart-drawer"]').forEach(el => el.addEventListener('click', () => closeEl('fz-cart-drawer')));
+
+    updateBadge();
+  });
+})();
