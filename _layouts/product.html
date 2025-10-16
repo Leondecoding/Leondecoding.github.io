@@ -3,10 +3,10 @@ layout: default
 ---
 
 <div class="container product-page">
-  <!-- 保持两列布局 -->
+  <!-- 保持两列布局（即使站点样式未加载也能成立） -->
   <div class="product-grid" style="display:grid;grid-template-columns:minmax(260px,1fr) minmax(320px,1fr);gap:64px;align-items:start;padding-left:30px;">
 
-    <!-- 左侧：作品主图 -->
+    <!-- 左侧：作品主图（字段多路 + 标题/slug 兜底） -->
     <div class="product-gallery">
       {% assign candidates = '' | split: '' %}
       {% if page.image %}{% assign candidates = candidates | push: page.image %}{% endif %}
@@ -61,12 +61,13 @@ layout: default
       {% endif %}
     </div>
 
-    <!-- 右侧：信息 -->
+    <!-- 右侧：信息（严格顺序） -->
     <div class="product-info" style="margin-top: 32px;">
       {% assign file_display = main_image_url | split: '/' | last %}
       {% if file_display == '' or file_display == nil %}{% assign file_display = page.title %}{% endif %}
       <h1 class="product-title" style="margin:0 0 8px 0;">{{ file_display }}</h1>
 
+      {%- comment -%} 价格（默认链兜底，显示在标题下/税务提示上） {%- endcomment -%}
       {% assign price_raw = page.price | default: page.price_gbp | default: page.priceGBP | default: page.amount | default: page.cost | default: page.Price %}
       {% assign curr = page.currency | upcase | default: site.currency | upcase %}
       {% assign sym = '' %}
@@ -79,8 +80,8 @@ layout: default
 
       {% assign default_size = page.selected_size | default: page.size | default: 'A4' %}
 
-      <!-- 改动：移除 action/method 防止 GitHub Pages POST -->
       <div class="product-actions" style="display:flex;flex-direction:column;gap:8px;max-width:420px;">
+        <!-- 注意：不设置 action/method，按钮用 type="button"，避免站内 POST 触发 405 -->
         <form class="product-paypal">
           <input type="hidden" name="item_name" value="{{ page.title | default: file_display }}">
           {% if price_raw %}<input type="hidden" name="amount" value="{{ price_raw }}">{% endif %}
@@ -109,71 +110,222 @@ layout: default
   </div>
 </div>
 
-<!-- PayPal 逻辑脚本 -->
+<!-- 购物车浮层（站内页，不影响布局；仅在需要时显示） -->
+<div id="fz-cart-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:9999;">
+  <div style="position:absolute;right:0;top:0;height:100%;width:min(460px,100%);background:#fff;box-shadow:-6px 0 24px rgba(0,0,0,.2);padding:20px 20px 24px;overflow:auto;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+      <h2 style="margin:0;font-size:1.25rem;">Your Cart</h2>
+      <button id="fz-cart-close" style="border:0;background:none;font-size:20px;line-height:1;cursor:pointer;">✕</button>
+    </div>
+    <div id="fz-cart-list" style="display:flex;flex-direction:column;gap:12px;"></div>
+    <div id="fz-cart-empty" style="color:#666;margin-top:8px;display:none;">Your cart is empty.</div>
+    <hr style="margin:16px 0;">
+    <div style="display:flex;justify-content:space-between;align-items:center;">
+      <div style="font-weight:600;">Total</div>
+      <div id="fz-cart-total" style="font-weight:700;"></div>
+    </div>
+    <div id="fz-cart-note" style="color:#a00;margin-top:10px;display:none;"></div>
+    <div style="display:flex;gap:8px;margin-top:16px;">
+      <button id="fz-cart-checkout" style="flex:1;padding:12px 14px;">Checkout with PayPal</button>
+      <button id="fz-cart-continue" style="padding:12px 14px;">Continue</button>
+    </div>
+  </div>
+</div>
+
+<!-- PayPal + Cart 脚本（支持 sandbox/live/未配置；不再触发 405） -->
 <script>
 (function () {
-  var PAYPAL_BUSINESS = {{ site.paypal_business | jsonify }};
-  var ITEM_NAME       = {{ page.item_name | default: page.title | jsonify }};
-  var AMOUNT_RAW      = {{ price_raw | jsonify }};
-  var CURRENCY_CODE   = {{ page.currency | default: site.currency | default: 'GBP' | jsonify }};
-  var DEFAULT_SIZE    = {{ default_size | jsonify }};
+  // ---- 读取 Jekyll 变量（安全转义）----
+  var MODE                = {{ site.paypal_mode | default: 'disabled' | jsonify }}; // 'sandbox' | 'live' | 'disabled'
+  var BUSINESS_LIVE       = {{ site.paypal_business | jsonify }};
+  var BUSINESS_SANDBOX    = {{ site.paypal_business_sandbox | jsonify }};
+  var ITEM_NAME           = {{ page.item_name | default: page.title | jsonify }};
+  var AMOUNT_RAW          = {{ price_raw | jsonify }};
+  var CURRENCY_CODE       = {{ page.currency | default: site.currency | default: 'GBP' | jsonify }};
+  var DEFAULT_SIZE        = {{ default_size | jsonify }};
+  var MAIN_IMAGE          = {{ main_image_url | jsonify }};
+  var LS_KEY              = "fz_cart";
 
-  if (!PAYPAL_BUSINESS || PAYPAL_BUSINESS === "null" || PAYPAL_BUSINESS === "") {
-    console.warn("[product.html] site.paypal_business 未配置，PayPal 提交停用。");
-    return;
+  var endpoint = "https://www.paypal.com/cgi-bin/webscr";
+  var business = BUSINESS_LIVE;
+
+  if (MODE === "sandbox") {
+    endpoint = "https://www.sandbox.paypal.com/cgi-bin/webscr";
+    business = BUSINESS_SANDBOX || BUSINESS_LIVE; // 优先 sandbox 账号；缺省回退 live（若也无则视作未配置）
+  } else if (MODE === "live") {
+    endpoint = "https://www.paypal.com/cgi-bin/webscr";
+    business = BUSINESS_LIVE;
+  } else {
+    // disabled：仍可使用站内购物车，但结账会提示未配置
+    business = BUSINESS_LIVE || BUSINESS_SANDBOX || "";
   }
 
-  function readSizeFromPage() {
-    var input = document.querySelector('input[name="os0"]');
-    return input ? input.value : (DEFAULT_SIZE || "");
+  function readSize() {
+    var hidden = document.querySelector('.product-paypal input[name="os0"]');
+    return hidden ? hidden.value : (DEFAULT_SIZE || "");
   }
 
-  function submitToPayPal(flow) {
-    var size = readSizeFromPage();
+  // ----- 本地购物车 -----
+  function loadCart() {
+    try { return JSON.parse(localStorage.getItem(LS_KEY) || "[]"); } catch(e) { return []; }
+  }
+  function saveCart(items) {
+    localStorage.setItem(LS_KEY, JSON.stringify(items));
+  }
+  function addCurrentToCart() {
+    var items = loadCart();
+    var size  = readSize();
+    var price = parseFloat(AMOUNT_RAW || "0");
+    var item = {
+      name: ITEM_NAME || document.title || "Artwork",
+      size: size,
+      amount: isFinite(price) ? price : AMOUNT_RAW,
+      currency: CURRENCY_CODE || "GBP",
+      quantity: 1,
+      image: MAIN_IMAGE
+    };
+    items.push(item);
+    saveCart(items);
+    return items;
+  }
+  function fmtCurrency(v, curr) {
+    var s = curr || "GBP";
+    return (s==="GBP"?"£":s==="USD"?"$":s==="EUR"?"€":s==="JPY"||s==="CNY"?"¥":s==="HKD"?"HK$":s==="TWD"?"NT$":"") + v;
+  }
+
+  // ----- 购物车浮层渲染 -----
+  function openCart() {
+    var overlay = document.getElementById("fz-cart-overlay");
+    var list    = document.getElementById("fz-cart-list");
+    var empty   = document.getElementById("fz-cart-empty");
+    var totalEl = document.getElementById("fz-cart-total");
+    var note    = document.getElementById("fz-cart-note");
+
+    var items = loadCart();
+    list.innerHTML = "";
+    var total = 0;
+
+    if (!items.length) {
+      empty.style.display = "block";
+      totalEl.textContent = fmtCurrency(0, CURRENCY_CODE);
+    } else {
+      empty.style.display = "none";
+      items.forEach(function(it, idx){
+        total += (parseFloat(it.amount)||0) * (it.quantity||1);
+        var row = document.createElement("div");
+        row.style.display = "grid";
+        row.style.gridTemplateColumns = "64px 1fr auto";
+        row.style.gap = "12px";
+        row.style.alignItems = "center";
+
+        var img = document.createElement("img");
+        img.src = it.image || "";
+        img.alt = it.name;
+        img.style.width = "64px";
+        img.style.height = "64px";
+        img.style.objectFit = "cover";
+        img.style.border = "1px solid #eee";
+
+        var meta = document.createElement("div");
+        meta.innerHTML = "<div style='font-weight:600;'>" + it.name + "</div>"
+          + "<div style='color:#666;font-size:.9rem;'>Size: " + (it.size||"-") + "</div>";
+
+        var price = document.createElement("div");
+        price.style.fontWeight = "600";
+        price.textContent = fmtCurrency(it.amount, it.currency);
+
+        row.appendChild(img);
+        row.appendChild(meta);
+        row.appendChild(price);
+        list.appendChild(row);
+      });
+      totalEl.textContent = fmtCurrency(total.toFixed(2), CURRENCY_CODE);
+    }
+
+    // 提示：当未配置 business 时，展示说明
+    if (!business) {
+      note.style.display = "block";
+      note.textContent = "PayPal checkout is not configured yet. Set `paypal_mode` and a business email in _config.yml to enable payment.";
+    } else {
+      note.style.display = "none";
+    }
+
+    overlay.style.display = "block";
+  }
+  function closeCart(){ document.getElementById("fz-cart-overlay").style.display = "none"; }
+
+  // ----- PayPal 提交（从购物车结账：_cart + upload=1）-----
+  function checkoutCartToPayPal() {
+    var items = loadCart();
+    if (!items.length) { openCart(); return; }
+    if (!business) { openCart(); return; } // 未配置则仅提示
+
     var form = document.createElement("form");
     form.method = "post";
-    form.action = "https://www.paypal.com/cgi-bin/webscr";
+    form.action = endpoint;
     form.target = "_blank";
 
-    function add(name, val) {
-      if (!val) return;
+    function add(name, value) {
       var i = document.createElement("input");
-      i.type = "hidden"; i.name = name; i.value = val;
+      i.type = "hidden"; i.name = name; i.value = String(value);
       form.appendChild(i);
     }
 
-    add("business", PAYPAL_BUSINESS);
-    add("item_name", ITEM_NAME);
-    add("amount", AMOUNT_RAW);
-    add("currency_code", CURRENCY_CODE);
-    add("os0", size);
+    add("cmd", "_cart");
+    add("upload", "1");
+    add("business", business);
 
-    if (flow === "buy") {
-      add("cmd", "_xclick");
-    } else if (flow === "cart") {
-      add("cmd", "_cart");
-      add("add", "1");
-      add("on0", "Size");
-    }
+    // 多商品上传（item_name_1, amount_1, quantity_1, on0_1/os0_1 为尺寸）
+    items.forEach(function(it, idx){
+      var n = idx + 1;
+      add("item_name_" + n, it.name);
+      add("amount_" + n, it.amount);
+      add("quantity_" + n, it.quantity || 1);
+      add("currency_code", it.currency || CURRENCY_CODE || "GBP"); // PayPal 允许全局，也可逐项
+      add("on0_" + n, "Size");
+      add("os0_" + n, it.size || "");
+    });
 
     document.body.appendChild(form);
     form.submit();
     form.remove();
   }
 
+  // ----- 立即购买（_xclick）-----
+  function directBuy() {
+    if (!business) { openCart(); return; } // 无配置则引导至购物车
+    var size = readSize();
+    var form = document.createElement("form");
+    form.method = "post";
+    form.action = endpoint;
+    form.target = "_blank";
+
+    function add(n,v){ var i=document.createElement("input"); i.type="hidden"; i.name=n; i.value=String(v); form.appendChild(i); }
+    add("cmd", "_xclick");
+    add("business", business);
+    add("item_name", ITEM_NAME || document.title || "Artwork");
+    add("amount", AMOUNT_RAW);
+    add("currency_code", CURRENCY_CODE || "GBP");
+    add("os0", size);
+
+    document.body.appendChild(form);
+    form.submit();
+    form.remove();
+  }
+
+  // ----- 事件绑定 -----
   document.addEventListener("DOMContentLoaded", function () {
-    var buyBtn = document.querySelector(".product-paypal button");
+    var buyBtn  = document.querySelector(".product-paypal button");
     var cartBtn = document.querySelector(".product-cart button");
+    var closeBtn= document.getElementById("fz-cart-close");
+    var goPay   = document.getElementById("fz-cart-checkout");
+    var goBack  = document.getElementById("fz-cart-continue");
 
-    if (buyBtn) buyBtn.addEventListener("click", function (e) {
-      e.preventDefault();
-      submitToPayPal("buy");
-    });
-
-    if (cartBtn) cartBtn.addEventListener("click", function (e) {
-      e.preventDefault();
-      submitToPayPal("cart");
-    });
+    if (buyBtn)  buyBtn.addEventListener("click", function(e){ e.preventDefault(); directBuy(); });
+    if (cartBtn) cartBtn.addEventListener("click", function(e){ e.preventDefault(); addCurrentToCart(); openCart(); });
+    if (closeBtn)closeBtn.addEventListener("click", function(){ closeCart(); });
+    if (goBack)  goBack.addEventListener("click", function(){ closeCart(); });
+    if (goPay)   goPay.addEventListener("click", function(){ checkoutCartToPayPal(); });
   });
 })();
 </script>
