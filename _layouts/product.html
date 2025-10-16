@@ -109,3 +109,127 @@ layout: default
 
   </div>
 </div>
+<!-- PayPal wiring (non-invasive). Append this block at the very end of _layouts/product.html -->
+<script>
+(function () {
+  // ---- Safely inject Jekyll variables (jsonify ensures proper escaping) ----
+  var PAYPAL_BUSINESS = {{ site.paypal_business | jsonify }};
+  var ITEM_NAME       = {{ page.item_name | default: page.title | jsonify }};
+  var AMOUNT_RAW      = {{ price_raw | jsonify }};
+  var CURRENCY_CODE   = {{ page.currency | default: site.currency | default: 'GBP' | jsonify }};
+  var DEFAULT_SIZE    = {{ default_size | jsonify }};
+
+  // If business email not set, keep page behavior unchanged and warn in console
+  if (!PAYPAL_BUSINESS || PAYPAL_BUSINESS === "null" || PAYPAL_BUSINESS === "") {
+    console.warn("[product.html] site.paypal_business is missing; PayPal submission is disabled.");
+  }
+
+  // Read size (os0) from the page: prefer existing inputs named "os0"; fallback to default_size
+  function readSizeFromPage() {
+    var sel = document.querySelector('select[name="os0"]');
+    if (sel) return sel.value;
+
+    var radios = document.querySelectorAll('input[type="radio"][name="os0"]');
+    if (radios && radios.length) {
+      for (var i = 0; i < radios.length; i++) if (radios[i].checked) return radios[i].value;
+      return radios[0].value; // none checked -> first value
+    }
+
+    var input = document.querySelector('input[name="os0"]');
+    if (input) return input.value;
+
+    return (DEFAULT_SIZE || "");
+  }
+
+  // Build-and-submit form to PayPal (opens a new tab)
+  function submitToPayPal(extraFields) {
+    if (!PAYPAL_BUSINESS || PAYPAL_BUSINESS === "null" || PAYPAL_BUSINESS === "") return;
+
+    var form = document.createElement("form");
+    form.method = "post";
+    form.action = "https://www.paypal.com/cgi-bin/webscr";
+    form.target = "_blank";
+
+    function add(name, value) {
+      if (value === undefined || value === null || value === "") return;
+      var input = document.createElement("input");
+      input.type = "hidden";
+      input.name = name;
+      input.value = String(value);
+      form.appendChild(input);
+    }
+
+    // Common fields
+    add("business", PAYPAL_BUSINESS);
+    add("item_name", ITEM_NAME);
+    add("amount", AMOUNT_RAW);
+    add("currency_code", CURRENCY_CODE);
+
+    // Extra fields for the chosen flow
+    Object.keys(extraFields).forEach(function (k) { add(k, extraFields[k]); });
+
+    document.body.appendChild(form);
+    form.submit();
+    form.remove();
+  }
+
+  function handle(flow) {
+    var size = readSizeFromPage();
+    if (flow === "buy") {
+      // Instant Buy (_xclick) – keep using existing os0
+      submitToPayPal({
+        cmd: "_xclick",
+        os0: size
+      });
+    } else if (flow === "cart") {
+      // Add to Cart (PayPal cart)
+      submitToPayPal({
+        cmd: "_cart",
+        add: "1",
+        on0: "Size",
+        os0: size
+      });
+    }
+  }
+
+  function textOf(el) {
+    return (el.tagName === "INPUT") ? (el.value || "") : (el.textContent || "");
+  }
+
+  function wire(el, flow) {
+    el.addEventListener("click", function (ev) {
+      if (!PAYPAL_BUSINESS) return; // allow normal behavior if not configured
+      ev.preventDefault();
+      ev.stopPropagation();
+      handle(flow);
+    }, { passive: false });
+
+    // If the button sits inside a <form>, prevent that form from posting to the site
+    var parentForm = el.closest("form");
+    if (parentForm) {
+      parentForm.addEventListener("submit", function (ev) {
+        if (!PAYPAL_BUSINESS) return;
+        var submitterText = (document.activeElement && textOf(document.activeElement).trim()) || "";
+        if (submitterText === "Pay via PayPal") {
+          ev.preventDefault(); ev.stopImmediatePropagation(); handle("buy");
+        } else if (submitterText === "Add to Cart") {
+          ev.preventDefault(); ev.stopImmediatePropagation(); handle("cart");
+        }
+      }, { passive: false });
+    }
+  }
+
+  document.addEventListener("DOMContentLoaded", function () {
+    // Find buttons/links/inputs by visible label text (exact match).
+    var candidates = document.querySelectorAll('button, a, input[type="button"], input[type="submit"]');
+    candidates.forEach(function (el) {
+      var txt = textOf(el).trim();
+      if (txt === "Pay via PayPal") {
+        wire(el, "buy");
+      } else if (txt === "Add to Cart") {
+        wire(el, "cart");
+      }
+    });
+  });
+})();
+</script>
