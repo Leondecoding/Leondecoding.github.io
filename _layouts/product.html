@@ -1,90 +1,73 @@
----
-layout: default
----
+  <!-- 右：信息（只替换这段 aside，其它不动） -->
+  <aside>
+    {% assign currency = page.currency | default: site.default_currency | default: 'GBP' %}
+    {% capture currency_symbol %}{% case currency %}{% when 'GBP' %}£{% when 'USD' %}${% when 'EUR' %}€{% else %}{{ currency }}{% endcase %}{% endcapture %}
 
-<style>
-.fz-product{max-width:1100px;margin:32px auto;display:grid;grid-template-columns:1.1fr .9fr;gap:36px}
-@media (max-width:900px){.fz-product{grid-template-columns:1fr;gap:22px}}
-.fz-hero{border:1px solid #eee;background:#fafafa;border-radius:10px;overflow:hidden}
-.fz-hero img{width:100%;height:auto;display:block}
-.fz-thumbs{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap}
-.fz-thumbs img{width:80px;height:80px;object-fit:cover;border:1px solid #eee;border-radius:6px;cursor:pointer}
-</style>
+    <!-- 1. 标题 -->
+    <h1 class="fz-title">{{ page.title }}</h1>
 
-{% assign slug_lc   = page.slug | default: page.title | slugify %}
-{% assign title_dash = page.title | default: page.slug | replace: ' ', '-' %}
+    <!-- 2. 价格 + 3. Taxes -->
+    {% if page.price %}
+      <p class="fz-price-line">{{ currency_symbol | strip }}{{ page.price }}</p>
+      <p class="fz-tax">Taxes included.</p>
+    {% endif %}
 
-<main class="fz-product">
-  <section>
-    <div class="fz-hero">
-      <img id="fz-hero-img" class="fz-autoimg"
-           alt="{{ page.title }}"
-           src="https://via.placeholder.com/900x900?text=Loading"
-           data-candidates='[
-             "{{ page.image }}",
-             "{{ page.featured_image }}",
-             "{{ page.cover }}",
-             "{{ page.hero }}",
-             "{{ page.thumbnail }}",
-             "{{ page.thumb }}",
-             "{{ page.picture }}",
-             "{{ page.photo }}",
-             {% if page.images %}"{{ page.images | first }}",{% endif %}
-             {% if page.photos %}"{{ page.photos  | first }}",{% endif %}
-
-             "/assets/images/originals/{{ title_dash }}.jpg",
-             "/assets/images/originals/{{ title_dash }}.jpeg",
-             "/assets/images/originals/{{ title_dash }}.png",
-             "/assets/images/originals/{{ title_dash }}.webp",
-
-             "/assets/images/originals/{{ slug_lc }}.jpg",
-             "/assets/images/originals/{{ slug_lc }}.jpeg",
-             "/assets/images/originals/{{ slug_lc }}.png",
-             "/assets/images/originals/{{ slug_lc }}.webp",
-
-             "/assets/images/originals/{{ title_dash }}/hero.jpg",
-             "/assets/images/originals/{{ slug_lc }}/hero.jpg",
-             "/assets/images/originals/{{ title_dash }}/cover.jpg",
-             "/assets/images/originals/{{ slug_lc }}/cover.jpg"
-           ]'>
+    <!-- 4. Size：A5 / A4（在价格下、按钮上） -->
+    <div class="fz-field">
+      <div class="fz-field__label">Size</div>
+      <div class="fz-pills" id="fz-size-pills">
+        <input class="fz-pill-input" type="radio" name="size" id="size-a5" value="A5" checked>
+        <label class="fz-pill" for="size-a5">A5</label>
+        <input class="fz-pill-input" type="radio" name="size" id="size-a4" value="A4">
+        <label class="fz-pill" for="size-a4">A4</label>
+      </div>
     </div>
 
-    {% if page.images and page.images.size > 1 %}
-      <div class="fz-thumbs" id="fz-thumbs">
-        {% for p in page.images %}
-          <img src="{{ p | relative_url }}" alt="{{ page.title }} thumb {{ forloop.index }}"
-               data-hero="{{ p | relative_url }}"
-               onerror="this.onerror=null;this.style.display='none';">
-        {% endfor %}
-      </div>
+    <!-- 5. Pay via PayPal（上） -->
+    <div class="fz-buy">
+      {% if site.paypal_business_id and page.price %}
+      <form id="fz-paypal-form" action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_blank" style="width:100%">
+        <input type="hidden" name="cmd" value="_xclick">
+        <input type="hidden" name="business" value="{{ site.paypal_business_id }}">
+        <input type="hidden" id="pp_item_name" name="item_name" value="{{ page.title }}{% if page.sku %} ({{ page.sku }}){% endif %}">
+        <input type="hidden" name="amount" value="{{ page.price }}">
+        <input type="hidden" name="currency_code" value="{{ currency }}">
+        <button type="submit" class="fz-btn fz-btn--primary" style="width:100%">Pay via PayPal</button>
+      </form>
+      {% else %}
+      <a class="fz-btn fz-btn--primary" href="https://www.paypal.com" target="_blank" rel="noopener" style="width:100%">Pay via PayPal</a>
+      {% endif %}
+
+      <!-- 6. Add to Cart（在 PayPal 下面，等宽） -->
+      <button class="fz-btn js-add-to-cart"
+        style="width:100%"
+        data-sku="{{ page.sku | default: page.slug | default: page.title | slugify }}"
+        data-title="{{ page.title | escape }}"
+        data-price="{{ page.price | default: 0 }}"
+        data-currency="{{ currency | escape }}"
+        data-image="{{ hero_src | default: '' }}"
+        data-option-name="Size"
+        data-option-input="size"
+      >Add to Cart</button>
+    </div>
+
+    <!-- 7. 作品介绍（在按钮下面） -->
+    {% if page.description %}
+      <div class="fz-prop" style="margin-top:14px;">{{ page.description }}</div>
     {% endif %}
-  </section>
+    {% if content %}
+      <div class="fz-prop" style="margin-top:6px;">{{ content }}</div>
+    {% endif %}
 
-  <!-- 右侧信息区保持你现有的内容与顺序（不改动） -->
-  <aside>
-    {{ content }}
+    <!-- 仅本页：让 PayPal item_name 带上所选尺寸 -->
+    <script>
+      (function(){
+        var el=document.getElementById('pp_item_name'); if(!el) return;
+        var base="{{ page.title | escape }}{% if page.sku %} ({{ page.sku }}){% endif %}";
+        function val(){ var c=document.querySelector('input[name="size"]:checked'); return c?c.value:''; }
+        function update(){ el.value = val()? base + " - " + val() : base; }
+        document.getElementById('fz-size-pills')?.addEventListener('change', update);
+        update();
+      })();
+    </script>
   </aside>
-</main>
-
-<script>
-(function(){
-  const base='{{ "" | relative_url }}';
-  const abs = s => /^https?:\/\//.test(s) || s.startsWith('data:');
-  function norm(p){ if(!p) return null; p=String(p).trim(); if(!p) return null; if(abs(p)) return p; if(!p.startsWith('/')) p='/'+p; return base+p; }
-
-  // 自动主图
-  const hero=document.getElementById('fz-hero-img');
-  if(hero){
-    let list=[]; try{ list=JSON.parse(hero.getAttribute('data-candidates')||'[]').filter(Boolean);}catch(e){}
-    let i=-1; const tried=new Set();
-    function next(){ i++; while(i<list.length && tried.has(list[i])) i++; if(i>=list.length){ hero.src='https://via.placeholder.com/900x900?text=Artwork'; return; } tried.add(list[i]); const src=norm(list[i]); if(src){ hero.src=src; } else { next(); } }
-    hero.addEventListener('error', next); next();
-  }
-
-  // 缩略图切换
-  const thumbs=document.getElementById('fz-thumbs');
-  thumbs && hero && thumbs.addEventListener('click', e=>{
-    const t=e.target; if(t && t.dataset.hero){ hero.src=t.dataset.hero; }
-  });
-})();
-</script>
