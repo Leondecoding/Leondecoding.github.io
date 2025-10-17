@@ -60,7 +60,7 @@ layout: default
       {% endif %}
     </div>
 
-    <!-- 右：信息栏（标题→价格→Taxes→按钮→说明） -->
+    <!-- 右：信息栏（标题 → 价格 → Taxes → 按钮 → 说明） -->
     <div class="product-info fz-product" style="margin-top:32px;">
       {% assign file_display = main_image_url | split: '/' | last %}
       {% if file_display == '' or file_display == nil %}{% assign file_display = page.title %}{% endif %}
@@ -70,6 +70,7 @@ layout: default
       {% assign curr = page.currency | upcase | default: site.currency | upcase %}
       {% assign sym = '' %}
       {% if curr == 'GBP' %}{% assign sym = '£' %}{% elsif curr == 'USD' %}{% assign sym = '$' %}{% elsif curr == 'EUR' %}{% assign sym = '€' %}{% elsif curr == 'CNY' or curr == 'JPY' %}{% assign sym = '¥' %}{% elsif curr == 'HKD' %}{% assign sym = 'HK$' %}{% elsif curr == 'TWD' %}{% assign sym = 'NT$' %}{% endif %}
+
       {% if price_raw %}
         <div class="product-price" style="font-size:1.125rem;font-weight:600;margin:0 0 6px 0;float:none;clear:both;text-align:left;">
           {% if sym != '' %}{{ sym }}{{ price_raw }}{% else %}{{ price_raw }}{% if curr %} {{ curr }}{% endif %}{% endif %}
@@ -83,7 +84,7 @@ layout: default
       {% assign sku_base = page.sku | default: page.slug | default: page.title | slugify %}
 
       <div class="product-actions" style="display:flex;flex-direction:column;gap:8px;max-width:420px;float:none;clear:both;text-align:left;">
-        <!-- PayPal 立即购买：未配置账号时给出提示，不跳转 -->
+        <!-- PayPal 立即购买（未配置账号时给提示） -->
         <form class="product-paypal">
           <input type="hidden" name="item_name" value="{{ page.title | default: file_display }}">
           {% if price_raw %}<input type="hidden" name="amount" value="{{ price_raw }}">{% endif %}
@@ -91,9 +92,9 @@ layout: default
           <button type="button" id="pp-buy" style="width:100%;padding:12px 16px;">Pay via PayPal</button>
         </form>
 
-        <!-- Add to Cart：完全对齐 fz-ui.js 的数据协议 -->
+        <!-- Add to Cart：对齐 fz-ui.js 的数据协议 -->
         <form class="product-cart">
-          <!-- 让 getSelectedValue() 能读到尺寸（隐藏，不改视觉） -->
+          <!-- 供 getSelectedValue() 读取尺寸（隐藏，不改视觉） -->
           <input type="radio" name="size" value="{{ default_size }}" checked hidden>
           <button
             type="button"
@@ -117,10 +118,10 @@ layout: default
   </div>
 </div>
 
-<!-- 极小兜底：若 fz-ui.js 未加载，仍保证按钮可用；PayPal 未配置时仅提示 -->
+<!-- 兜底脚本：若全站 fz-ui.js 未接好，这里保证三个图标 & Add to Cart 都能工作；若已接好，此段不影响 -->
 <script>
 (function(){
-  // 让 PayPal 按钮“有反馈”
+  // =========== PayPal 立即购买（最小参数 _xclick） ===========
   var BUSINESS = {{ site.paypal_business | jsonify }};
   var PRICE    = {{ price_raw | jsonify }};
   var CURRENCY = {{ currency_code | jsonify }};
@@ -142,13 +143,10 @@ layout: default
       document.body.appendChild(f); f.submit(); f.remove();
     });
 
-    // 如果你的 fz-ui.js 已经绑定 .js-add-to-cart，这里不会重复绑定；
-    // 否则，做一个与 fz-ui.js 等价的最小实现（写入 localStorage:fz_cart 并更新 #fz-cart-count）
-    var wired = false;
-    document.querySelectorAll('.js-add-to-cart').forEach(function(btn){
-      if (btn._fzWired) { wired = true; }
-    });
-    if (!wired) {
+    // =========== 兜底：Add to Cart ===========
+    // 如果全站的 fz-ui.js 已经给 .js-add-to-cart 绑定，这里检测到 _fzWired 就不再重复绑定
+    var alreadyWired = Array.prototype.some.call(document.querySelectorAll('.js-add-to-cart'), function(b){ return !!b._fzWired; });
+    if (!alreadyWired) {
       var $$ = function(s,c){ return Array.from((c||document).querySelectorAll(s)); };
       function getSelectedValue(btn){
         var n = btn.dataset.optionInput || 'size';
@@ -156,43 +154,88 @@ layout: default
         var picked = wrap.querySelector('input[name="'+n+'"]:checked');
         return picked ? picked.value : '';
       }
+      function formatCurrency(v, code) {
+        var sym = (code==='GBP')?'£':(code==='USD')?'$':(code==='EUR')?'€':((code==='JPY'||code==='CNY')?'¥':(code==='HKD')?'HK$':(code==='TWD')?'NT$':''));
+        var num = parseFloat(v||'0'); return (sym||'') + (isFinite(num)? num.toFixed(2) : v);
+      }
+      function loadCart(){ try { return JSON.parse(localStorage.getItem('fz_cart')||'[]'); } catch(e){ return []; } }
+      function saveCart(a){ localStorage.setItem('fz_cart', JSON.stringify(a)); }
+      function updateBadge(){
+        var badge = document.getElementById('fz-cart-count');
+        if(!badge) return;
+        var cnt = loadCart().reduce(function(n,i){return n+(i.qty||1);},0);
+        badge.hidden = cnt<=0; badge.textContent = String(cnt);
+      }
       $$('.js-add-to-cart').forEach(function(btn){
         btn.addEventListener('click', function(){
-          var storeKey = 'fz_cart';
-          var getCart = function(){ try { return JSON.parse(localStorage.getItem(storeKey)||'[]'); } catch(e){ return []; } };
-          var setCart = function(arr){ localStorage.setItem(storeKey, JSON.stringify(arr)); };
-          var badge = document.getElementById('fz-cart-count');
-          var updateBadge = function(){
-            var cnt = getCart().reduce(function(n,i){return n+(i.qty||1);},0);
-            if(badge){ badge.hidden = cnt<=0; badge.textContent = String(cnt); }
-          };
-
-          var optionName = btn.dataset.optionName || 'Size';
+          var optionName  = btn.dataset.optionName || 'Size';
           var optionValue = getSelectedValue(btn);
-          var title = (btn.dataset.title||'Artwork') + (optionValue ? (' - '+optionValue) : '');
-          var sku = (btn.dataset.sku || 'item') + (optionValue ? ('-'+optionValue) : '');
-
           var item = {
-            sku: sku,
-            title: title,
-            price: parseFloat(btn.dataset.price||'0'),
-            currency: btn.dataset.currency || '',
+            sku: (btn.dataset.sku || 'item') + (optionValue?('-'+optionValue):''),
+            title: (btn.dataset.title || 'Artwork') + (optionValue?(' - '+optionValue):''),
+            price: parseFloat(btn.dataset.price || '0'),
+            currency: btn.dataset.currency || 'GBP',
             image: btn.dataset.image || '',
             qty: 1,
             options: optionValue ? [{ name: optionName, value: optionValue }] : []
           };
-
-          var cart = getCart();
+          var cart = loadCart();
           var exist = cart.find(function(x){ return x.sku === item.sku; });
-          if (exist){ exist.qty = (exist.qty||1) + 1; } else { cart.push(item); }
-          setCart(cart); updateBadge();
-
-          // 轻反馈
+          if (exist) exist.qty = (exist.qty||1) + 1; else cart.push(item);
+          saveCart(cart); updateBadge();
           var old = btn.textContent; btn.disabled = true; btn.textContent = "Added ✓";
-          setTimeout(function(){ btn.textContent = old; btn.disabled = false; }, 1000);
+          setTimeout(function(){ btn.textContent = old; btn.disabled = false; }, 900);
         });
       });
+      updateBadge();
     }
+
+    // =========== 兜底：Header 三个图标（搜索 / 登录 / 购物篮） ===========
+    // 若 fz-ui.js 已绑定（我们无法直接检测），这段仅在原本没有行为时提供最小交互
+    function openEl(id){ var el = document.getElementById(id); if (el) el.hidden = false; }
+    function closeEl(id){ var el = document.getElementById(id); if (el) el.hidden = true; }
+    function renderCartDrawer(){
+      var box = document.getElementById('fz-cart-content'); if(!box) return;
+      var items = []; try{ items = JSON.parse(localStorage.getItem('fz_cart')||'[]'); }catch(e){}
+      if(!items.length){ box.innerHTML = '<p>当前为空。</p>'; return; }
+      var total = 0;
+      box.innerHTML = items.map(function(it){
+        var p = parseFloat(it.price)||0, q = it.qty||1; total += p*q;
+        var opt = (it.options && it.options[0]) ? ' <span style="color:#666;font-size:.9em;">(' + it.options[0].name + ': ' + it.options[0].value + ')</span>' : '';
+        return '<div style="display:grid;grid-template-columns:64px 1fr auto;gap:12px;align-items:center;">'
+          + (it.image?('<img src="'+it.image+'" alt="" style="width:64px;height:64px;object-fit:cover;border:1px solid #eee;">'):'<div style="width:64px;height:64px;background:#f4f4f4"></div>')
+          + '<div><div style="font-weight:600;">'+it.title+'</div>'+opt+'</div>'
+          + '<div style="font-weight:600;">'+(it.currency==='GBP'?'£':it.currency==='USD'?'$':it.currency==='EUR'?'€':'')+(p.toFixed? p.toFixed(2):p)+' × '+q+'</div>'
+          + '</div>';
+      }).join('') + '<hr style="margin:12px 0;"><div style="display:flex;justify-content:space-between;font-weight:700;">'
+      + '<span>Total</span><span>'+((CURRENCY==='GBP')?'£':CURRENCY==='USD'?'$':CURRENCY==='EUR'?'€':'')+ (total.toFixed? total.toFixed(2):total) +'</span></div>';
+    }
+
+    var sBtn = document.getElementById('fz-search-btn');
+    var lBtn = document.getElementById('fz-login-btn');
+    var cBtn = document.getElementById('fz-cart-btn');
+
+    if (sBtn) sBtn.addEventListener('click', function(){ openEl('fz-search-panel'); });
+    document.querySelectorAll('[data-close="fz-search-panel"]').forEach(function(el){
+      el.addEventListener('click', function(){ closeEl('fz-search-panel'); });
+    });
+
+    if (lBtn) lBtn.addEventListener('click', function(e){
+      e.stopPropagation();
+      var menu = document.getElementById('fz-login-menu'); if(!menu) return;
+      var open = menu.hidden; menu.hidden = !open; lBtn.setAttribute('aria-expanded', String(open));
+    });
+    document.addEventListener('click', function(e){
+      var menu = document.getElementById('fz-login-menu');
+      if (menu && !menu.hidden && !menu.contains(e.target) && e.target !== lBtn){ menu.hidden = true; lBtn && lBtn.setAttribute('aria-expanded','false'); }
+    });
+
+    if (cBtn) cBtn.addEventListener('click', function(){
+      renderCartDrawer(); openEl('fz-cart-drawer');
+    });
+    document.querySelectorAll('[data-close="fz-cart-drawer"]').forEach(function(el){
+      el.addEventListener('click', function(){ closeEl('fz-cart-drawer'); });
+    });
   });
 })();
 </script>
