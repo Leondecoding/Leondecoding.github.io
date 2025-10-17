@@ -1,9 +1,9 @@
-/* fz-ui.js — robust cart (uid + legacy migration) with de-dupe add binding & click throttle; + / − / remove; "Checkout" in English */
+/* fz-ui.js — Editable cart (+/−/×), robust legacy fix (uid migration), no double-add, Checkout in English */
 (function () {
   const $$ = (s, c = document) => Array.from((c || document).querySelectorAll(s));
   const $  = (s, c = document) => (c || document).querySelector(s);
 
-  // ===== Storage =====
+  // ========== Storage ==========
   const KEY = 'fz_cart';
   const load = () => { try { return JSON.parse(localStorage.getItem(KEY) || '[]'); } catch(e){ return []; } };
   const save = (arr) => localStorage.setItem(KEY, JSON.stringify(arr));
@@ -14,7 +14,7 @@
     const n = count(); b.textContent = String(n); b.hidden = n<=0;
   }
 
-  // ===== Utils =====
+  // ========== Utils ==========
   const uid = () => 'u' + Date.now().toString(36) + Math.random().toString(36).slice(2,7);
   function fmt(v, code){
     const sym = (code==='GBP')?'£':(code==='USD')?'$':(code==='EUR')?'€':((code==='JPY'||code==='CNY')?'¥':(code==='HKD')?'HK$':(code==='TWD')?'NT$':''));
@@ -28,7 +28,7 @@
     return picked ? picked.value : '';
   }
 
-  // ===== Legacy migration =====
+  // ========== Legacy migration（确保旧条目可编辑/可删除） ==========
   function migrate(){
     const cart = load(); let changed = false;
     for (let i=0;i<cart.length;i++){
@@ -36,22 +36,24 @@
       if (!it.uid) { it.uid = uid(); changed = true; }
       if (typeof it.qty !== 'number' || it.qty < 1) { it.qty = 1; changed = true; }
       const p = (typeof it.price === 'number') ? it.price : parseFloat(it.price);
-      if (!isFinite(p)) { it.price = 0; changed = true; } else { it.price = p; }
-      if (!it.currency) { it.currency = 'GBP'; changed = true; }
-      if (!it.title) { it.title = 'Untitled'; changed = true; }
-      if (typeof it.sku !== 'string') { it.sku = ''; changed = true; }
+      it.price = isFinite(p) ? p : 0;
+      if (!it.currency) it.currency = 'GBP';
+      if (!it.title) it.title = 'Untitled';
+      if (typeof it.sku !== 'string') it.sku = '';
+      if (!Array.isArray(it.options)) it.options = [];
+      if (typeof it.image !== 'string') it.image = '';
     }
     if (changed) save(cart);
   }
 
-  // ===== Cart operations (by uid with index fallback) =====
+  // ========== Cart ops（优先 uid，回退索引） ==========
   function setQtyByUid(_uid, delta){
     const cart = load();
     const i = cart.findIndex(x => x.uid === _uid);
     if (i < 0) return false;
     cart[i].qty = (cart[i].qty || 1) + delta;
     if (cart[i].qty <= 0) cart.splice(i,1);
-    save(cart); updateBadge(); render();
+    save(cart); updateBadge(); renderDrawer();
     return true;
   }
   function setQtyByIndex(idx, delta){
@@ -59,27 +61,24 @@
     if (idx<0 || idx>=cart.length) return false;
     cart[idx].qty = (cart[idx].qty || 1) + delta;
     if (cart[idx].qty <= 0) cart.splice(idx,1);
-    save(cart); updateBadge(); render();
+    save(cart); updateBadge(); renderDrawer();
     return true;
   }
   function removeByUid(_uid){
     const cart = load().filter(x => x.uid !== _uid);
-    save(cart); updateBadge(); render();
+    save(cart); updateBadge(); renderDrawer();
   }
   function removeByIndex(idx){
     const cart = load(); if (idx<0 || idx>=cart.length) return;
-    cart.splice(idx,1); save(cart); updateBadge(); render();
+    cart.splice(idx,1); save(cart); updateBadge(); renderDrawer();
   }
 
-  // ===== Add to cart (with throttle to prevent double-add) =====
+  // ========== Add to cart（防重复绑定 + 点击节流，避免“一次加两件”） ==========
   function addFromButton(btn){
-    // 防抖/节流：同一按钮 300ms 内只处理一次
     const now = Date.now();
     if (btn._fzLock) return;
     if (btn._lastAdd && (now - btn._lastAdd) < 300) return;
-    btn._fzLock = true;
-    btn._lastAdd = now;
-    setTimeout(()=>{ btn._fzLock = false; }, 320);
+    btn._fzLock = true; btn._lastAdd = now; setTimeout(()=>{ btn._fzLock = false; }, 320);
 
     const optionName  = btn.dataset.optionName || 'Option';
     const optionValue = getSelectedValue(btn);
@@ -98,7 +97,7 @@
       currency: btn.dataset.currency || 'GBP',
       image: btn.dataset.image || '',
       qty: 1,
-      options: optionValue ? [{ name: (btn.dataset.optionName||'Option'), value: optionValue }] : []
+      options: optionValue ? [{ name: optionName, value: optionValue }] : []
     };
 
     const cart = load();
@@ -112,8 +111,8 @@
     setTimeout(()=>{ btn.textContent=old; btn.disabled=false; }, 900);
   }
 
-  // ===== Drawer rendering =====
-  function render(){
+  // ========== Drawer 渲染（带 + / − / × 控件） ==========
+  function renderDrawer(){
     const box = $('#fz-cart-content'); if(!box) return;
     const items = load();
     if (!items.length){ box.innerHTML = '<p>Cart is empty.</p>'; return; }
@@ -159,28 +158,27 @@
     };
   }
 
-  // ===== Header interactivity =====
+  // ========== Header 交互 ==========
   function openEl(id){ const el = $('#'+id); if (el) el.hidden = false; }
   function closeEl(id){ const el = $('#'+id); if (el) el.hidden = true; }
 
-  // ===== Boot =====
+  // ========== Boot ==========
   document.addEventListener('DOMContentLoaded', () => {
     migrate();
 
-    // “Checkout”英文
     const checkoutBtn = $('#fz-cart-drawer .fz-drawer__footer a');
     if (checkoutBtn) checkoutBtn.textContent = 'Checkout';
 
-    // 绑定 Add to Cart（防重复绑定）
+    // Add to Cart（防重复绑定，保持你之前的行为不变）
     $$('.js-add-to-cart').forEach(btn => {
-      if (btn._fzWired) return;                    // 已绑定则跳过
+      if (btn._fzWired) return;
       const handler = () => addFromButton(btn);
       btn.addEventListener('click', handler);
       btn._fzWired = true;
       btn._fzHandler = handler;
     });
 
-    // 搜索 / 登录 / 购物车开关
+    // 搜索 / 登录 / 购物车
     const searchBtn = $('#fz-search-btn');
     if (searchBtn) searchBtn.addEventListener('click', () => openEl('fz-search-panel'));
     $$('#fz-search-panel [data-close="fz-search-panel"]').forEach(el => el.addEventListener('click', () => closeEl('fz-search-panel')));
@@ -203,7 +201,7 @@
     }
 
     const cartBtn = $('#fz-cart-btn');
-    if (cartBtn) cartBtn.addEventListener('click', () => { render(); openEl('fz-cart-drawer'); });
+    if (cartBtn) cartBtn.addEventListener('click', () => { renderDrawer(); openEl('fz-cart-drawer'); });
     $$('#fz-cart-drawer [data-close="fz-cart-drawer"]').forEach(el => el.addEventListener('click', () => closeEl('fz-cart-drawer')));
 
     updateBadge();
