@@ -1,4 +1,4 @@
-/* fz-ui.js — cart with + / - / remove, and English "Checkout" */
+/* fz-ui.js — cart with + / - / remove; robust for items without SKU; Checkout in English */
 (function () {
   const $$ = (s, c = document) => Array.from(c.querySelectorAll(s));
   const $  = (s, c = document) => c.querySelector(s);
@@ -25,30 +25,43 @@
     return (sym || '') + (isFinite(n) ? n.toFixed(2) : v) + (sym ? '' : (code ? (' ' + code) : ''));
   }
 
-  // ===== Cart operations =====
-  function setQty(sku, delta) {
+  // ===== Cart operations (by sku or by index fallback) =====
+  function setQtyBySku(sku, delta) {
     const cart = loadCart();
     const i = cart.findIndex(x => x.sku === sku);
-    if (i < 0) return;
+    if (i < 0) return false;
     cart[i].qty = (cart[i].qty || 1) + delta;
-    if (cart[i].qty <= 0) cart.splice(i, 1);           // 变 0 则移除
-    saveCart(cart);
-    updateBadge();
-    renderCartDrawer();
+    if (cart[i].qty <= 0) cart.splice(i, 1);
+    saveCart(cart); updateBadge(); renderCartDrawer();
+    return true;
   }
-
-  function removeItem(sku) {
-    const cart = loadCart().filter(x => x.sku !== sku);
-    saveCart(cart);
-    updateBadge();
-    renderCartDrawer();
+  function setQtyByIndex(idx, delta) {
+    const cart = loadCart();
+    if (idx < 0 || idx >= cart.length) return false;
+    cart[idx].qty = (cart[idx].qty || 1) + delta;
+    if (cart[idx].qty <= 0) cart.splice(idx, 1);
+    saveCart(cart); updateBadge(); renderCartDrawer();
+    return true;
+  }
+  function removeBySku(sku) {
+    const cart = loadCart();
+    const next = cart.filter(x => x.sku !== sku);
+    saveCart(next); updateBadge(); renderCartDrawer();
+  }
+  function removeByIndex(idx) {
+    const cart = loadCart();
+    if (idx < 0 || idx >= cart.length) return;
+    cart.splice(idx, 1);
+    saveCart(cart); updateBadge(); renderCartDrawer();
   }
 
   function addToCartFromButton(btn) {
     const optionName  = btn.dataset.optionName || 'Option';
     const optionValue = getSelectedValue(btn);
     const title = (btn.dataset.title || 'Artwork') + (optionValue ? (' - ' + optionValue) : '');
-    const sku   = (btn.dataset.sku   || 'item')    + (optionValue ? ('-' + optionValue) : '');
+    // 确保新项目一定有 sku（避免再出现删除不了的旧问题）
+    let baseSku = btn.dataset.sku || 'item';
+    const sku   = baseSku + (optionValue ? ('-' + optionValue) : '');
 
     const item = {
       sku,
@@ -81,7 +94,7 @@
     return picked ? picked.value : '';
   }
 
-  // ===== Drawer rendering =====
+  // ===== Drawer rendering (with + / - / ×, using sku+idx) =====
   function renderCartDrawer() {
     const box = $('#fz-cart-content');
     if (!box) return;
@@ -92,11 +105,12 @@
     }
 
     let total = 0;
-    box.innerHTML = items.map(it => {
+    box.innerHTML = items.map((it, idx) => {
       const p = parseFloat(it.price) || 0;
       const q = it.qty || 1;
       total += p * q;
       const opt = (it.options && it.options[0]) ? ` <div style="color:#666;font-size:.9em;">(${it.options[0].name}: ${it.options[0].value})</div>` : '';
+      const safeSku = (typeof it.sku === 'string') ? it.sku : '';
       return `
       <div class="fz-cart-row" style="display:grid;grid-template-columns:64px 1fr auto auto;gap:12px;align-items:center;margin-bottom:10px;">
         ${it.image ? `<img src="${it.image}" alt="" style="width:64px;height:64px;object-fit:cover;border:1px solid #eee;">`
@@ -105,10 +119,10 @@
           <div style="font-weight:600;line-height:1.2">${it.title || 'Untitled'}</div>
           ${opt}
           <div class="fz-qty" style="display:inline-flex;align-items:center;gap:6px;margin-top:6px;">
-            <button data-action="dec" data-sku="${it.sku}" aria-label="Decrease quantity" style="width:26px;height:26px;border:1px solid #ccc;border-radius:4px;">−</button>
+            <button data-action="dec" data-sku="${safeSku}" data-idx="${idx}" aria-label="Decrease quantity" style="width:26px;height:26px;border:1px solid #ccc;border-radius:4px;">−</button>
             <span aria-live="polite">${q}</span>
-            <button data-action="inc" data-sku="${it.sku}" aria-label="Increase quantity" style="width:26px;height:26px;border:1px solid #ccc;border-radius:4px;">+</button>
-            <button data-action="remove" data-sku="${it.sku}" aria-label="Remove item" title="Remove" style="margin-left:8px;border:none;background:transparent;font-size:18px;line-height:1;">×</button>
+            <button data-action="inc" data-sku="${safeSku}" data-idx="${idx}" aria-label="Increase quantity" style="width:26px;height:26px;border:1px solid #ccc;border-radius:4px;">+</button>
+            <button data-action="remove" data-sku="${safeSku}" data-idx="${idx}" aria-label="Remove item" title="Remove" style="margin-left:8px;border:none;background:transparent;font-size:18px;line-height:1;">×</button>
           </div>
         </div>
         <div style="white-space:nowrap;font-weight:600;">${formatCurrency(p, it.currency)}</div>
@@ -120,15 +134,22 @@
        <span>Total</span><span>${formatCurrency(total, (items[0] && items[0].currency) || 'GBP')}</span>
      </div>`;
 
-    // 委托监听：+ / − / remove
+    // 事件委托：优先按 sku；sku 无效则按 idx 回退处理
     box.onclick = (ev) => {
       const btn = ev.target.closest('[data-action]');
       if (!btn) return;
-      const sku = btn.dataset.sku;
       const action = btn.dataset.action;
-      if (action === 'inc') setQty(sku, +1);
-      else if (action === 'dec') setQty(sku, -1);
-      else if (action === 'remove') removeItem(sku);
+      const sku = btn.dataset.sku;
+      const idx = parseInt(btn.dataset.idx, 10);
+      const invalidSku = !sku || sku === 'undefined' || sku === 'null';
+
+      if (action === 'inc') {
+        if (!(invalidSku ? setQtyByIndex(idx, +1) : setQtyBySku(sku, +1))) setQtyByIndex(idx, +1);
+      } else if (action === 'dec') {
+        if (!(invalidSku ? setQtyByIndex(idx, -1) : setQtyBySku(sku, -1))) setQtyByIndex(idx, -1);
+      } else if (action === 'remove') {
+        if (invalidSku) removeByIndex(idx); else removeBySku(sku);
+      }
     };
   }
 
@@ -142,7 +163,7 @@
     const checkoutBtn = $('#fz-cart-drawer .fz-drawer__footer a');
     if (checkoutBtn) checkoutBtn.textContent = 'Checkout';
 
-    // 绑定 "Add to cart"（跟随 data-*）
+    // 绑定 "Add to cart"
     $$('.js-add-to-cart').forEach(btn => {
       btn.addEventListener('click', () => addToCartFromButton(btn));
       btn._fzWired = true;
