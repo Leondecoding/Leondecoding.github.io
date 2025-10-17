@@ -1,75 +1,217 @@
-<!-- 文件：_includes/header.html（注意：不要有 --- front-matter） -->
-<header class="fz-site-header">
-  <div class="fz-header-inner">
-    <!-- 左：Logo -->
-    <a class="fz-logo" href="{{ '/' | relative_url }}" aria-label="FZ Studio Home">
-      {% assign _logo = site.logo | default: '/assets/images/logo-fzs.svg' %}
-      <img src="{{ _logo | relative_url }}" alt="{{ site.title | default: 'FZ Studio' }}">
-    </a>
+---
+layout: default
+---
 
-    <!-- 中：主导航（保持你之前的顺序/文案） -->
-    {% assign _url = page.url | default: '' %}
-    {% assign is_original = _url contains '/original-art/' or page.collection == 'originals' %}
-    {% assign is_prints   = _url contains '/art-prints/'  or page.collection == 'artprints' %}
-    {% assign is_cards    = _url contains '/greeting-cards/' or page.collection == 'cards' %}
-    {% assign is_blog     = _url contains '/blog/' or page.collection == 'posts' %}
-    <nav class="fz-nav" aria-label="Primary">
-      <a href="{{ '/' | relative_url }}" class="fz-nav__link{% if _url == '/' %} is-active{% endif %}">HOME</a>
-      <a href="{{ '/our-story/' | relative_url }}" class="fz-nav__link{% if _url contains '/our-story/' %} is-active{% endif %}">OUR STORY</a>
-      <a href="{{ '/blog/' | relative_url }}" class="fz-nav__link{% if is_blog %} is-active{% endif %}">BLOG</a>
-      <a href="{{ '/original-art/' | relative_url }}" class="fz-nav__link{% if is_original %} is-active{% endif %}">ORIGINAL ART</a>
-      <a href="{{ '/art-prints/' | relative_url }}" class="fz-nav__link{% if is_prints %} is-active{% endif %}">ART PRINTS</a>
-      <a href="{{ '/greeting-cards/' | relative_url }}" class="fz-nav__link{% if is_cards %} is-active{% endif %}">GREETING CARDS</a>
-      <a href="{{ '/contact/' | relative_url }}" class="fz-nav__link{% if _url contains '/contact/' %} is-active{% endif %}">CONTACT</a>
-    </nav>
+<div class="container product-page">
+  <div class="product-grid" style="display:grid;grid-template-columns:minmax(260px,1fr) minmax(360px,1fr);gap:64px;align-items:start;padding-left:30px;">
 
-    <!-- 右：搜索 / 登录 / 购物篮 -->
-    <div class="fz-actions">
-      <button class="fz-icon-btn" id="fz-search-btn" aria-label="搜索" aria-haspopup="dialog" aria-controls="fz-search-panel">
-        <!-- 你的图标样式会来自现有CSS，这里只保留语义 -->
-        🔍
-      </button>
-      <button class="fz-icon-btn" id="fz-login-btn" aria-label="登录" aria-haspopup="menu" aria-controls="fz-login-menu" aria-expanded="false">👤</button>
-      <button class="fz-icon-btn" id="fz-cart-btn" aria-label="购物篮" aria-haspopup="dialog" aria-controls="fz-cart-drawer">
-        🛒 <span class="fz-badge" id="fz-cart-count" hidden>0</span>
-      </button>
+    <!-- 左：主图（多字段兜底） -->
+    <div class="product-gallery">
+      {% assign candidates = '' | split: '' %}
+      {% if page.image %}{% assign candidates = candidates | push: page.image %}{% endif %}
+      {% if page.featured_image %}{% assign candidates = candidates | push: page.featured_image %}{% endif %}
+      {% if page.cover %}{% assign candidates = candidates | push: page.cover %}{% endif %}
+      {% if page.hero %}{% assign candidates = candidates | push: page.hero %}{% endif %}
+      {% if page.thumbnail %}{% assign candidates = candidates | push: page.thumbnail %}{% endif %}
+      {% if page.thumb %}{% assign candidates = candidates | push: page.thumb %}{% endif %}
+      {% if page.picture %}{% assign candidates = candidates | push: page.picture %}{% endif %}
+      {% if page.photo %}{% assign candidates = candidates | push: page.photo %}{% endif %}
+      {% if page.images and page.images.size > 0 %}{% assign candidates = candidates | push: page.images[0] %}{% endif %}
+      {% if page.photos and page.photos.size > 0 %}{% assign candidates = candidates | push: page.photos[0] %}{% endif %}
+
+      {% assign title_dash = page.title | replace: ' ', '-' %}
+      {% assign slug_dash  = page.title | slugify %}
+      {% capture cand1 %}/assets/images/originals/{{ title_dash }}.jpg{% endcapture %}
+      {% capture cand2 %}/assets/images/originals/{{ title_dash }}-1.jpg{% endcapture %}
+      {% capture cand3 %}/assets/images/originals/{{ slug_dash }}.jpg{% endcapture %}
+      {% capture cand4 %}/assets/images/originals/{{ slug_dash }}-1.jpg{% endcapture %}
+      {% assign candidates = candidates | push: cand1 | push: cand2 | push: cand3 | push: cand4 %}
+
+      {% assign main_image_url = nil %}
+      {% for c in candidates %}
+        {% if c %}
+          {% assign p = c | strip %}
+          {% if p != '' %}
+            {% unless p contains '://' %}
+              {% assign first_char = p | slice: 0, 1 %}
+              {% if first_char != '/' %}{% assign p = '/' | append: p %}{% endif %}
+            {% endunless %}
+            {% assign main_image_url = p %}
+            {% break %}
+          {% endif %}
+        {% endif %}
+      {% endfor %}
+
+      <img class="product-main-image" src="{{ main_image_url | relative_url }}" alt="{{ page.title | escape }}" style="max-width:100%;height:auto;display:block;"/>
+
+      {% if page.images and page.images.size > 1 %}
+        <div class="product-thumbs" style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;">
+          {% for t in page.images %}
+            {% if t %}
+              {% assign tpath = t %}
+              {% unless tpath contains '://' %}
+                {% assign first_char = tpath | slice: 0, 1 %}
+                {% if first_char != '/' %}{% assign tpath = '/' | append: tpath %}{% endif %}
+              {% endunless %}
+              <img class="product-thumb" src="{{ tpath | relative_url }}" alt="{{ page.title | escape }} thumbnail" style="width:72px;height:auto;border:1px solid #eee;padding:2px;"/>
+            {% endif %}
+          {% endfor %}
+        </div>
+      {% endif %}
     </div>
-  </div>
-</header>
 
-<!-- 搜索面板 -->
-<div class="fz-panel" id="fz-search-panel" role="dialog" aria-modal="true" aria-labelledby="fz-search-title" hidden>
-  <div class="fz-panel__backdrop" data-close="fz-search-panel"></div>
-  <div class="fz-panel__body" role="document">
-    <button class="fz-close" data-close="fz-search-panel" aria-label="关闭搜索">×</button>
-    <h2 id="fz-search-title">搜索</h2>
-    <form action="{{ '/search/' | relative_url }}" method="get" role="search">
-      <input class="fz-input" type="search" name="q" placeholder="搜索…" autofocus>
-      <button class="fz-btn fz-btn--primary" type="submit">搜索</button>
-    </form>
+    <!-- 右：信息栏（标题 → 价格 → Taxes → 按钮 → 说明） -->
+    <div class="product-info fz-product" style="margin-top:32px;">
+      {% assign file_display = main_image_url | split: '/' | last %}
+      {% if file_display == '' or file_display == nil %}{% assign file_display = page.title %}{% endif %}
+      <h1 class="product-title" style="margin:0 0 8px 0;">{{ file_display }}</h1>
+
+      {% assign price_raw = page.price | default: page.price_gbp | default: page.priceGBP | default: page.amount | default: page.cost | default: page.Price %}
+      {% assign currency_code = page.currency | default: site.currency | default: 'GBP' %}
+      {% assign curr = currency_code | upcase %}
+      {% assign sym = '' %}
+      {% if curr == 'GBP' %}{% assign sym = '£' %}{% elsif curr == 'USD' %}{% assign sym = '$' %}{% elsif curr == 'EUR' %}{% assign sym = '€' %}{% elsif curr == 'CNY' or curr == 'JPY' %}{% assign sym = '¥' %}{% elsif curr == 'HKD' %}{% assign sym = 'HK$' %}{% elsif curr == 'TWD' %}{% assign sym = 'NT$' %}{% endif %}
+
+      {% if price_raw %}
+        <div class="product-price" style="font-size:1.125rem;font-weight:600;margin:0 0 6px 0;float:none;clear:both;text-align:left;">
+          {% if sym != '' %}{{ sym }}{{ price_raw }}{% else %}{{ price_raw }}{% if curr %} {{ curr }}{% endif %}{% endif %}
+        </div>
+      {% endif %}
+
+      <div class="product-taxes" style="color:#555;margin:0 0 12px 0;float:none;clear:both;text-align:left;">Taxes included.</div>
+
+      {% assign default_size = page.selected_size | default: page.size | default: 'A4' %}
+      {% assign sku_base = page.sku | default: page.slug | default: page.title | slugify %}
+
+      <div class="product-actions" style="display:flex;flex-direction:column;gap:8px;max-width:420px;float:none;clear:both;text-align:left;">
+
+        <!-- PayPal：有账号就真跳 PayPal；没账号就弹提示 -->
+        {% assign _biz = site.paypal_business | default: '' %}
+        {% if _biz != '' %}
+        <form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_blank" style="margin:0;">
+          <input type="hidden" name="cmd" value="_xclick">
+          <input type="hidden" name="business" value="{{ _biz }}">
+          <input type="hidden" name="item_name" value="{{ page.title | default: file_display }}">
+          {% if price_raw %}<input type="hidden" name="amount" value="{{ price_raw }}">{% endif %}
+          <input type="hidden" name="currency_code" value="{{ currency_code }}">
+          <input type="hidden" name="on0" value="Size">
+          <input type="hidden" name="os0" value="{{ default_size }}">
+          <button type="submit" style="width:100%;padding:12px 16px;">Pay via PayPal</button>
+        </form>
+        {% else %}
+        <button type="button" onclick="alert('PayPal 尚未配置。请先加入购物篮，等账号就绪后统一结账。')" style="width:100%;padding:12px 16px;">Pay via PayPal</button>
+        {% endif %}
+
+        <!-- Add to Cart：按 fz-ui.js 协议；并提供兜底入栏 -->
+        <form class="product-cart" onsubmit="return false;">
+          <!-- 供 getSelectedValue() 读取尺寸（隐藏，不改视觉） -->
+          <input type="radio" name="size" value="{{ default_size }}" checked hidden>
+          <button
+            type="button"
+            id="btn-add-to-cart"
+            class="js-add-to-cart"
+            data-title="{{ page.title | default: file_display | escape }}"
+            {% if price_raw %}data-price="{{ price_raw }}"{% endif %}
+            data-currency="{{ currency_code }}"
+            data-image="{{ main_image_url | relative_url }}"
+            data-sku="{{ sku_base }}"
+            data-option-input="size"
+            data-option-name="Size"
+            style="width:100%;padding:12px 16px;"
+          >Add to Cart</button>
+        </form>
+      </div>
+
+      <!-- 作品说明 -->
+      <div class="product-description" style="margin-top:16px;max-width:65ch;">{{ content }}</div>
+    </div>
+
   </div>
 </div>
 
-<!-- 登录菜单（占位） -->
-<div class="fz-menu" id="fz-login-menu" role="menu" hidden>
-  <ul>
-    <li><a href="#" role="menuitem">登录</a></li>
-    <li><a href="#" role="menuitem">注册</a></li>
-  </ul>
-</div>
+<!-- ========= 本页极小兜底：若 fz-ui.js 没绑定，也能入栏/开抽屉/更新角标 ========= -->
+<script>
+(function(){
+  function ready(fn){ if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',fn);} else {fn();} }
+  function $(s,root){ return (root||document).querySelector(s); }
+  function $all(s,root){ return Array.from((root||document).querySelectorAll(s)); }
 
-<!-- 购物车抽屉 -->
-<aside class="fz-drawer" id="fz-cart-drawer" role="dialog" aria-modal="true" aria-labelledby="fz-cart-title" hidden>
-  <div class="fz-drawer__backdrop" data-close="fz-cart-drawer"></div>
-  <div class="fz-drawer__panel">
-    <header class="fz-drawer__header">
-      <h2 id="fz-cart-title">购物篮</h2>
-      <button class="fz-close" data-close="fz-cart-drawer" aria-label="关闭购物篮">×</button>
-    </header>
-    <div class="fz-drawer__content" id="fz-cart-content"><p>当前为空。</p></div>
-    <footer class="fz-drawer__footer"><a class="fz-btn fz-btn--primary" href="#">去结算</a></footer>
-  </div>
-</aside>
+  // storage helpers
+  var KEY='fz_cart';
+  function load(){ try{ return JSON.parse(localStorage.getItem(KEY)||'[]'); }catch(e){ return []; } }
+  function save(a){ localStorage.setItem(KEY, JSON.stringify(a)); }
+  function badge(){
+    var b = $('#fz-cart-count'); if(!b) return;
+    var n = load().reduce(function(m,i){ return m + (i.qty||1); }, 0);
+    b.textContent = String(n); b.hidden = n<=0;
+  }
+  function getOpt(btn){
+    var name = btn.dataset.optionInput || 'size';
+    var wrap = btn.closest('.fz-product') || document;
+    var el = wrap.querySelector('input[name="'+name+'"]:checked');
+    return el ? el.value : '';
+  }
+  function openDrawer(){
+    var d = $('#fz-cart-drawer'); if(d) d.hidden = false;
+  }
+  function closeDrawer(){
+    var d = $('#fz-cart-drawer'); if(d) d.hidden = true;
+  }
+  function renderDrawer(){
+    var box = $('#fz-cart-content'); if(!box) return;
+    var items = load();
+    if(!items.length){ box.innerHTML = '<p>当前为空。</p>'; return; }
+    var total=0;
+    box.innerHTML = items.map(function(it){
+      var p = parseFloat(it.price)||0, q = it.qty||1; total += p*q;
+      var opt = (it.options && it.options[0]) ? ' <span style="color:#666;font-size:.9em;">('+it.options[0].name+': '+it.options[0].value+')</span>' : '';
+      return '<div style="display:grid;grid-template-columns:64px 1fr auto;gap:12px;align-items:center;">'
+        + (it.image?('<img src="'+it.image+'" alt="" style="width:64px;height:64px;object-fit:cover;border:1px solid #eee;">'):'<div style="width:64px;height:64px;background:#f4f4f4"></div>')
+        + '<div><div style="font-weight:600;">'+it.title+'</div>'+opt+'</div>'
+        + '<div style="font-weight:600;">'+(it.currency==='GBP'?'£':it.currency==='USD'?'$':it.currency==='EUR'?'€':'')+(p.toFixed?p.toFixed(2):p)+' × '+q+'</div>'
+        + '</div>';
+    }).join('') + '<hr style="margin:12px 0;"><div style="display:flex;justify-content:space-between;font-weight:700;"><span>Total</span><span>'
+      + (items[0]&&items[0].currency==='GBP'?'£':items[0]&&items[0].currency==='USD'?'$':items[0]&&items[0].currency==='EUR'?'€':'')
+      + (total.toFixed? total.toFixed(2): total) + '</span></div>';
+  }
 
-<!-- 只加载你现有的交互脚本（别的都不加） -->
-<script defer src="{{ '/assets/js/fz-ui.js' | relative_url }}"></script>
+  ready(function(){
+    // Add to Cart — 如果 fz-ui.js 未绑定，则本页接管
+    var btn = $('#btn-add-to-cart');
+    if (btn && !btn._fzWired) {
+      btn.addEventListener('click', function(){
+        var optName = btn.dataset.optionName || 'Size';
+        var optVal  = getOpt(btn);
+        var item = {
+          sku: (btn.dataset.sku||'item') + (optVal?('-'+optVal):''),
+          title: (btn.dataset.title||'Artwork') + (optVal?(' - '+optVal):''),
+          price: parseFloat(btn.dataset.price||'0'),
+          currency: btn.dataset.currency || 'GBP',
+          image: btn.dataset.image || '',
+          qty: 1,
+          options: optVal ? [{ name: optName, value: optVal }] : []
+        };
+        var cart = load();
+        var exist = cart.find(function(x){ return x.sku === item.sku; });
+        if (exist) exist.qty = (exist.qty||1)+1; else cart.push(item);
+        save(cart); badge();
+
+        var old = btn.textContent; btn.disabled=true; btn.textContent='Added ✓';
+        setTimeout(function(){ btn.textContent=old; btn.disabled=false; }, 900);
+      });
+      btn._fzWired = true;
+    }
+
+    // 右上角按钮兜底（如果全站 JS 没接上）
+    var sBtn = $('#fz-search-btn'), lBtn = $('#fz-login-btn'), cBtn = $('#fz-cart-btn');
+    if (sBtn) sBtn.addEventListener('click', function(){ var p=$('#fz-search-panel'); if(p) p.hidden=false; });
+    $all('[data-close="fz-search-panel"]').forEach(function(x){ x.addEventListener('click', function(){ var p=$('#fz-search-panel'); if(p) p.hidden=true; }); });
+    if (lBtn) lBtn.addEventListener('click', function(e){ e.stopPropagation(); var m=$('#fz-login-menu'); if(!m) return; var open=m.hidden; m.hidden=!open; lBtn.setAttribute('aria-expanded', String(open)); });
+    document.addEventListener('click', function(e){ var m=$('#fz-login-menu'); if(m && !m.hidden && !m.contains(e.target) && e.target!==lBtn){ m.hidden=true; lBtn && lBtn.setAttribute('aria-expanded','false'); } });
+    if (cBtn) cBtn.addEventListener('click', function(){ renderDrawer(); openDrawer(); });
+    $all('[data-close="fz-cart-drawer"]').forEach(function(x){ x.addEventListener('click', closeDrawer); });
+
+    badge(); // 初始角标
+  });
+})();
+</script>
