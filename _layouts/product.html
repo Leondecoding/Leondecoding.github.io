@@ -84,20 +84,27 @@ layout: default
       {% assign sku_base = page.sku | default: page.slug | default: page.title | slugify %}
 
       <div class="product-actions" style="display:flex;flex-direction:column;gap:8px;max-width:420px;float:none;clear:both;text-align:left;">
-        <!-- PayPal（使用 data-* 承载参数；未配置账户时弹提示；配置后新开 PayPal 页） -->
-        <a
-          id="pp-buy"
-          href="#"
-          data-business="{{ site.paypal_business | default: '' }}"
-          data-item-name="{{ page.title | default: file_display | escape }}"
-          {% if price_raw %}data-amount="{{ price_raw }}"{% endif %}
-          data-currency="{{ currency_code }}"
-          data-os0="{{ default_size }}"
-          style="display:inline-block;width:100%;padding:12px 16px;text-align:center;border:1px solid #ccc;border-radius:4px;"
-        >Pay via PayPal</a>
 
-        <!-- Add to Cart（严格对齐购物车数据；并提供兜底入栏） -->
+        <!-- PayPal：有账号就真跳 PayPal；没账号就弹提示 -->
+        {% assign _biz = site.paypal_business | default: '' %}
+        {% if _biz != '' %}
+        <form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_blank" style="margin:0;">
+          <input type="hidden" name="cmd" value="_xclick">
+          <input type="hidden" name="business" value="{{ _biz }}">
+          <input type="hidden" name="item_name" value="{{ page.title | default: file_display }}">
+          {% if price_raw %}<input type="hidden" name="amount" value="{{ price_raw }}">{% endif %}
+          <input type="hidden" name="currency_code" value="{{ currency_code }}">
+          <input type="hidden" name="on0" value="Size">
+          <input type="hidden" name="os0" value="{{ default_size }}">
+          <button type="submit" style="width:100%;padding:12px 16px;">Pay via PayPal</button>
+        </form>
+        {% else %}
+        <button type="button" onclick="alert('PayPal 尚未配置。请先加入购物篮，等账号就绪后统一结账。')" style="width:100%;padding:12px 16px;">Pay via PayPal</button>
+        {% endif %}
+
+        <!-- Add to Cart：按 fz-ui.js 协议；并提供兜底入栏 -->
         <form class="product-cart" onsubmit="return false;">
+          <!-- 供 getSelectedValue() 读取尺寸（隐藏，不改视觉） -->
           <input type="radio" name="size" value="{{ default_size }}" checked hidden>
           <button
             type="button"
@@ -122,121 +129,89 @@ layout: default
   </div>
 </div>
 
-<!-- 本页兜底脚本：保证三图标可点、Add to Cart 入栏 + 角标更新、购物车抽屉可查看、PayPal 正常反馈 -->
+<!-- ========= 本页极小兜底：若 fz-ui.js 没绑定，也能入栏/开抽屉/更新角标 ========= -->
 <script>
 (function(){
   function ready(fn){ if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',fn);} else {fn();} }
+  function $(s,root){ return (root||document).querySelector(s); }
+  function $all(s,root){ return Array.from((root||document).querySelectorAll(s)); }
 
-  // —— 工具
-  function qs(sel,root){ return (root||document).querySelector(sel); }
-  function qsa(sel,root){ return Array.prototype.slice.call((root||document).querySelectorAll(sel)); }
-  function loadCart(){ try { return JSON.parse(localStorage.getItem('fz_cart')||'[]'); } catch(e){ return []; } }
-  function saveCart(a){ localStorage.setItem('fz_cart', JSON.stringify(a)); }
-  function updateBadge(){
-    var b = qs('#fz-cart-count'); if(!b) return;
-    var n = loadCart().reduce(function(m,i){ return m + (i.qty||1); }, 0);
+  // storage helpers
+  var KEY='fz_cart';
+  function load(){ try{ return JSON.parse(localStorage.getItem(KEY)||'[]'); }catch(e){ return []; } }
+  function save(a){ localStorage.setItem(KEY, JSON.stringify(a)); }
+  function badge(){
+    var b = $('#fz-cart-count'); if(!b) return;
+    var n = load().reduce(function(m,i){ return m + (i.qty||1); }, 0);
     b.textContent = String(n); b.hidden = n<=0;
   }
-  function getSelectedValue(btn){
-    var n = btn.dataset.optionInput || 'size';
+  function getOpt(btn){
+    var name = btn.dataset.optionInput || 'size';
     var wrap = btn.closest('.fz-product') || document;
-    var picked = qs('input[name="'+n+'"]:checked', wrap);
-    return picked ? picked.value : '';
+    var el = wrap.querySelector('input[name="'+name+'"]:checked');
+    return el ? el.value : '';
   }
-  function formatCurrency(v, code){
-    var sym = (code==='GBP')?'£':(code==='USD')?'$':(code==='EUR')?'€':((code==='JPY'||code==='CNY')?'¥':(code==='HKD')?'HK$':(code==='TWD')?'NT$':''));
-    var n = parseFloat(v||'0'); return (sym||'') + (isFinite(n)? n.toFixed(2) : v);
+  function openDrawer(){
+    var d = $('#fz-cart-drawer'); if(d) d.hidden = false;
   }
-
-  // —— 渲染购物车抽屉
-  function renderCartDrawer(){
-    var box = qs('#fz-cart-content'); if(!box) return;
-    var items = loadCart();
+  function closeDrawer(){
+    var d = $('#fz-cart-drawer'); if(d) d.hidden = true;
+  }
+  function renderDrawer(){
+    var box = $('#fz-cart-content'); if(!box) return;
+    var items = load();
     if(!items.length){ box.innerHTML = '<p>当前为空。</p>'; return; }
-    var total = 0;
+    var total=0;
     box.innerHTML = items.map(function(it){
       var p = parseFloat(it.price)||0, q = it.qty||1; total += p*q;
       var opt = (it.options && it.options[0]) ? ' <span style="color:#666;font-size:.9em;">('+it.options[0].name+': '+it.options[0].value+')</span>' : '';
       return '<div style="display:grid;grid-template-columns:64px 1fr auto;gap:12px;align-items:center;">'
         + (it.image?('<img src="'+it.image+'" alt="" style="width:64px;height:64px;object-fit:cover;border:1px solid #eee;">'):'<div style="width:64px;height:64px;background:#f4f4f4"></div>')
         + '<div><div style="font-weight:600;">'+it.title+'</div>'+opt+'</div>'
-        + '<div style="font-weight:600;">'+formatCurrency(p,it.currency)+' × '+q+'</div>'
+        + '<div style="font-weight:600;">'+(it.currency==='GBP'?'£':it.currency==='USD'?'$':it.currency==='EUR'?'€':'')+(p.toFixed?p.toFixed(2):p)+' × '+q+'</div>'
         + '</div>';
-    }).join('') + '<hr style="margin:12px 0;"><div style="display:flex;justify-content:space-between;font-weight:700;">'
-      + '<span>Total</span><span>'+formatCurrency(total,(items[0]&&items[0].currency)||'{{ currency_code | escape }}')+'</span></div>';
+    }).join('') + '<hr style="margin:12px 0;"><div style="display:flex;justify-content:space-between;font-weight:700;"><span>Total</span><span>'
+      + (items[0]&&items[0].currency==='GBP'?'£':items[0]&&items[0].currency==='USD'?'$':items[0]&&items[0].currency==='EUR'?'€':'')
+      + (total.toFixed? total.toFixed(2): total) + '</span></div>';
   }
 
   ready(function(){
+    // Add to Cart — 如果 fz-ui.js 未绑定，则本页接管
+    var btn = $('#btn-add-to-cart');
+    if (btn && !btn._fzWired) {
+      btn.addEventListener('click', function(){
+        var optName = btn.dataset.optionName || 'Size';
+        var optVal  = getOpt(btn);
+        var item = {
+          sku: (btn.dataset.sku||'item') + (optVal?('-'+optVal):''),
+          title: (btn.dataset.title||'Artwork') + (optVal?(' - '+optVal):''),
+          price: parseFloat(btn.dataset.price||'0'),
+          currency: btn.dataset.currency || 'GBP',
+          image: btn.dataset.image || '',
+          qty: 1,
+          options: optVal ? [{ name: optName, value: optVal }] : []
+        };
+        var cart = load();
+        var exist = cart.find(function(x){ return x.sku === item.sku; });
+        if (exist) exist.qty = (exist.qty||1)+1; else cart.push(item);
+        save(cart); badge();
 
-    // 1) PayPal 立即购买（未配置则提示；配置则提交到 PayPal）
-    (function(){
-      var a = qs('#pp-buy'); if(!a) return;
-      a.onclick = function(ev){
-        ev.preventDefault();
-        try{
-          var biz = a.dataset.business || '';
-          var item = a.dataset.itemName || document.title || 'Artwork';
-          var amt  = a.dataset.amount || '';
-          var cur  = a.dataset.currency || 'GBP';
-          var os0  = a.dataset.os0 || '';
-          if(!biz){
-            alert('PayPal 尚未配置。请先加入购物篮，等账号就绪后统一结账。');
-            return false;
-          }
-          var f = document.createElement('form');
-          f.method = 'post';
-          f.action = 'https://www.paypal.com/cgi-bin/webscr';
-          f.target = '_blank';
-          function add(n,v){ if(v==null||v==='')return; var i=document.createElement('input'); i.type='hidden'; i.name=n; i.value=String(v); f.appendChild(i); }
-          add('cmd','_xclick'); add('business',biz); add('item_name',item); add('amount',amt); add('currency_code',cur); add('os0',os0);
-          document.body.appendChild(f); f.submit(); f.remove();
-          return false;
-        }catch(e){ console.error(e); return false; }
-      };
-    })();
+        var old = btn.textContent; btn.disabled=true; btn.textContent='Added ✓';
+        setTimeout(function(){ btn.textContent=old; btn.disabled=false; }, 900);
+      });
+      btn._fzWired = true;
+    }
 
-    // 2) Add to Cart（本页兜底；若全站脚本也绑定，不冲突）
-    (function(){
-      var btn = qs('#btn-add-to-cart'); if(!btn) return;
-      btn.onclick = function(){
-        try{
-          var optionName  = btn.dataset.optionName || 'Size';
-          var optionValue = getSelectedValue(btn);
-          var item = {
-            sku:   (btn.dataset.sku || 'item') + (optionValue?('-'+optionValue):''),
-            title: (btn.dataset.title || 'Artwork') + (optionValue?(' - '+optionValue):''),
-            price: parseFloat(btn.dataset.price || '0'),
-            currency: btn.dataset.currency || 'GBP',
-            image: btn.dataset.image || '',
-            qty: 1,
-            options: optionValue ? [{ name: optionName, value: optionValue }] : []
-          };
-          var cart = loadCart();
-          var exist = cart.find(function(x){ return x.sku === item.sku; });
-          if (exist) exist.qty = (exist.qty||1) + 1; else cart.push(item);
-          saveCart(cart); updateBadge();
+    // 右上角按钮兜底（如果全站 JS 没接上）
+    var sBtn = $('#fz-search-btn'), lBtn = $('#fz-login-btn'), cBtn = $('#fz-cart-btn');
+    if (sBtn) sBtn.addEventListener('click', function(){ var p=$('#fz-search-panel'); if(p) p.hidden=false; });
+    $all('[data-close="fz-search-panel"]').forEach(function(x){ x.addEventListener('click', function(){ var p=$('#fz-search-panel'); if(p) p.hidden=true; }); });
+    if (lBtn) lBtn.addEventListener('click', function(e){ e.stopPropagation(); var m=$('#fz-login-menu'); if(!m) return; var open=m.hidden; m.hidden=!open; lBtn.setAttribute('aria-expanded', String(open)); });
+    document.addEventListener('click', function(e){ var m=$('#fz-login-menu'); if(m && !m.hidden && !m.contains(e.target) && e.target!==lBtn){ m.hidden=true; lBtn && lBtn.setAttribute('aria-expanded','false'); } });
+    if (cBtn) cBtn.addEventListener('click', function(){ renderDrawer(); openDrawer(); });
+    $all('[data-close="fz-cart-drawer"]').forEach(function(x){ x.addEventListener('click', closeDrawer); });
 
-          // 轻提示
-          var old = btn.textContent; btn.disabled = true; btn.textContent = 'Added ✓';
-          setTimeout(function(){ btn.textContent = old; btn.disabled = false; }, 900);
-        }catch(e){ console.error(e); }
-      };
-      updateBadge();
-    })();
-
-    // 3) 三个图标兜底交互（搜索 / 登录 / 购物篮）
-    (function(){
-      var sBtn=qs('#fz-search-btn'), lBtn=qs('#fz-login-btn'), cBtn=qs('#fz-cart-btn');
-      if (sBtn) sBtn.addEventListener('click', function(){ var p=qs('#fz-search-panel'); if(p) p.hidden=false; });
-      qsa('[data-close="fz-search-panel"]').forEach(function(el){ el.addEventListener('click', function(){ var p=qs('#fz-search-panel'); if(p) p.hidden=true; }); });
-
-      if (lBtn) lBtn.addEventListener('click', function(e){ e.stopPropagation(); var m=qs('#fz-login-menu'); if(!m) return; var open=m.hidden; m.hidden=!open; lBtn.setAttribute('aria-expanded', String(open)); });
-      document.addEventListener('click', function(e){ var m=qs('#fz-login-menu'); if(m && !m.hidden && !m.contains(e.target) && e.target!==lBtn){ m.hidden=true; lBtn && lBtn.setAttribute('aria-expanded','false'); } });
-
-      if (cBtn) cBtn.addEventListener('click', function(){ renderCartDrawer(); var d=qs('#fz-cart-drawer'); if(d) d.hidden=false; });
-      qsa('[data-close="fz-cart-drawer"]').forEach(function(el){ el.addEventListener('click', function(){ var d=qs('#fz-cart-drawer'); if(d) d.hidden=true; }); });
-    })();
-
+    badge(); // 初始角标
   });
 })();
 </script>
