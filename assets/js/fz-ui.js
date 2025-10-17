@@ -1,25 +1,20 @@
-/* fz-ui.js — Editable cart (+/−/×), robust legacy fix (uid migration), no double-add, Checkout in English */
+/* fz-ui.js — Editable cart (+/−/×), legacy migration with uid, single add binding + global de-dupe, Checkout (EN) */
 (function () {
   const $$ = (s, c = document) => Array.from((c || document).querySelectorAll(s));
   const $  = (s, c = document) => (c || document).querySelector(s);
 
-  // ========== Storage ==========
+  // ===== Storage =====
   const KEY = 'fz_cart';
   const load = () => { try { return JSON.parse(localStorage.getItem(KEY) || '[]'); } catch(e){ return []; } };
   const save = (arr) => localStorage.setItem(KEY, JSON.stringify(arr));
   const count = () => load().reduce((n,i)=>n+(i.qty||1),0);
+  function updateBadge(){ const b=$('#fz-cart-count'); if(!b) return; const n=count(); b.textContent=String(n); b.hidden=n<=0; }
 
-  function updateBadge(){
-    const b = $('#fz-cart-count'); if(!b) return;
-    const n = count(); b.textContent = String(n); b.hidden = n<=0;
-  }
-
-  // ========== Utils ==========
+  // ===== Utils =====
   const uid = () => 'u' + Date.now().toString(36) + Math.random().toString(36).slice(2,7);
   function fmt(v, code){
     const sym = (code==='GBP')?'£':(code==='USD')?'$':(code==='EUR')?'€':((code==='JPY'||code==='CNY')?'¥':(code==='HKD')?'HK$':(code==='TWD')?'NT$':''));
-    const n = (typeof v==='number')? v : parseFloat(v||'0');
-    return (sym||'') + (isFinite(n)? n.toFixed(2) : v) + (sym? '' : (code? (' '+code):''));
+    const n = (typeof v==='number')? v : parseFloat(v||'0'); return (sym||'') + (isFinite(n)? n.toFixed(2) : v) + (sym? '' : (code? (' '+code):''));
   }
   function getSelectedValue(btn){
     const name = btn.dataset.optionInput || 'size';
@@ -28,7 +23,7 @@
     return picked ? picked.value : '';
   }
 
-  // ========== Legacy migration（确保旧条目可编辑/可删除） ==========
+  // ===== Legacy migration: make old items removable/editable =====
   function migrate(){
     const cart = load(); let changed = false;
     for (let i=0;i<cart.length;i++){
@@ -46,72 +41,63 @@
     if (changed) save(cart);
   }
 
-  // ========== Cart ops（优先 uid，回退索引） ==========
+  // ===== Cart ops (prefer uid; fallback index) =====
   function setQtyByUid(_uid, delta){
-    const cart = load();
-    const i = cart.findIndex(x => x.uid === _uid);
-    if (i < 0) return false;
-    cart[i].qty = (cart[i].qty || 1) + delta;
-    if (cart[i].qty <= 0) cart.splice(i,1);
-    save(cart); updateBadge(); renderDrawer();
-    return true;
+    const cart = load(); const i = cart.findIndex(x => x.uid === _uid);
+    if (i<0) return false; cart[i].qty = (cart[i].qty||1)+delta; if (cart[i].qty<=0) cart.splice(i,1);
+    save(cart); updateBadge(); renderDrawer(); return true;
   }
   function setQtyByIndex(idx, delta){
-    const cart = load();
-    if (idx<0 || idx>=cart.length) return false;
-    cart[idx].qty = (cart[idx].qty || 1) + delta;
-    if (cart[idx].qty <= 0) cart.splice(idx,1);
-    save(cart); updateBadge(); renderDrawer();
+    const cart = load(); if (idx<0 || idx>=cart.length) return false;
+    cart[idx].qty = (cart[idx].qty||1)+delta; if (cart[idx].qty<=0) cart.splice(idx,1);
+    save(cart); updateBadge(); renderDrawer(); return true;
+  }
+  function removeByUid(_uid){ const cart=load().filter(x=>x.uid!==_uid); save(cart); updateBadge(); renderDrawer(); }
+  function removeByIndex(idx){ const cart=load(); if(idx<0||idx>=cart.length) return; cart.splice(idx,1); save(cart); updateBadge(); renderDrawer(); }
+
+  // ===== Global de-dupe guard for add-to-cart =====
+  // 防止同一点击被多个监听重复处理（旧兜底脚本或冒泡导致）
+  function shouldProcessAdd(sig){
+    const now = Date.now();
+    const last = window.__FZ_LAST_ADD__ || { ts:0, sig:'' };
+    if (last.sig === sig && (now - last.ts) < 350) return false; // 350ms 内相同签名只处理一次
+    window.__FZ_LAST_ADD__ = { ts: now, sig: sig };
     return true;
   }
-  function removeByUid(_uid){
-    const cart = load().filter(x => x.uid !== _uid);
-    save(cart); updateBadge(); renderDrawer();
-  }
-  function removeByIndex(idx){
-    const cart = load(); if (idx<0 || idx>=cart.length) return;
-    cart.splice(idx,1); save(cart); updateBadge(); renderDrawer();
-  }
 
-  // ========== Add to cart（防重复绑定 + 点击节流，避免“一次加两件”） ==========
+  // ===== Add to cart =====
   function addFromButton(btn){
-    const now = Date.now();
-    if (btn._fzLock) return;
-    if (btn._lastAdd && (now - btn._lastAdd) < 300) return;
-    btn._fzLock = true; btn._lastAdd = now; setTimeout(()=>{ btn._fzLock = false; }, 320);
-
     const optionName  = btn.dataset.optionName || 'Option';
     const optionValue = getSelectedValue(btn);
     const baseTitle   = btn.dataset.title || 'Artwork';
     const builtTitle  = baseTitle + (optionValue ? (' - ' + optionValue) : '');
+    const baseSku     = btn.dataset.sku || 'item';
+    const builtSku    = baseSku + (optionValue ? ('-' + optionValue) : '');
+    const price       = parseFloat(btn.dataset.price || '0');
 
-    const baseSku = btn.dataset.sku || 'item';
-    const builtSku = baseSku + (optionValue ? ('-' + optionValue) : '');
+    // 事件签名（同一按钮 / 同一 SKU / 同一选项）
+    const sig = (btn.id || '') + '|' + builtSku + '|' + JSON.stringify(optionValue||'');
+    if (!shouldProcessAdd(sig)) return; // 去重：另一处监听已处理
 
-    const price = parseFloat(btn.dataset.price || '0');
     const item = {
-      uid: uid(),
-      sku: builtSku,
-      title: builtTitle,
+      uid: uid(), sku: builtSku, title: builtTitle,
       price: isFinite(price) ? price : 0,
       currency: btn.dataset.currency || 'GBP',
-      image: btn.dataset.image || '',
-      qty: 1,
+      image: btn.dataset.image || '', qty: 1,
       options: optionValue ? [{ name: optionName, value: optionValue }] : []
     };
 
     const cart = load();
     const exist = cart.find(x => x.sku === item.sku && JSON.stringify(x.options||[])===JSON.stringify(item.options||[]));
-    if (exist) exist.qty = (exist.qty||1) + 1;
-    else cart.push(item);
-
+    if (exist) exist.qty = (exist.qty||1) + 1; else cart.push(item);
     save(cart); updateBadge();
 
-    const old = btn.textContent; btn.disabled=true; btn.textContent='Added ✓';
-    setTimeout(()=>{ btn.textContent=old; btn.disabled=false; }, 900);
+    // 小提示
+    const old = btn.textContent; btn.disabled = true; btn.textContent = 'Added ✓';
+    setTimeout(()=>{ btn.textContent = old; btn.disabled = false; }, 900);
   }
 
-  // ========== Drawer 渲染（带 + / − / × 控件） ==========
+  // ===== Drawer (editable: + / − / ×) =====
   function renderDrawer(){
     const box = $('#fz-cart-content'); if(!box) return;
     const items = load();
@@ -144,39 +130,50 @@
        <span>Total</span><span>${fmt(total, (items[0] && items[0].currency) || 'GBP')}</span>
      </div>`;
 
-    // 事件委托（优先 uid，回退 idx）
     box.onclick = (ev) => {
       const btn = ev.target.closest('[data-action]'); if (!btn) return;
-      const action = btn.dataset.action;
-      const id  = btn.dataset.uid;
-      const idx = parseInt(btn.dataset.idx, 10);
+      const action = btn.dataset.action, id = btn.dataset.uid, idx = parseInt(btn.dataset.idx,10);
       const noUid = !id || id === 'undefined' || id === 'null';
-
       if (action === 'inc') { if (!(noUid ? setQtyByIndex(idx,+1) : setQtyByUid(id,+1))) setQtyByIndex(idx,+1); }
       else if (action === 'dec') { if (!(noUid ? setQtyByIndex(idx,-1) : setQtyByUid(id,-1))) setQtyByIndex(idx,-1); }
       else if (action === 'remove') { if (noUid) removeByIndex(idx); else removeByUid(id); }
     };
   }
 
-  // ========== Header 交互 ==========
-  function openEl(id){ const el = $('#'+id); if (el) el.hidden = false; }
-  function closeEl(id){ const el = $('#'+id); if (el) el.hidden = true; }
+  // ===== Header toggles =====
+  function openEl(id){ const el=$('#'+id); if(el) el.hidden=false; }
+  function closeEl(id){ const el=$('#'+id); if(el) el.hidden=true; }
 
-  // ========== Boot ==========
+  // ===== Bind add buttons: clone-rebind to purge duplicate listeners =====
+  function rebindAddButtons(){
+    $$('.js-add-to-cart').forEach(orig => {
+      // 克隆替换：去掉此前任何地方绑定的监听
+      const btn = orig.cloneNode(true);
+      orig.replaceWith(btn);
+      // 我们自己的监听 + 轻节流（在全局防重之外）
+      if (!btn._fzWired){
+        btn.addEventListener('click', () => {
+          const now = Date.now();
+          if (btn._lock && (now - btn._lock) < 280) return;
+          btn._lock = now;
+          addFromButton(btn);
+        });
+        btn._fzWired = true;
+      }
+    });
+  }
+
+  // ===== Boot =====
   document.addEventListener('DOMContentLoaded', () => {
     migrate();
 
     const checkoutBtn = $('#fz-cart-drawer .fz-drawer__footer a');
     if (checkoutBtn) checkoutBtn.textContent = 'Checkout';
 
-    // Add to Cart（防重复绑定，保持你之前的行为不变）
-    $$('.js-add-to-cart').forEach(btn => {
-      if (btn._fzWired) return;
-      const handler = () => addFromButton(btn);
-      btn.addEventListener('click', handler);
-      btn._fzWired = true;
-      btn._fzHandler = handler;
-    });
+    // 先绑定一次，再延迟 0 与 200ms 再“克隆重绑”，彻底清理其他脚本重复绑定
+    rebindAddButtons();
+    setTimeout(rebindAddButtons, 0);
+    setTimeout(rebindAddButtons, 200);
 
     // 搜索 / 登录 / 购物车
     const searchBtn = $('#fz-search-btn');
@@ -202,6 +199,7 @@
 
     const cartBtn = $('#fz-cart-btn');
     if (cartBtn) cartBtn.addEventListener('click', () => { renderDrawer(); openEl('fz-cart-drawer'); });
+
     $$('#fz-cart-drawer [data-close="fz-cart-drawer"]').forEach(el => el.addEventListener('click', () => closeEl('fz-cart-drawer')));
 
     updateBadge();
