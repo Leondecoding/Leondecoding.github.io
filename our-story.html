@@ -1,116 +1,124 @@
 ---
 layout: default
 title: Our Story
-body_class: our-story
+permalink: /our-story/
 ---
 
-<!-- 仅本页样式：正文居中、标题缩小到 2/3、表单改为下划线 -->
 <style>
-  .our-story main, .our-story .page{
-    max-width: 960px; margin: 0 auto; text-align: center; padding: 0 20px;
+  /* 局部样式（不改全站字体与颜色，只做居中与宽度控制） */
+  #our-story-page { max-width: 920px; margin: 0 auto; padding: 0 16px; }
+  #our-story-page .center { text-align: center; }
+  #our-story-page p { line-height: 1.9; margin: 0 auto 12px; }
+  #our-story-page h2 { margin: 0 0 12px; text-align: center; }
+  #our-story-page h3 { margin: 12px 0 8px; text-align: center; }
+  #our-story-page hr { max-width: 920px; margin: 28px auto; border: 0; border-top: 1px solid #eee; }
+  /* Newsletter 输入框与“Sign up”文字 */
+  #newsletter .email-wrap { max-width: 540px; margin: 0 auto 8px; }
+  #newsletter input[type="email"]{
+    width:100%; height:52px; border:1px solid #ddd; border-radius:0;
+    padding:0 16px; box-sizing:border-box;
   }
-  .our-story h1{ margin: 24px 0 12px; }
-  .our-story h2.section-title{
-    font-size: 32px;               /* 约等于之前的 2/3 */
-    letter-spacing: .02em;
-    margin: 24px 0 12px;
+  #newsletter .signup-text {
+    display:inline-block; padding:4px 2px; border-bottom:1px solid #222; text-decoration:none; color:inherit;
   }
-  /* 表单：去边框 → 下划线 */
-  .our-story form input[type="text"],
-  .our-story form input[type="email"],
-  .our-story form input[type="name"]{
-    border: none; border-bottom: 1px solid #999; border-radius: 0;
-    background: transparent; padding: 6px 0; color:#999;
-  }
-  .our-story form input::placeholder{ color:#999; opacity:.8; }
-  .our-story form button{
-    appearance:none; border:1px solid #111; background:#111; color:#fff;
-    height:40px; padding:0 16px; border-radius:10px; font-weight:600;
+  #newsletter .error { display:none; margin:6px 0 10px; color:#b00020; }
+  /* 让 iframe 居中 */
+  .substack-embed {
+    max-width:720px; width:100%; border:1px solid #eee; background:#fff; margin:0 auto; display:block;
   }
 </style>
 
-<h1>Our Story</h1>
+<div id="our-story-page">
 
-<p>Hi, we are FZ Studio, an architectural designer and an artist, currently based in London, UK.</p>
-<p>We enjoy creating art by meditating and experimenting through drawing, painting, photographing and crafting. We love nature and wildlife. In our spare time, hiking and diving always refresh our mind for creativity.</p>
-<p>We also post arts and stories related to nature and life via our <a href="#">Youtube</a> and <a href="#">Instagram</a>.</p>
+  <!-- 0) Our Story Intro（整段居中，只保留这一份） -->
+  <section id="about-intro" class="center" style="padding:8px 0 12px;">
+    <p>Hi, we are FZ Studio, an architectural designer and an artist, currently based in London, UK.</p>
+    <p>We enjoy creating art by meditating and experimenting through drawing, painting, photographing and crafting.
+       We love nature and wildlife. In our spare time, hiking and diving always refresh our mind for creativity.</p>
+    <p>We also post arts and stories related to nature and life via our
+       <a href="#">Youtube</a> and <a href="#">Instagram</a>.</p>
+    <p style="margin-bottom:0;">Currently we are introducing our first collection of watercolour greeting cards and art prints.
+       We believe watercolour captures the atmosphere of nature and the unpredictable feature of watercolour
+       makes it suitable for intuitive creation.</p>
+  </section>
 
-<h2 class="section-title">NEW RELEASES &amp; MORE</h2>
+  <!-- 1) Newsletter（Email 输入 → 下一行“Sign up”文字 → iframe 兜底） -->
+  <section id="newsletter" class="center" style="padding:28px 0 24px;">
+    <h2>NEW RELEASES &amp; MORE</h2>
+    <p>Sign up with your email address to receive updates for our new art releases, ideas from our craft and much more !</p>
 
-<p>Sign up with your email address to receive updates for our new art releases, ideas from our craft and much more!</p>
-<!-- ===== 0) Our Story Intro（整段居中） ===== -->
-<section id="about-intro" style="padding:8px 0 12px;">
-  <div style="max-width:920px;margin:0 auto;text-align:center;padding:0 16px;">
-    <p style="margin:0 auto 12px;line-height:1.9;">
-      Hi, we are FZ Studio, an architectural designer and an artist, currently based in London, UK.
-    </p>
-    <p style="margin:0 auto 12px;line-height:1.9;">
-      We enjoy creating art by meditating and experimenting through drawing, painting, photographing and crafting.
-      We love nature and wildlife. In our spare time, hiking and diving always refresh our mind for creativity.
-    </p>
-    <p style="margin:0 auto 12px;line-height:1.9;">
-      We also post arts and stories related to nature and life via our
-      <a href="/#">Youtube</a> and <a href="/#">Instagram</a>.
-    </p>
-    <p style="margin:0 auto 0;line-height:1.9;">
-      Currently we are introducing our first collection of watercolour greeting cards and art prints.
-      We believe watercolour captures the atmosphere of nature and the unpredictable feature of watercolour
-      makes it suitable for intuitive creation.
-    </p>
-  </div>
-</section>
-
-<!-- 1) Newsletter（只出现一次，居中：Email 输入 + Sign Up 按钮 + Substack iframe） -->
-<section id="newsletter" style="padding:28px 0 24px;">
-  <div style="max-width:920px;margin:0 auto;text-align:center;padding:0 16px;">
-    <h2 style="margin:0 0 12px;">NEW RELEASES &amp; MORE</h2>
-    <p style="margin:0 0 18px;">
-      Sign up with your email address to receive updates for our new art releases, ideas from our craft and much more !
-    </p>
-
-    <!-- 视觉 Email 输入 + 按钮 -->
-    <div style="max-width:540px;margin:0 auto 10px;display:flex;gap:10px;justify-content:center;">
-      <input id="fz-email" type="email" placeholder="Email Address"
-             style="flex:1;max-width:420px;height:52px;border:1px solid #ddd;border-radius:0;
-                    padding:0 16px;box-sizing:border-box;" />
-      <button id="fz-email-btn" type="button"
-              style="height:52px;padding:0 18px;border:1px solid #222;background:#fff;cursor:pointer;">
-        Sign Up
-      </button>
-    </div>
-    <div id="fz-email-error" aria-live="polite" style="display:none;margin:6px 0 10px;color:#b00020;">
-      Please enter a valid email address.
+    <div class="email-wrap">
+      <input id="fz-email" type="email" placeholder="Email Address" />
     </div>
 
-    <!-- Substack 表单（真正的订阅通道；有的浏览器会拦截第三方 iframe，所以上面的按钮做了直连兜底） -->
+    <!-- 下一行“Sign up”文字（带下划线，点击后跳转 Substack 完成订阅） -->
+    <div style="margin:0 0 12px;">
+      <a id="fz-email-link" href="#" class="signup-text">Sign up</a>
+    </div>
+
+    <div id="fz-email-error" class="error" aria-live="polite">Please enter a valid email address.</div>
+
+    <!-- Substack 嵌入（若被浏览器/插件拦截，会显示为灰色占位；下方有直达链接兜底） -->
     <iframe
+      class="substack-embed"
       src="https://fzstudio1.substack.com/embed?utm_source=ourstory"
-      width="100%" height="220"
-      style="max-width:720px;width:100%;border:1px solid #eee;background:#fff;margin:0 auto;display:block;"
-      frameborder="0" scrolling="no">
-    </iframe>
+      width="100%" height="220" frameborder="0" scrolling="no"></iframe>
 
-    <p style="margin-top:10px;font-size:.95rem;">
+    <p style="margin-top:10px; font-size:.95rem;">
       By subscribing you agree to receive emails from FZ Studio. You can unsubscribe anytime.
     </p>
-    <p style="margin-top:6px;font-size:.95rem;">
+    <p style="margin-top:6px; font-size:.95rem;">
       <a href="https://fzstudio1.substack.com" target="_blank" rel="noopener">
         Open the subscribe form if the form does not load.
       </a>
     </p>
-  </div>
-</section>
+  </section>
+
+  <hr>
+
+  <!-- 2) Freebie 介绍（按你的文案，居中） -->
+  <section id="freebie-intro" class="center" style="padding:18px 0 6px;">
+    <h2>Freebie: Watercolour Tips (PDF)</h2>
+    <p style="max-width:880px;">
+      This free set gives you two pages to anchor that feeling:
+      an <em>Artist Table Layout</em> and a <em>Watercolour Swatch Card Kit</em>.
+      They are simple on purpose—printable, repeatable, and calm.
+      Think of them as the framework of a good room: clean lines, clear circulation,
+      and light that tells the truth.
+    </p>
+  </section>
+
+  <!-- 3) Get the free PDF via subscription（标题 + 说明 + Substack iframe） -->
+  <section id="freebie-signup" class="center" style="padding:8px 0 56px;">
+    <h3>Get the free PDF via subscription</h3>
+    <p>Subscribe below — the download link is in your welcome email.</p>
+
+    <iframe
+      class="substack-embed"
+      src="https://fzstudio1.substack.com/embed?utm_source=freebie_section"
+      width="100%" height="220" frameborder="0" scrolling="no"></iframe>
+
+    <p style="margin-top:10px; font-size:.95rem;">
+      By subscribing you agree to receive emails from FZ Studio. Unsubscribe anytime.
+    </p>
+    <p style="margin-top:6px; font-size:.95rem;">
+      <a href="https://fzstudio1.substack.com" target="_blank" rel="noopener">
+        Open the subscribe form if the form does not load.
+      </a>
+    </p>
+  </section>
+
+</div>
 
 <script>
+/* Newsletter：邮箱输入 + “Sign up” 文本点击 → 新标签打开 Substack 完成订阅 */
 (function () {
-  const btn = document.getElementById('fz-email-btn');
+  const link = document.getElementById('fz-email-link');
   const input = document.getElementById('fz-email');
-  const err = document.getElementById('fz-email-error');
+  const err   = document.getElementById('fz-email-error');
   const SUBSTACK = 'https://fzstudio1.substack.com';
 
-  function isValid(email) {
-    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-  }
+  function isValid(email){ return /^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(email); }
 
   function go() {
     const email = (input.value || '').trim();
@@ -121,67 +129,14 @@ body_class: our-story
       return;
     }
     err.style.display = 'none';
-
-    // 打开 Substack 订阅页（若支持将尝试带上 email；不支持也能完成订阅）
     const url = SUBSTACK + '/?utm_source=ourstory_signup&email=' + encodeURIComponent(email);
-    window.open(url, '_blank', 'noopener');
-
-    // 便于粘贴（可选）
+    window.open(url, '_blank', 'noopener');  // 新标签跳 Substack
     if (navigator.clipboard && navigator.clipboard.writeText) {
-      navigator.clipboard.writeText(email).catch(() => {});
+      navigator.clipboard.writeText(email).catch(()=>{});
     }
   }
 
-  btn.addEventListener('click', go);
-  input.addEventListener('keydown', function (ev) {
-    if (ev.key === 'Enter') {
-      ev.preventDefault();
-      go();
-    }
-  });
+  link.addEventListener('click', function(e){ e.preventDefault(); go(); });
+  input.addEventListener('keydown', function(e){ if (e.key === 'Enter'){ e.preventDefault(); go(); }});
 })();
 </script>
-
-<hr style="max-width:920px;margin:28px auto;border:0;border-top:1px solid #eee;">
-
-<!-- ===== 2) Freebie 介绍（完全按你的文案，居中） ===== -->
-<section id="freebie-intro" style="padding:18px 0 6px;">
-  <div style="max-width:920px;margin:0 auto;text-align:center;padding:0 16px;">
-    <h2 style="margin:0 0 14px;">Freebie: Watercolour Tips (PDF)</h2>
-    <p style="margin:0 auto 14px;max-width:880px;line-height:1.9;">
-      This free set gives you two pages to anchor that feeling:
-      an <em>Artist Table Layout</em> and a <em>Watercolour Swatch Card Kit</em>.
-      They are simple on purpose—printable, repeatable, and calm.
-      Think of them as the framework of a good room: clean lines, clear circulation, and light that tells the truth.
-    </p>
-  </div>
-</section>
-
-<!-- ===== 3) Get the free PDF via subscription（标题 + 说明 + Substack 表单） ===== -->
-<section id="freebie-signup" style="padding:8px 0 56px;">
-  <div style="max-width:920px;margin:0 auto;text-align:center;padding:0 16px;">
-    <h3 style="margin:12px 0 8px;">Get the free PDF via subscription</h3>
-    <p style="margin:0 0 16px;">
-      Subscribe below — the download link is in your welcome email.
-    </p>
-
-    <iframe
-      src="https://fzstudio1.substack.com/embed?utm_source=freebie_section"
-      width="100%" height="220"
-      style="max-width:720px;width:100%;border:1px solid #eee;background:#fff;margin:0 auto;display:block;"
-      frameborder="0" scrolling="no">
-    </iframe>
-
-    <p style="margin-top:10px;font-size:.95rem;">
-      By subscribing you agree to receive emails from FZ Studio. Unsubscribe anytime.
-    </p>
-    <p style="margin-top:6px;font-size:.95rem;">
-      <a href="https://fzstudio1.substack.com" target="_blank" rel="noopener">
-        Open the subscribe form if the form does not load.
-      </a>
-    </p>
-  </div>
-</section>
-<!-- ===== end ===== -->
-
-
