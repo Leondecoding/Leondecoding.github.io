@@ -11,11 +11,18 @@ permalink: /our-story/
   #our-story-page h2{margin:0 0 12px;text-align:center}
   #our-story-page h3{margin:12px 0 8px;text-align:center}
   #our-story-page hr{max-width:920px;margin:28px auto;border:0;border-top:1px solid #eee}
-  #newsletter .email-wrap{max-width:540px;margin:0 auto 8px}
-  #newsletter input[type=email]{width:100%;height:52px;border:1px solid #ddd;border-radius:0;padding:0 16px;box-sizing:border-box}
-  #newsletter .signup-text{display:inline-block;padding:4px 2px;border-bottom:1px solid #222;text-decoration:none;color:inherit}
-  #newsletter .error{display:none;margin:6px 0 10px;color:#b00020}
-  .substack-embed{max-width:720px;width:100%;border:1px solid #eee;background:#fff;margin:0 auto;display:block}
+
+  /* Newsletter 表单：Email 输入 + 下一行“Sign up”（下划线样式） */
+  .nl-wrap{max-width:540px;margin:0 auto}
+  .nl-input{width:100%;height:52px;border:1px solid #ddd;border-radius:0;padding:0 16px;box-sizing:border-box}
+  .nl-submit{
+    background:none;border:0;padding:4px 2px;margin:8px 0 2px;cursor:pointer;
+    text-decoration:none;border-bottom:1px solid #222;color:inherit;line-height:1
+  }
+  .nl-msg{display:none;margin:6px 0 0;font-size:.95rem}
+  .nl-msg.ok{color:#2e7d32}
+  .nl-msg.err{color:#b00020}
+  .hp{position:absolute;left:-5000px}
 </style>
 
 <div id="our-story-page">
@@ -32,41 +39,30 @@ permalink: /our-story/
        makes it suitable for intuitive creation.</p>
   </section>
 
-  <!-- 1) Newsletter（邮箱输入 → 下一行“Sign up”文字（可降级链接）→ iframe） -->
+  <!-- 1) Newsletter（Email 输入 → 下一行“Sign up” 下划线 → 成功/错误提示） -->
   <section id="newsletter" class="center" style="padding:28px 0 24px;">
     <h2>NEW RELEASES &amp; MORE</h2>
     <p>Sign up with your email address to receive updates for our new art releases, ideas from our craft and much more !</p>
 
-    <div class="email-wrap">
-      <input id="fz-email" type="email" placeholder="Email Address" required aria-describedby="fz-email-error" />
-    </div>
-
-    <!-- 这里是可降级的超链接：即使 JS 失效，也会打开 Substack 订阅页 -->
-    <div style="margin:0 0 12px;">
-      <a
-        id="fz-email-link"
-        class="signup-text"
-        href="https://fzstudio1.substack.com/?utm_source=ourstory_signup"
-        target="_blank" rel="noopener"
-      >Sign up</a>
-    </div>
-
-    <div id="fz-email-error" class="error" aria-live="polite">Please enter a valid email address.</div>
-
-    <iframe
-      class="substack-embed"
-      src="https://fzstudio1.substack.com/embed?utm_source=ourstory"
-      width="100%" height="220" frameborder="0" scrolling="no"></iframe>
-
-    <p style="margin-top:10px;font-size:.95rem;">By subscribing you agree to receive emails from FZ Studio. You can unsubscribe anytime.</p>
-    <p style="margin-top:6px;font-size:.95rem;">
-      <a href="https://fzstudio1.substack.com" target="_blank" rel="noopener">Open the subscribe form if the form does not load.</a>
-    </p>
+    <form id="nl-form-ourstory" class="nl-wrap" action="APPS_SCRIPT_URL" method="post" accept-charset="UTF-8" target="nl-silent" novalidate>
+      <input class="nl-input" type="email" name="email" placeholder="Email Address" required aria-describedby="nl-msg-ourstory">
+      <!-- 反垃圾蜜罐 -->
+      <input class="hp" type="text" name="_gotcha" tabindex="-1" autocomplete="off">
+      <!-- 标记来源与上下文 -->
+      <input type="hidden" name="source" value="ourstory_newsletter">
+      <input type="hidden" name="page" value="/our-story/">
+      <input type="hidden" name="ref" value="">
+      <input type="hidden" name="ua" value="">
+      <!-- 看起来像文字的提交控件 -->
+      <button class="nl-submit" type="submit" aria-label="Sign up">Sign up</button>
+      <div id="nl-msg-ourstory" class="nl-msg" aria-live="polite"></div>
+      <p style="margin-top:10px;font-size:.95rem">By subscribing you agree to receive emails from FZ Studio. You can unsubscribe anytime.</p>
+    </form>
   </section>
 
   <hr>
 
-  <!-- 2) Freebie 介绍 -->
+  <!-- 2) Freebie 介绍（你的文案，居中） -->
   <section id="freebie-intro" class="center" style="padding:18px 0 6px;">
     <h2>Freebie: Watercolour Tips (PDF)</h2>
     <p style="max-width:880px;">
@@ -78,64 +74,66 @@ permalink: /our-story/
     </p>
   </section>
 
-  <!-- 3) Get the free PDF via subscription -->
+  <!-- 3) Freebie 的第二个入口（同样提交到你的 Apps Script） -->
   <section id="freebie-signup" class="center" style="padding:8px 0 56px;">
     <h3>Get the free PDF via subscription</h3>
-    <p>Subscribe below — the download link is in your welcome email.</p>
+    <p>Leave your email below — we’ll include the download in your next welcome/send-out.</p>
 
-    <iframe
-      class="substack-embed"
-      src="https://fzstudio1.substack.com/embed?utm_source=freebie_section"
-      width="100%" height="220" frameborder="0" scrolling="no"></iframe>
-
-    <p style="margin-top:10px;font-size:.95rem;">By subscribing you agree to receive emails from FZ Studio. Unsubscribe anytime.</p>
-    <p style="margin-top:6px;font-size:.95rem;">
-      <a href="https://fzstudio1.substack.com" target="_blank" rel="noopener">Open the subscribe form if the form does not load.</a>
-    </p>
+    <form id="nl-form-freebie" class="nl-wrap" action="APPS_SCRIPT_URL" method="post" accept-charset="UTF-8" target="nl-silent" novalidate>
+      <input class="nl-input" type="email" name="email" placeholder="Email Address" required aria-describedby="nl-msg-freebie">
+      <input class="hp" type="text" name="_gotcha" tabindex="-1" autocomplete="off">
+      <input type="hidden" name="source" value="ourstory_freebie_section">
+      <input type="hidden" name="page" value="/our-story/#freebie">
+      <input type="hidden" name="ref" value="">
+      <input type="hidden" name="ua" value="">
+      <button class="nl-submit" type="submit" aria-label="Sign up">Sign up</button>
+      <div id="nl-msg-freebie" class="nl-msg" aria-live="polite"></div>
+      <p style="margin-top:10px;font-size:.95rem">We send only occasional notes. Unsubscribe anytime.</p>
+    </form>
   </section>
 
+  <!-- 隐藏 iframe：防止跨域 POST 后页面跳转（静默提交） -->
+  <iframe name="nl-silent" style="display:none"></iframe>
 </div>
 
 <script>
-/* 更稳健：用浏览器原生校验 + 可降级链接。成功时把邮箱带到 Substack。 */
-(function () {
-  const link  = document.getElementById('fz-email-link');
-  const input = document.getElementById('fz-email');
-  const errEl = document.getElementById('fz-email-error');
+/* 提交前填入 referrer / userAgent；并在 iframe onload 后提示成功（不依赖跨域读响应） */
+(function(){
+  function enhance(formId, msgId){
+    var f = document.getElementById(formId);
+    if(!f) return;
+    var msg = document.getElementById(msgId);
+    // 填充上下文
+    var ref = f.querySelector('input[name="ref"]');
+    var ua  = f.querySelector('input[name="ua"]');
+    if(ref) ref.value = document.referrer || '';
+    if(ua)  ua.value  = navigator.userAgent || '';
 
-  function valid() {
-    // 使用浏览器原生 email 校验
-    if (!input.checkValidity()) {
-      errEl.style.display = 'block';
-      // 触发原生提示（大多数浏览器会在输入框显示标准错误气泡）
-      if (input.reportValidity) input.reportValidity();
-      input.focus();
-      return false;
-    }
-    errEl.style.display = 'none';
-    return true;
+    f.addEventListener('submit', function(ev){
+      var email = f.querySelector('input[type="email"]');
+      if(!email.checkValidity()){
+        ev.preventDefault();
+        msg.textContent = 'Please enter a valid email address.';
+        msg.className = 'nl-msg err';
+        msg.style.display = 'block';
+        email.reportValidity && email.reportValidity();
+        email.focus();
+        return;
+      }
+      // 提交后，等隐藏 iframe onload 再提示
+      var iframe = document.getElementsByName('nl-silent')[0];
+      var done = function(){
+        msg.textContent = 'Thanks! Your email has been added.';
+        msg.className = 'nl-msg ok';
+        msg.style.display = 'block';
+        // 清掉输入
+        f.reset();
+        iframe.removeEventListener('load', done);
+      };
+      iframe.addEventListener('load', done);
+    });
   }
-
-  // 点击“Sign up”时，把邮箱拼到链接上；若无效，阻止跳转
-  link.addEventListener('click', function (e) {
-    // 若没有填写邮箱，也允许用户直接跳到 Substack（降级体验）
-    if (!input.value) return; // 打开原链接（无 email 参数）
-
-    if (!valid()) { e.preventDefault(); return; }
-
-    // 动态带上 email 参数
-    const base = 'https://fzstudio1.substack.com/?utm_source=ourstory_signup&email=';
-    const url  = base + encodeURIComponent(input.value.trim());
-    // 直接改 href，让浏览器自然打开（更不容易被拦截）
-    link.setAttribute('href', url);
-  });
-
-  // 按 Enter 也触发点击
-  input.addEventListener('keydown', function (e) {
-    if (e.key === 'Enter') {
-      e.preventDefault();
-      link.click();
-    }
-  });
+  enhance('nl-form-ourstory','nl-msg-ourstory');
+  enhance('nl-form-freebie','nl-msg-freebie');
 })();
 </script>
