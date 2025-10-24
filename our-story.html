@@ -38,18 +38,48 @@ body_class: our-story
 <h2 class="section-title">NEW RELEASES &amp; MORE</h2>
 
 <p>Sign up with your email address to receive updates for our new art releases, ideas from our craft and much more!</p>
-<!-- Newsletter / Freebie signup (Substack embed) -->
-<div id="newsletter-signup" style="margin:24px 0;">
-  <p style="margin:0 0 8px;">
-    Subscribe to receive studio notes — the Freebie download link is in your welcome email.
+
+<form>
+  <p>
+    <input type="text" placeholder="First Name" style="width:240px; margin:0 8px;">
+    <input type="text" placeholder="Last Name"  style="width:240px; margin:0 8px;">
+    <input type="email" placeholder="Email Address" style="width:280px; margin:0 8px;">
   </p>
-  <iframe
-    src="https://fzstudio1.substack.com/embed?utm_source=ourstory"
-    width="100%" height="220"
-    style="border:1px solid #eee;background:#fff" frameborder="0" scrolling="no">
-  </iframe>
-  <p style="margin-top:8px;font-size:.9rem;color:#666;">
-    By subscribing you agree to receive emails from FZ Studio. Unsubscribe anytime.
-  </p>
-</div>
+  <p><button type="submit">SIGN UP</button></p>
+  <p style="color:#999;">100% spam free. Unsubscribe at any time. We respect your privacy.</p>
+</form>
+<!-- Freebie CTA inside Our Story -->
+<section id="freebie" style="padding:48px 0;border-top:1px solid #eee;">
+  <div style="max-width:1100px;margin:0 auto;padding:0 20px;display:grid;grid-template-columns:1.2fr 1fr;gap:28px;">
+    <div>
+      <h2 style="margin:0 0 8px;">Freebie: Watercolor Tips (PDF)</h2>
+      <p style="color:#555;margin:0 0 14px;">Bite-sized watercolor tips to improve brush control, layering and textures—delivered by email.</p>
+      <ul style="margin:12px 0 18px; padding-left:18px; line-height:1.7;">
+        <li>Brush control & water ratio cheats</li>
+        <li>Layering & glazing without mud</li>
+        <li>Five quick textures (salt, drybrush…)</li>
+      </ul>
+
+      <!-- 可选：你的 Substack Freebie 文章（Everyone 可读）的链接，替换 SUBSTACK_POST_URL -->
+      <!-- <p><a href="SUBSTACK_POST_URL" target="_blank" rel="noopener">Read the full guide on Substack →</a></p> -->
+    </div>
+
+    <div>
+      <div style="position:sticky;top:24px;">
+        <h3 style="margin:0 0 8px;">Get the PDF via email</h3>
+        <p style="margin:.2rem 0 .8rem;color:#555;">Subscribe below — the download link is in your welcome email.</p>
+
+        <iframe
+          src="https://fzstudio1.substack.com/embed?utm_source=ourstory_freebie"
+          width="100%" height="220"
+          style="border:1px solid #eee;background:#fff" frameborder="0" scrolling="no">
+        </iframe>
+
+        <p style="margin-top:8px;font-size:.9rem;color:#666;">
+          By subscribing you agree to receive emails from FZ Studio. Unsubscribe anytime.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
 
