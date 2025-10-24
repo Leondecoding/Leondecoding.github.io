@@ -5,32 +5,22 @@ permalink: /our-story/
 ---
 
 <style>
-  /* 局部样式（不改全站字体与颜色，只做居中与宽度控制） */
-  #our-story-page { max-width: 920px; margin: 0 auto; padding: 0 16px; }
-  #our-story-page .center { text-align: center; }
-  #our-story-page p { line-height: 1.9; margin: 0 auto 12px; }
-  #our-story-page h2 { margin: 0 0 12px; text-align: center; }
-  #our-story-page h3 { margin: 12px 0 8px; text-align: center; }
-  #our-story-page hr { max-width: 920px; margin: 28px auto; border: 0; border-top: 1px solid #eee; }
-  /* Newsletter 输入框与“Sign up”文字 */
-  #newsletter .email-wrap { max-width: 540px; margin: 0 auto 8px; }
-  #newsletter input[type="email"]{
-    width:100%; height:52px; border:1px solid #ddd; border-radius:0;
-    padding:0 16px; box-sizing:border-box;
-  }
-  #newsletter .signup-text {
-    display:inline-block; padding:4px 2px; border-bottom:1px solid #222; text-decoration:none; color:inherit;
-  }
-  #newsletter .error { display:none; margin:6px 0 10px; color:#b00020; }
-  /* 让 iframe 居中 */
-  .substack-embed {
-    max-width:720px; width:100%; border:1px solid #eee; background:#fff; margin:0 auto; display:block;
-  }
+  #our-story-page{max-width:920px;margin:0 auto;padding:0 16px}
+  #our-story-page .center{text-align:center}
+  #our-story-page p{line-height:1.9;margin:0 auto 12px}
+  #our-story-page h2{margin:0 0 12px;text-align:center}
+  #our-story-page h3{margin:12px 0 8px;text-align:center}
+  #our-story-page hr{max-width:920px;margin:28px auto;border:0;border-top:1px solid #eee}
+  #newsletter .email-wrap{max-width:540px;margin:0 auto 8px}
+  #newsletter input[type=email]{width:100%;height:52px;border:1px solid #ddd;border-radius:0;padding:0 16px;box-sizing:border-box}
+  #newsletter .signup-text{display:inline-block;padding:4px 2px;border-bottom:1px solid #222;text-decoration:none;color:inherit}
+  #newsletter .error{display:none;margin:6px 0 10px;color:#b00020}
+  .substack-embed{max-width:720px;width:100%;border:1px solid #eee;background:#fff;margin:0 auto;display:block}
 </style>
 
 <div id="our-story-page">
 
-  <!-- 0) Our Story Intro（整段居中，只保留这一份） -->
+  <!-- 0) Intro（居中） -->
   <section id="about-intro" class="center" style="padding:8px 0 12px;">
     <p>Hi, we are FZ Studio, an architectural designer and an artist, currently based in London, UK.</p>
     <p>We enjoy creating art by meditating and experimenting through drawing, painting, photographing and crafting.
@@ -42,41 +32,41 @@ permalink: /our-story/
        makes it suitable for intuitive creation.</p>
   </section>
 
-  <!-- 1) Newsletter（Email 输入 → 下一行“Sign up”文字 → iframe 兜底） -->
+  <!-- 1) Newsletter（邮箱输入 → 下一行“Sign up”文字（可降级链接）→ iframe） -->
   <section id="newsletter" class="center" style="padding:28px 0 24px;">
     <h2>NEW RELEASES &amp; MORE</h2>
     <p>Sign up with your email address to receive updates for our new art releases, ideas from our craft and much more !</p>
 
     <div class="email-wrap">
-      <input id="fz-email" type="email" placeholder="Email Address" />
+      <input id="fz-email" type="email" placeholder="Email Address" required aria-describedby="fz-email-error" />
     </div>
 
-    <!-- 下一行“Sign up”文字（带下划线，点击后跳转 Substack 完成订阅） -->
+    <!-- 这里是可降级的超链接：即使 JS 失效，也会打开 Substack 订阅页 -->
     <div style="margin:0 0 12px;">
-      <a id="fz-email-link" href="#" class="signup-text">Sign up</a>
+      <a
+        id="fz-email-link"
+        class="signup-text"
+        href="https://fzstudio1.substack.com/?utm_source=ourstory_signup"
+        target="_blank" rel="noopener"
+      >Sign up</a>
     </div>
 
     <div id="fz-email-error" class="error" aria-live="polite">Please enter a valid email address.</div>
 
-    <!-- Substack 嵌入（若被浏览器/插件拦截，会显示为灰色占位；下方有直达链接兜底） -->
     <iframe
       class="substack-embed"
       src="https://fzstudio1.substack.com/embed?utm_source=ourstory"
       width="100%" height="220" frameborder="0" scrolling="no"></iframe>
 
-    <p style="margin-top:10px; font-size:.95rem;">
-      By subscribing you agree to receive emails from FZ Studio. You can unsubscribe anytime.
-    </p>
-    <p style="margin-top:6px; font-size:.95rem;">
-      <a href="https://fzstudio1.substack.com" target="_blank" rel="noopener">
-        Open the subscribe form if the form does not load.
-      </a>
+    <p style="margin-top:10px;font-size:.95rem;">By subscribing you agree to receive emails from FZ Studio. You can unsubscribe anytime.</p>
+    <p style="margin-top:6px;font-size:.95rem;">
+      <a href="https://fzstudio1.substack.com" target="_blank" rel="noopener">Open the subscribe form if the form does not load.</a>
     </p>
   </section>
 
   <hr>
 
-  <!-- 2) Freebie 介绍（按你的文案，居中） -->
+  <!-- 2) Freebie 介绍 -->
   <section id="freebie-intro" class="center" style="padding:18px 0 6px;">
     <h2>Freebie: Watercolour Tips (PDF)</h2>
     <p style="max-width:880px;">
@@ -88,7 +78,7 @@ permalink: /our-story/
     </p>
   </section>
 
-  <!-- 3) Get the free PDF via subscription（标题 + 说明 + Substack iframe） -->
+  <!-- 3) Get the free PDF via subscription -->
   <section id="freebie-signup" class="center" style="padding:8px 0 56px;">
     <h3>Get the free PDF via subscription</h3>
     <p>Subscribe below — the download link is in your welcome email.</p>
@@ -98,45 +88,54 @@ permalink: /our-story/
       src="https://fzstudio1.substack.com/embed?utm_source=freebie_section"
       width="100%" height="220" frameborder="0" scrolling="no"></iframe>
 
-    <p style="margin-top:10px; font-size:.95rem;">
-      By subscribing you agree to receive emails from FZ Studio. Unsubscribe anytime.
-    </p>
-    <p style="margin-top:6px; font-size:.95rem;">
-      <a href="https://fzstudio1.substack.com" target="_blank" rel="noopener">
-        Open the subscribe form if the form does not load.
-      </a>
+    <p style="margin-top:10px;font-size:.95rem;">By subscribing you agree to receive emails from FZ Studio. Unsubscribe anytime.</p>
+    <p style="margin-top:6px;font-size:.95rem;">
+      <a href="https://fzstudio1.substack.com" target="_blank" rel="noopener">Open the subscribe form if the form does not load.</a>
     </p>
   </section>
 
 </div>
 
 <script>
-/* Newsletter：邮箱输入 + “Sign up” 文本点击 → 新标签打开 Substack 完成订阅 */
+/* 更稳健：用浏览器原生校验 + 可降级链接。成功时把邮箱带到 Substack。 */
 (function () {
-  const link = document.getElementById('fz-email-link');
+  const link  = document.getElementById('fz-email-link');
   const input = document.getElementById('fz-email');
-  const err   = document.getElementById('fz-email-error');
-  const SUBSTACK = 'https://fzstudio1.substack.com';
+  const errEl = document.getElementById('fz-email-error');
 
-  function isValid(email){ return /^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(email); }
-
-  function go() {
-    const email = (input.value || '').trim();
-    if (!isValid(email)) {
-      err.style.display = 'block';
-      err.textContent = 'Please enter a valid email address.';
+  function valid() {
+    // 使用浏览器原生 email 校验
+    if (!input.checkValidity()) {
+      errEl.style.display = 'block';
+      // 触发原生提示（大多数浏览器会在输入框显示标准错误气泡）
+      if (input.reportValidity) input.reportValidity();
       input.focus();
-      return;
+      return false;
     }
-    err.style.display = 'none';
-    const url = SUBSTACK + '/?utm_source=ourstory_signup&email=' + encodeURIComponent(email);
-    window.open(url, '_blank', 'noopener');  // 新标签跳 Substack
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-      navigator.clipboard.writeText(email).catch(()=>{});
-    }
+    errEl.style.display = 'none';
+    return true;
   }
 
-  link.addEventListener('click', function(e){ e.preventDefault(); go(); });
-  input.addEventListener('keydown', function(e){ if (e.key === 'Enter'){ e.preventDefault(); go(); }});
+  // 点击“Sign up”时，把邮箱拼到链接上；若无效，阻止跳转
+  link.addEventListener('click', function (e) {
+    // 若没有填写邮箱，也允许用户直接跳到 Substack（降级体验）
+    if (!input.value) return; // 打开原链接（无 email 参数）
+
+    if (!valid()) { e.preventDefault(); return; }
+
+    // 动态带上 email 参数
+    const base = 'https://fzstudio1.substack.com/?utm_source=ourstory_signup&email=';
+    const url  = base + encodeURIComponent(input.value.trim());
+    // 直接改 href，让浏览器自然打开（更不容易被拦截）
+    link.setAttribute('href', url);
+  });
+
+  // 按 Enter 也触发点击
+  input.addEventListener('keydown', function (e) {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      link.click();
+    }
+  });
 })();
 </script>
