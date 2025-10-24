@@ -38,17 +38,24 @@ body_class: our-story
 <h2 class="section-title">NEW RELEASES &amp; MORE</h2>
 
 <p>Sign up with your email address to receive updates for our new art releases, ideas from our craft and much more!</p>
-<!-- ===== Our Story: Newsletter + Freebie (stacked & centered) ===== -->
+<!-- ===== Our Story: Newsletter → Freebie intro → Get the freebie (all centered) ===== -->
 
-<!-- 1) Newsletter（居中，只收邮箱） -->
+<!-- 1) Newsletter（标题 + 说明 + 仅 Email 输入框 + Substack 表单） -->
 <section id="newsletter" style="padding:56px 0 24px;">
   <div style="max-width:920px;margin:0 auto;text-align:center;padding:0 16px;">
     <h2 style="margin:0 0 12px;">NEW RELEASES &amp; MORE</h2>
     <p style="margin:0 0 18px;">
-      Sign up with your email address to receive updates for our new art releases, ideas from our craft and much more!
+      Sign up with your email address to receive updates for our new art releases, ideas from our craft and much more !
     </p>
 
-    <!-- Substack 表单（只邮箱） -->
+    <!-- 站内的 Email 样式框（仅作视觉/占位，实际提交在下面的 Substack 表单里完成） -->
+    <div style="max-width:540px;margin:0 auto 18px;">
+      <input type="email" placeholder="Email Address"
+             style="width:100%;height:52px;border:1px solid #ddd;border-radius:0;
+                    padding:0 16px;box-sizing:border-box;"/>
+    </div>
+
+    <!-- Substack 表单（真正的数据提交在这里进行） -->
     <iframe
       src="https://fzstudio1.substack.com/embed?utm_source=ourstory"
       width="100%" height="220"
@@ -69,28 +76,22 @@ body_class: our-story
 
 <hr style="max-width:920px;margin:28px auto;border:0;border-top:1px solid #eee;">
 
-<!-- 2) Freebie 简介（居中） -->
+<!-- 2) Freebie 介绍（完全按你给的文案，居中） -->
 <section id="freebie-intro" style="padding:24px 0 6px;">
   <div style="max-width:920px;margin:0 auto;text-align:center;padding:0 16px;">
-    <h2 style="margin:0 0 10px;">Freebie: Watercolour Tips (PDF)</h2>
-    <p style="margin:0 auto 14px;max-width:780px;line-height:1.8;">
-      Bite-sized watercolor tips to improve brush control, layering and textures—delivered by email.
-    </p>
-    <ul style="margin:8px auto 16px;max-width:720px;line-height:1.8;text-align:left;">
-      <li>Brush control &amp; water ratio cheats</li>
-      <li>Layering &amp; glazing without mud</li>
-      <li>Five quick textures (salt, drybrush…)</li>
-    </ul>
-    <p style="margin:0 auto 6px;max-width:780px;line-height:1.8;">
+    <h2 style="margin:0 0 14px;">Freebie: Watercolour Tips (PDF)</h2>
+
+    <p style="margin:0 auto 14px;max-width:880px;line-height:1.9;">
       This free set gives you two pages to anchor that feeling:
       an <em>Artist Table Layout</em> and a <em>Watercolour Swatch Card Kit</em>.
       They are simple on purpose—printable, repeatable, and calm.
-      Think of them as the framework of a good room: clean lines, clear circulation, and light that tells the truth.
+      Think of them as the framework of a good room: clean lines, clear circulation,
+      and light that tells the truth.
     </p>
   </div>
 </section>
 
-<!-- 3) Get the freebie via subscription（再给一个订阅入口） -->
+<!-- 3) Get the free PDF via subscription（标题 + 说明 + Substack 表单） -->
 <section id="freebie-signup" style="padding:8px 0 56px;">
   <div style="max-width:920px;margin:0 auto;text-align:center;padding:0 16px;">
     <h3 style="margin:12px 0 8px;">Get the free PDF via subscription</h3>
@@ -115,5 +116,7 @@ body_class: our-story
     </p>
   </div>
 </section>
+
 <!-- ===== end ===== -->
+
 
