@@ -1,5 +1,5 @@
 /* fz-ui.js — Global delegated handlers (+/−/× always work), legacy uid migration, single-add de-dupe, Checkout(EN) */
-(function () {
+;(()=>{
   const $$ = (s, c = document) => Array.from((c || document).querySelectorAll(s));
   const $  = (s, c = document) => (c || document).querySelector(s);
 
