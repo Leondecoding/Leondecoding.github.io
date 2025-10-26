@@ -13,9 +13,10 @@
   // ===== Utils =====
   const uid = () => 'u' + Date.now().toString(36) + Math.random().toString(36).slice(2,7);
   function fmt(v, code){
-    const sym = (code==='GBP')?'£':(code==='USD')?'$':(code==='EUR')?'€':((code==='JPY'||code==='CNY')?'¥':(code==='HKD')?'HK$':(code==='TWD')?'NT$':''));
-    const n = (typeof v==='number')? v : parseFloat(v||'0'); return (sym||'') + (isFinite(n)? n.toFixed(2) : v) + (sym? '' : (code? (' '+code):''));
-  }
+    const sym = (code==='GBP')?'£':(code==='USD')?'$':(code==='EUR')?'€':(code==='JPY'||code==='CNY')?'¥':(code==='HKD')?'HK$':(code==='TWD')?'NT$':'';
+const n   = (typeof v === 'number') ? v : parseFloat(v || '0');
+return (sym || '') + (isFinite(n) ? n.toFixed(2) : v) + (sym ? ' ' : (code ? (' ' + code) : ''));
+
   function getSelectedValue(btn){
     const name = btn.dataset.optionInput || 'size';
     const wrap = btn.closest('.fz-product') || document;
