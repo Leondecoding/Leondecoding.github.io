@@ -44,71 +44,21 @@ permalink: /our-story/
     <h2>NEW RELEASES &amp; MORE</h2>
     <p>Sign up with your email address to receive updates for our new art releases, ideas from our craft and much more !</p>
 
-   <!-- 隐藏 iframe：用于拦截 Apps Script 的跳转，页面不跳走 -->
-<iframe id="nl-silent" name="nl-silent" style="display:none;"></iframe>
-
-<form id="nl-form-ourstory"
-      class="nl-wrap"
-      action="https://script.google.com/macros/s/AKfycbxR3YkVmP0oLO4qIT6Us0bKnbob1WLVWfhg6tIqw19SfkPqtCCh7BxVOguNQc8coBAm/exec"
-      method="post"
-      accept-charset="UTF-8"
-      target="nl-silent"
-      novalidate>
-
-  <!-- 1) 只收集邮箱 -->
-  <input class="nl-input"
-         type="email"
-         name="email"
-         placeholder="Email Address"
-         required
-         aria-describedby="nl-msg-ourstory">
-
-  <!-- 2) 这些由脚本自动填充 -->
-  <input type="hidden" name="page">
-  <input type="hidden" name="ref">
-  <input type="hidden" name="ua">
-  <!-- 如需 TOKEN 校验，保留并填入你的值；否则删除下一行 -->
-  <!-- <input type="hidden" name="token" value="CAOnima123!"> -->
-
-  <!-- 3) Sign up 文本按钮（非按钮样式） -->
-  <button class="nl-submit" type="submit" aria-label="Sign up" style="all:unset;border-bottom:1px solid #111;cursor:pointer">Sign up</button>
-
-  <div id="nl-msg-ourstory" class="nl-msg" aria-live="polite"></div>
-</form>
-
-<script>
-(function(){
-  const f   = document.getElementById('nl-form-ourstory');
-  const msg = document.getElementById('nl-msg-ourstory');
-  const $   = (sel) => f.querySelector(sel);
-
-  // 自动写入 page / ref / ua
-  $('input[name="page"]').value = location.pathname;
-  $('input[name="ref"]').value  = document.referrer || '';
-  $('input[name="ua"]').value   = navigator.userAgent;
-
-  // 提交时给出状态
-  f.addEventListener('submit', () => {
-    msg.textContent = 'Submitting…';
-  });
-
-  // iframe 加载完成后认为提交成功（Apps Script 返回已加载）
-  const ifr = document.getElementById('nl-silent');
-  if (ifr) {
-    ifr.addEventListener('load', () => {
-      msg.textContent = 'Thanks — please check your inbox.';
-      try { f.reset(); } catch(e){}
-    });
-  }
-})();
-</script>
-
-<style>
-  .nl-wrap{display:flex;flex-direction:column;align-items:center;gap:10px;}
-  .nl-input{min-width:280px;padding:.6rem .8rem;border:1px solid #ccc;border-radius:4px;}
-  .nl-msg{font-size:.9rem;color:#333;margin-top:4px;}
-</style>
-
+    <form id="nl-form-ourstory" class="nl-wrap" action="https://script.google.com/macros/s/AKfycbyI80Tw0Ajnp6UvdIiOBfEbUqQU5SeY5VM8jHCaw1FjVBYMxs0pprN3idbmyriXJFE/exec" method="post" accept-charset="UTF-8" target="nl-silent" novalidate>
+      <input class="nl-input" type="email" name="email" placeholder="Email Address" required aria-describedby="nl-msg-ourstory">
+      <!-- 反垃圾蜜罐 -->
+      <input class="hp" type="text" name="_gotcha" tabindex="-1" autocomplete="off">
+      <!-- 标记来源与上下文 -->
+      <input type="hidden" name="source" value="ourstory_newsletter">
+      <input type="hidden" name="page" value="/our-story/">
+      <input type="hidden" name="ref" value="">
+      <input type="hidden" name="ua" value="">
+<input type="hidden" name="token" value="CAOnima123!">
+      <!-- 看起来像文字的提交控件 -->
+      <button class="nl-submit" type="submit" aria-label="Sign up">Sign up</button>
+      <div id="nl-msg-ourstory" class="nl-msg" aria-live="polite"></div>
+      <p style="margin-top:10px;font-size:.95rem">By subscribing you agree to receive emails from FZ Studio. You can unsubscribe anytime.</p>
+    </form>
   </section>
 
   <hr>
