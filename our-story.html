@@ -44,18 +44,21 @@ permalink: /our-story/
     <h2>NEW RELEASES &amp; MORE</h2>
     <p>Sign up with your email address to receive updates for our new art releases, ideas from our craft and much more !</p>
 
-    <form id="nl-form-ourstory" class="nl-wrap"
-      action="https://script.google.com/macros/s/AKfycbyb_Btzc-7c2qLxAMSk9AVmzQJ9jpzEDhAoeBpHJt6ccQyPz5gP8Co-P1QPqON0zWqjug/exec"
-      method="post" accept-charset="UTF-8" novalidate>
-  <input class="nl-input" type="email" name="email"
-         placeholder="Email Address" required aria-describedby="nl-msg-ourstory">
-  <!-- 蜜罐防机器人：用户看不到，机器人会填 -->
-  <input class="hp" type="text" name="_gotcha" tabindex="-1"
-         autocomplete="off" aria-hidden="true">
-  <button class="nl-submit" type="submit" aria-label="Sign up">Sign up</button>
-  <div id="nl-msg-ourstory" class="nl-msg" aria-live="polite"></div>
-</form>
-
+    <form id="nl-form-ourstory" class="nl-wrap" action="https://script.google.com/macros/s/AKfycbyb_Btzc-7c2qLxAMSk9AVmzQJ9jpzEDhAoeBpHJt6ccQyPz5gP8Co-P1QPqON0zWqjug/exec" method="post" accept-charset="UTF-8" novalidate>
+      <input class="nl-input" type="email" name="email" placeholder="Email Address" required aria-describedby="nl-msg-ourstory">
+      <!-- 反垃圾蜜罐 -->
+      <input class="hp" type="text" name="_gotcha" tabindex="-1" autocomplete="off">
+      <!-- 标记来源与上下文 -->
+      <input type="hidden" name="source" value="ourstory_newsletter">
+      <input type="hidden" name="page" value="/our-story/">
+      <input type="hidden" name="ref" value="">
+      <input type="hidden" name="ua" value="">
+<input type="hidden" name="token" value="CAOnima123!">
+      <!-- 看起来像文字的提交控件 -->
+      <button class="nl-submit" type="submit" aria-label="Sign up">Sign up</button>
+      <div id="nl-msg-ourstory" class="nl-msg" aria-live="polite"></div>
+      <p style="margin-top:10px;font-size:.95rem">By subscribing you agree to receive emails from FZ Studio. You can unsubscribe anytime.</p>
+    </form>
   </section>
 
   <hr>
@@ -77,7 +80,7 @@ permalink: /our-story/
     <h3>Get the free PDF via subscription</h3>
     <p>Leave your email below — we’ll include the download in your next welcome/send-out.</p>
 
-    <form id="nl-form-freebie" class="nl-wrap" action="https://script.google.com/macros/s/AKfycbyI80Tw0Ajnp6UvdIiOBfEbUqQU5SeY5VM8jHCaw1FjVBYMxs0pprN3idbmyriXJFE/exec" method="post" accept-charset="UTF-8" novalidate>
+    <form id="nl-form-freebie" class="nl-wrap" action="https://script.google.com/macros/s/AKfycbyb_Btzc-7c2qLxAMSk9AVmzQJ9jpzEDhAoeBpHJt6ccQyPz5gP8Co-P1QPqON0zWqjug/exec" method="post" accept-charset="UTF-8" novalidate>
       <input class="nl-input" type="email" name="email" placeholder="Email Address" required aria-describedby="nl-msg-freebie">
       <input class="hp" type="text" name="_gotcha" tabindex="-1" autocomplete="off">
       <input type="hidden" name="source" value="ourstory_freebie_section">
