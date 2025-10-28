@@ -204,5 +204,34 @@ return (sym || '') + (isFinite(n) ? n.toFixed(2) : v) + (sym ? ' ' : (code ? (' 
     wireAddButtons();
 
     updateBadge();
+    (function () {
+  const form = document.getElementById('nl-form-ourstory');
+  if (!form) return;
+
+  const btn   = form.querySelector('.nl-submit');
+  const email = form.querySelector('.nl-input');
+  const msg   = document.getElementById('nl-msg-ourstory');
+  const sink  = document.getElementById('nl-silent'); // 隐藏 iframe
+
+  form.addEventListener('submit', function () {
+    if (!email.checkValidity()) return; // 让浏览器自带的必填校验先跑
+
+    // 提交期间的状态
+    btn.disabled = true;
+    const old = btn.textContent;
+    btn.textContent = 'Sending…';
+
+    // 关键：隐藏 iframe 加载完成即表示 Apps Script 已经响应了
+    const done = () => {
+      btn.disabled = false;
+      btn.textContent = old;
+      form.reset();
+      msg.textContent = 'Thank you — please check your inbox to confirm your subscription.';
+      sink.removeEventListener('load', done);
+    };
+    sink.addEventListener('load', done);
+  });
+})();
+
   });
 })();
