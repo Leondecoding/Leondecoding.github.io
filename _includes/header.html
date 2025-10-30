@@ -68,7 +68,26 @@
   </div>
 </aside>
 
+    <footer class="fz-drawer__footer">
+      <a class="fz-btn fz-btn--primary" href="{{ '/checkout/' | relative_url }}">Checkout</a>
+      <!-- PayPal Smart Buttons 容器（抽屉内）-->
+      <div id="fz-paypal-buttons" style="margin-top:12px;"></div>
+      <div id="fz-paypal-hint" style="font-size:.9em;color:#666;margin-top:6px;"></div>
+    </footer>
+
 <!-- 只加载你现有的交互脚本 -->
 <script defer src="{{ '/assets/js/fz-ui.js' | relative_url }}"></script>
 <script defer src="{{ '/assets/js/fz-cart-delegate.js' | relative_url }}"></script>
 
+<!-- 全局配置：供 fz-paypal.js 读取 -->
+<script>
+  window.FZ_PAYPAL = {
+    clientId: "{{ site.paypal_client_id | default: 'YOUR-SANDBOX-CLIENT-ID' }}",
+    currency: "{{ site.default_currency | default: 'GBP' }}",
+    intent: "CAPTURE",
+    env: "{{ site.paypal_env | default: 'sandbox' }}" // 此值只做标注，SDK 以 clientId 判别环境
+  };
+</script>
+
+<!-- PayPal 逻辑（按需渲染） -->
+<script defer src="{{ '/assets/js/fz-paypal.js' | relative_url }}"></script>
