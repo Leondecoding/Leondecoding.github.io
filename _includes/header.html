@@ -1,60 +1,3 @@
-<!-- _includes/header.html — CLEAN: only header + containers; no product code, no front-matter -->
-<header class="fz-site-header">
-  <div class="fz-header-inner">
-    <!-- 左：Logo -->
-    <a class="fz-logo" href="{{ '/' | relative_url }}" aria-label="FZ Studio Home">
-      {% assign _logo = site.logo | default: '/assets/images/logo-fzs.svg' %}
-      <img src="{{ _logo | relative_url }}" alt="{{ site.title | default: 'FZ Studio' }}">
-    </a>
-
-    <!-- 中：主导航（保持你现有的顺序/高亮判断） -->
-    {% assign _url = page.url | default: '' %}
-    {% assign is_original = _url contains '/original-art/' or page.collection == 'originals' %}
-    {% assign is_prints   = _url contains '/art-prints/'  or page.collection == 'artprints' %}
-    {% assign is_cards    = _url contains '/greeting-cards/' or page.collection == 'cards' %}
-    {% assign is_blog     = _url contains '/blog/' or page.collection == 'posts' %}
-    <nav class="fz-nav" aria-label="Primary">
-      <a href="{{ '/' | relative_url }}" class="fz-nav__link{% if _url == '/' %} is-active{% endif %}">HOME</a>
-      <a href="{{ '/our-story/' | relative_url }}" class="fz-nav__link{% if _url contains '/our-story/' %} is-active{% endif %}">OUR STORY</a>
-      <a href="{{ '/blog/' | relative_url }}" class="fz-nav__link{% if is_blog %} is-active{% endif %}">BLOG</a>
-      <a href="{{ '/original-art/' | relative_url }}" class="fz-nav__link{% if is_original %} is-active{% endif %}">ORIGINAL ART</a>
-      <a href="{{ '/art-prints/' | relative_url }}" class="fz-nav__link{% if is_prints %} is-active{% endif %}">ART PRINTS</a>
-      <a href="{{ '/greeting-cards/' | relative_url }}" class="fz-nav__link{% if is_cards %} is-active{% endif %}">GREETING CARDS</a>
-      <a href="{{ '/contact/' | relative_url }}" class="fz-nav__link{% if _url contains '/contact/' %} is-active{% endif %}">CONTACT</a>
-    </nav>
-
-    <!-- 右：搜索 / 登录 / 购物篮 -->
-    <div class="fz-actions">
-      <button class="fz-icon-btn" id="fz-search-btn" aria-label="搜索" aria-haspopup="dialog" aria-controls="fz-search-panel">🔍</button>
-      <button class="fz-icon-btn" id="fz-login-btn" aria-label="登录" aria-haspopup="menu" aria-controls="fz-login-menu" aria-expanded="false">👤</button>
-      <button class="fz-icon-btn" id="fz-cart-btn" aria-label="购物篮" aria-haspopup="dialog" aria-controls="fz-cart-drawer">
-        🛒 <span class="fz-badge" id="fz-cart-count" hidden>0</span>
-      </button>
-    </div>
-  </div>
-</header>
-
-<!-- 搜索面板 -->
-<div class="fz-panel" id="fz-search-panel" role="dialog" aria-modal="true" aria-labelledby="fz-search-title" hidden>
-  <div class="fz-panel__backdrop" data-close="fz-search-panel"></div>
-  <div class="fz-panel__body" role="document">
-    <button class="fz-close" data-close="fz-search-panel" aria-label="关闭搜索">×</button>
-    <h2 id="fz-search-title">搜索</h2>
-    <form action="{{ '/search/' | relative_url }}" method="get" role="search">
-      <input class="fz-input" type="search" name="q" placeholder="搜索…" autofocus>
-      <button class="fz-btn fz-btn--primary" type="submit">搜索</button>
-    </form>
-  </div>
-</div>
-
-<!-- 登录菜单 -->
-<div class="fz-menu" id="fz-login-menu" role="menu" hidden>
-  <ul>
-    <li><a href="#" role="menuitem">登录</a></li>
-    <li><a href="#" role="menuitem">注册</a></li>
-  </ul>
-</div>
-
 <!-- 购物车抽屉 -->
 <aside class="fz-drawer" id="fz-cart-drawer" role="dialog" aria-modal="true" aria-labelledby="fz-cart-title" hidden>
   <div class="fz-drawer__backdrop" data-close="fz-cart-drawer"></div>
@@ -64,30 +7,14 @@
       <button class="fz-close" data-close="fz-cart-drawer" aria-label="关闭购物篮">×</button>
     </header>
     <div class="fz-drawer__content" id="fz-cart-content"><p>当前为空。</p></div>
-    <footer class="fz-drawer__footer"><a class="fz-btn fz-btn--primary" href="#">去结算</a></footer>
-  </div>
-</aside>
-
     <footer class="fz-drawer__footer">
-      
-      <!-- PayPal Smart Buttons 容器（抽屉内）-->
+      <a class="fz-btn fz-btn--primary" href="{{ '/checkout/' | relative_url }}">Checkout</a>
       <div id="fz-paypal-buttons" style="margin-top:12px;"></div>
       <div id="fz-paypal-hint" style="font-size:.9em;color:#666;margin-top:6px;"></div>
     </footer>
+  </div>
+</aside>
 
-<!-- 只加载你现有的交互脚本 -->
+<!-- 强制刷新缓存 -->
 <script defer src="{{ '/assets/js/fz-ui.js?v=20251030' | relative_url }}"></script>
 <script defer src="{{ '/assets/js/fz-cart-delegate.js?v=20251030' | relative_url }}"></script>
-
-<!-- 全局配置：供 fz-paypal.js 读取 -->
-<script>
-  window.FZ_PAYPAL = {
-    clientId: "{{ site.paypal_client_id | default: 'YOUR-SANDBOX-CLIENT-ID' }}",
-    currency: "{{ site.default_currency | default: 'GBP' }}",
-    intent: "CAPTURE",
-    env: "{{ site.paypal_env | default: 'sandbox' }}" // 此值只做标注，SDK 以 clientId 判别环境
-  };
-</script>
-
-<!-- PayPal 逻辑（按需渲染） -->
-<script defer src="{{ '/assets/js/fz-paypal.js' | relative_url }}"></script>
