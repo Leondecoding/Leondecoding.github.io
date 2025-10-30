@@ -1,4 +1,53 @@
-<!-- 购物车抽屉 -->
+<!-- === TOP BAR：Logo + 主导航 + 动作按钮 === -->
+<header class="site-header" style="position:relative;z-index:20;">
+  <div class="container" style="display:flex;align-items:center;justify-content:space-between;gap:16px;">
+    <!-- LOGO -->
+    <a class="site-logo" href="{{ '/' | relative_url }}" aria-label="{{ site.title | default: 'FZ Studio' }}">
+      <img src="{{ site.logo | default: '/assets/images/logo.svg' | relative_url }}" alt="{{ site.title | default: 'FZ Studio' }}" style="height:40px;display:block;">
+    </a>
+
+    <!-- 主导航（按你站点结构） -->
+    <nav class="site-nav" aria-label="Primary" style="display:flex;gap:24px;align-items:center;flex:1;justify-content:center;">
+      <a href="{{ '/' | relative_url }}">HOME</a>
+      <a href="{{ '/our-story/' | relative_url }}">OUR STORY</a>
+      <a href="{{ '/blog/' | relative_url }}">BLOG</a>
+      <a href="{{ '/original-art/' | relative_url }}">ORIGINAL ART</a>
+      <a href="{{ '/art-prints/' | relative_url }}">ART PRINTS</a>
+      <a href="{{ '/greeting-cards/' | relative_url }}">GREETING CARDS</a>
+      <a href="{{ '/contact/' | relative_url }}">CONTACT</a>
+    </nav>
+
+    <!-- 右上角动作按钮 -->
+    <div class="site-actions" style="display:flex;gap:12px;align-items:center;">
+      <button id="fz-search-btn" aria-label="Search" title="Search">🔍</button>
+      <button id="fz-login-btn" aria-label="Account" aria-expanded="false" title="Account">👤</button>
+      <button id="fz-cart-btn" aria-label="Cart" title="Cart">🛒 <span id="fz-cart-count" hidden>0</span></button>
+    </div>
+  </div>
+</header>
+
+<!-- === 搜索面板 === -->
+<div class="fz-panel" id="fz-search-panel" role="dialog" aria-modal="true" aria-labelledby="fz-search-title" hidden>
+  <div class="fz-panel__backdrop" data-close="fz-search-panel"></div>
+  <div class="fz-panel__body" role="document">
+    <button class="fz-close" data-close="fz-search-panel" aria-label="关闭搜索">×</button>
+    <h2 id="fz-search-title">搜索</h2>
+    <form action="{{ '/search/' | relative_url }}" method="get" role="search">
+      <input class="fz-input" type="search" name="q" placeholder="搜索…" autofocus>
+      <button class="fz-btn fz-btn--primary" type="submit">搜索</button>
+    </form>
+  </div>
+</div>
+
+<!-- === 登录菜单 === -->
+<div class="fz-menu" id="fz-login-menu" role="menu" hidden>
+  <ul>
+    <li><a href="#" role="menuitem">登录</a></li>
+    <li><a href="#" role="menuitem">注册</a></li>
+  </ul>
+</div>
+
+<!-- === 购物车抽屉（唯一 footer，含 Checkout + PayPal 容器） === -->
 <aside class="fz-drawer" id="fz-cart-drawer" role="dialog" aria-modal="true" aria-labelledby="fz-cart-title" hidden>
   <div class="fz-drawer__backdrop" data-close="fz-cart-drawer"></div>
   <div class="fz-drawer__panel">
@@ -6,15 +55,29 @@
       <h2 id="fz-cart-title">购物篮</h2>
       <button class="fz-close" data-close="fz-cart-drawer" aria-label="关闭购物篮">×</button>
     </header>
+
     <div class="fz-drawer__content" id="fz-cart-content"><p>当前为空。</p></div>
+
     <footer class="fz-drawer__footer">
       <a class="fz-btn fz-btn--primary" href="{{ '/checkout/' | relative_url }}">Checkout</a>
+      <!-- PayPal Smart Buttons 容器（抽屉内）-->
       <div id="fz-paypal-buttons" style="margin-top:12px;"></div>
       <div id="fz-paypal-hint" style="font-size:.9em;color:#666;margin-top:6px;"></div>
     </footer>
   </div>
 </aside>
 
-<!-- 强制刷新缓存 -->
+<!-- === 全站互动脚本（带版本号，强制刷新缓存） === -->
 <script defer src="{{ '/assets/js/fz-ui.js?v=20251030' | relative_url }}"></script>
 <script defer src="{{ '/assets/js/fz-cart-delegate.js?v=20251030' | relative_url }}"></script>
+
+<!-- PayPal 配置与脚本 -->
+<script>
+  window.FZ_PAYPAL = {
+    clientId: "{{ site.paypal_client_id | default: 'YOUR-SANDBOX-CLIENT-ID' }}",
+    currency: "{{ site.default_currency | default: 'GBP' }}",
+    intent: "CAPTURE",
+    env: "{{ site.paypal_env | default: 'sandbox' }}"
+  };
+</script>
+<script defer src="{{ '/assets/js/fz-paypal.js' | relative_url }}"></script>
