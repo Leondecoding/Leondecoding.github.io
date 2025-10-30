@@ -125,21 +125,24 @@
       const opt = (it.options && it.options[0]) ? ` <div style="color:#666;font-size:.9em;">(${it.options[0].name}: ${it.options[0].value})</div>` : '';
       const uidSafe = (typeof it.uid === 'string') ? it.uid : '';
       return `
-      <div class="fz-cart-row" data-index="${idx}" style="display:grid;grid-template-columns:64px 1fr auto auto;gap:12px;align-items:center;margin-bottom:10px;">
-        ${it.image ? `<img src="${it.image}" alt="" style="width:64px;height:64px;object-fit:cover;border:1px solid #eee;">` : `<div style="width:64px;height:64px;background:#f4f4f4"></div>`}
-        <div>
-          <div style="font-weight:600;line-height:1.2">${it.title || 'Untitled'}</div>
-          ${opt}
-          <div class="fz-qty" style="display:inline-flex;align-items:center;gap:6px;margin-top:6px;">
-            <button type="button" data-action="dec" data-uid="${uidSafe}" data-idx="${idx}" aria-label="Decrease quantity" style="width:26px;height:26px;border:1px solid #ccc;border-radius:4px;">−</button>
-            <span aria-live="polite">${q}</span>
-            <button type="button" data-action="inc" data-uid="${uidSafe}" data-idx="${idx}" aria-label="Increase quantity" style="width:26px;height:26px;border:1px solid #ccc;border-radius:4px;">+</button>
-            <button type="button" data-action="remove" data-uid="${uidSafe}" data-idx="${idx}" aria-label="Remove item" title="Remove" style="margin-left:8px;border:none;background:transparent;font-size:18px;line-height:1;">×</button>
-          </div>
-        </div>
-        <div style="white-space:nowrap;font-weight:600;">${fmt(p, it.currency)}</div>
-        <div style="white-space:nowrap;color:#333;">× ${q}</div>
-      </div>`;
+  <div class="fz-cart-row" data-index="${idx}" style="display:grid;grid-template-columns:64px 1fr auto auto;gap:12px;align-items:center;margin-bottom:10px;">
+    ${it.image
+      ? `<img src="${it.image}" alt="" style="width:64px;height:64px;object-fit:cover;border:1px solid #eee;">`
+      : `<div style="width:64px;height:64px;background:#f4f4f4"></div>`}
+    <div>
+      <div style="font-weight:600;line-height:1.2">${it.title || 'Untitled'}</div>
+      ${opt}
+      <div class="fz-qty" style="display:inline-flex;align-items:center;gap:6px;margin-top:6px;">
+        <button type="button" data-action="dec" data-uid="${uidSafe}" data-idx="${idx}" aria-label="Decrease quantity" style="width:26px;height:26px;border:1px solid #ccc;border-radius:4px;">−</button>
+        <span aria-live="polite">${q}</span>
+        <button type="button" data-action="inc" data-uid="${uidSafe}" data-idx="${idx}" aria-label="Increase quantity" style="width:26px;height:26px;border:1px solid #ccc;border-radius:4px;">+</button>
+        <button type="button" data-action="remove" data-uid="${uidSafe}" data-idx="${idx}" aria-label="Remove item" style="margin-left:8px;background:transparent;font-size:18px;line-height:1;">×</button>
+      </div>
+    </div>
+    <div style="white-space:nowrap;font-weight:600;">${fmt(p, it.currency)}</div>
+    <div style="white-space:nowrap;color:#333;">× ${q}</div>
+  </div>`;
+
     }).join('') +
     `<hr style="margin:12px 0;">
      <div style="display:flex;justify-content:space-between;font-weight:700;">
