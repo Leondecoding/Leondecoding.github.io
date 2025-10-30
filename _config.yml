@@ -31,3 +31,7 @@ title: FZ Studio
 logo: /assets/images/logo-fzs.svg     # 你的 FZS 图标路径
 default_currency: GBP                 # 用于列表页符号（£/$/€）
 paypal_business_id: ""                # 若要启用表单，请填你的 PayPal 商业账号（email 或商户ID）
+# === PayPal 设置（先 Sandbox）===
+paypal_client_id: "YOUR-SANDBOX-CLIENT-ID"   # ← 先填 Sandbox 的 client-id
+paypal_env: "sandbox"                        # sandbox | production
+default_currency: GBP                        # 若未设置，这里确保是 GBP
