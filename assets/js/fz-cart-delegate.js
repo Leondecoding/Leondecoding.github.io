@@ -50,27 +50,27 @@
   }
 
   // ---------- cart ops (prefer uid, fallback index) ----------
-  function setQtyByUid(id, delta){
-    const cart = load(); const i = cart.findIndex(x => x.uid === id);
-    if (i<0) return false;
-    cart[i].qty = (cart[i].qty||1) + delta;
-    if (cart[i].qty <= 0) cart.splice(i,1);
-    save(cart); updateBadge(); renderDrawer(); return true;
-  }
-  function setQtyByIndex(idx, delta){
-    const cart = load(); if (idx<0 || idx>=cart.length) return false;
-    cart[idx].qty = (cart[idx].qty||1) + delta;
-    if (cart[idx].qty <= 0) cart.splice(idx,1);
-    save(cart); updateBadge(); renderDrawer(); return true;
-  }
-  function removeByUid(id){
-    const cart = load().filter(x => x.uid !== id);
-    save(cart); updateBadge(); renderDrawer();
-  }
-  function removeByIndex(idx){
-    const cart = load(); if (idx<0 || idx>=cart.length) return;
-    cart.splice(idx,1); save(cart); updateBadge(); renderDrawer();
-  }
+function setQtyByUid(id, delta){
+  const cart = load(); const i = cart.findIndex(x => x.uid === id);
+  if (i<0) return false;
+  cart[i].qty = (cart[i].qty||1) + delta;
+  if (cart[i].qty <= 0) cart.splice(i,1);
+  save(cart); updateBadge(); renderDrawer(); return true;
+}
+function setQtyByIndex(idx, delta){
+  const cart = load(); if (idx<0 || idx>=cart.length) return false;
+  cart[idx].qty = (cart[idx].qty||1) + delta;
+  if (cart[idx].qty <= 0) cart.splice(idx,1);
+  save(cart); updateBadge(); renderDrawer(); return true;
+}
+function removeByUid(id){
+  const cart = load().filter(x => x.uid !== id);
+  save(cart); updateBadge(); renderDrawer();
+}
+function removeByIndex(idx){
+  const cart = load(); if (idx<0 || idx>=cart.length) return;
+  cart.splice(idx,1); save(cart); updateBadge(); renderDrawer();
+}
 
   // ---------- add to cart (global de-dupe) ----------
   function shouldProcessAdd(sig){
