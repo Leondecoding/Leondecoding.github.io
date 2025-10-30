@@ -106,7 +106,7 @@ function removeByIndex(idx){
     if (exist) exist.qty = (exist.qty||1) + 1;
     else cart.push(item);
 
-    save(cart); updateBadge();
+    save(cart); updateBadge(); renderDrawer();
 
     // 小提示
     const old = btn.textContent; btn.disabled = true; btn.textContent = 'Added ✓';
@@ -152,7 +152,7 @@ function removeByIndex(idx){
 
   // ---------- GLOBAL delegated clicks (capture) ----------
   function onDocClick(ev){
-    const target = ev.target;
+    if (target.closest('#fz-cart-btn')) { ev.preventDefault(); ev.stopPropagation(); renderDrawer(); const d=$('#fz-cart-drawer'); if(d) d.hidden=false; return; }
 
     // header: open/close cart/search
     if (target.closest('#fz-cart-btn')) { ev.preventDefault(); renderDrawer(); const d=$('#fz-cart-drawer'); if(d) d.hidden=false; return; }
@@ -173,6 +173,7 @@ function removeByIndex(idx){
     const act = target.closest('#fz-cart-content [data-action]');
     if (act) {
       ev.preventDefault();
+      ev.stopPropagation();
       const action = act.dataset.action;
       let id = act.dataset.uid;
       let idx = parseInt(act.dataset.idx,10);
