@@ -1,0 +1,41 @@
+---
+layout: default
+title: Checkout
+permalink: /checkout/
+---
+
+<div class="container fz-checkout-page" style="max-width:880px;margin:32px auto;padding:0 16px;">
+  <h1 style="margin-bottom:12px;">Checkout</h1>
+
+  <div id="fz-checkout-summary" style="margin:12px 0 16px 0;"></div>
+
+  <!-- 与抽屉同一个容器 ID，fz-paypal.js 会自动渲染 -->
+  <div id="fz-paypal-buttons" style="margin-top:12px;"></div>
+  <div id="fz-paypal-hint" style="font-size:.9em;color:#666;margin-top:6px;"></div>
+</div>
+
+<!-- 轻量摘要渲染（只读） -->
+<script>
+(function(){
+  const KEY='fz_cart';
+  const $=(s,r=document)=>(r||document).querySelector(s);
+  function load(){ try{ return JSON.parse(localStorage.getItem(KEY)||'[]'); }catch(e){ return []; } }
+  function fmt(v,cc){ const n=parseFloat(v||0); const sym=cc==='GBP'?'£':cc==='USD'?'$':cc==='EUR'?'€':''; return (sym||'')+(isFinite(n)?n.toFixed(2):v); }
+  function render(){
+    const box = $('#fz-checkout-summary'); if(!box) return;
+    const items = load();
+    if(!items.length){ box.innerHTML = '<p>Your cart is empty.</p>'; return; }
+    let tot=0, cc= (items[0]&&items[0].currency)||'GBP';
+    box.innerHTML = '<div style="border:1px solid #eee;border-radius:8px;padding:12px">'+items.map(it=>{
+      const p=parseFloat(it.price)||0, q=it.qty||1; tot+=p*q;
+      const opt=(it.options&&it.options[0])?` <span style="color:#666">(${it.options[0].name}: ${it.options[0].value})</span>`:'';
+      return `<div style="display:grid;grid-template-columns:64px 1fr auto;gap:12px;align-items:center;margin:6px 0;">
+        ${it.image?`<img src="${it.image}" style="width:64px;height:64px;object-fit:cover;border:1px solid #eee">`:'<div style="width:64px;height:64px;background:#f4f4f4"></div>'}
+        <div><div style="font-weight:600">${it.title||'Item'}</div>${opt}</div>
+        <div style="white-space:nowrap">${fmt(p,cc)} × ${q}</div>
+      </div>`;
+    }).join('')+`<hr><div style="display:flex;justify-content:space-between;font-weight:700"><span>Total</span><span>${fmt(tot,cc)}</span></div></div>`;
+  }
+  document.addEventListener('DOMContentLoaded', render);
+})();
+</script>
