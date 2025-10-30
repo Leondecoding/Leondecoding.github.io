@@ -235,7 +235,6 @@ return (sym || '') + (isFinite(n) ? n.toFixed(2) : v) + (sym ? ' ' : (code ? (' 
 
   });
 })();
-<script>
 (function () {
   function wireNL(formId, msgId) {
     const f = document.getElementById(formId);
@@ -252,7 +251,7 @@ return (sym || '') + (isFinite(n) ? n.toFixed(2) : v) + (sym ? ' ' : (code ? (' 
         await fetch(f.action, { method: 'POST', body: new FormData(f), mode: 'no-cors' });
         f.reset();
         m.textContent = 'Thanks! Your email has been added.';
-      } catch (err) {
+      } catch (_) {
         m.textContent = 'Something went wrong. Please try again.';
       } finally {
         if (btn) btn.disabled = false;
@@ -260,11 +259,10 @@ return (sym || '') + (isFinite(n) ? n.toFixed(2) : v) + (sym ? ' ' : (code ? (' 
     });
   }
 
-  // 等 DOM 就绪再挂监听，避免找不到表单
+  // DOM 就绪后再挂，防止找不到表单
   window.addEventListener('DOMContentLoaded', () => {
-    wireNL('nl-form-ourstory', 'nl-msg-ourstory');
-    wireNL('nl-form-freebie', 'nl-msg-freebie');
+    wireNL('nl-form-ourstory', 'nl-msg-ourstory'); // 你现有的第一个表单
+    wireNL('nl-form-freebie',  'nl-msg-freebie');  // Freebie 新加这一行
   });
 })();
 
-</script>
