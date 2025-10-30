@@ -241,19 +241,30 @@ return (sym || '') + (isFinite(n) ? n.toFixed(2) : v) + (sym ? ' ' : (code ? (' 
     const f = document.getElementById(formId);
     const m = document.getElementById(msgId);
     if (!f || !m) return;
+
     f.addEventListener('submit', async (e) => {
       e.preventDefault();
-      const btn = f.querySelector('button[type="submit"]'); if (btn) btn.disabled = true;
-      m.textContent = 'Sending…';
+      const btn = f.querySelector('button[type="submit"]');
+      if (btn) btn.disabled = true;
+      m.textContent = 'Sending...';
+
       try {
-        await fetch(f.action, { method:'POST', body:new FormData(f), mode:'no-cors' });
-        m.textContent = 'Thanks! Your email has been added.';
+        await fetch(f.action, { method: 'POST', body: new FormData(f), mode: 'no-cors' });
         f.reset();
+        m.textContent = 'Thanks! Your email has been added.';
       } catch (err) {
         m.textContent = 'Something went wrong. Please try again.';
-      } finally { if (btn) btn.disabled = false; }
+      } finally {
+        if (btn) btn.disabled = false;
+      }
     });
   }
-  wireNL('nl-form-freebie','nl-msg-freebie');
+
+  // 等 DOM 就绪再挂监听，避免找不到表单
+  window.addEventListener('DOMContentLoaded', () => {
+    wireNL('nl-form-ourstory', 'nl-msg-ourstory');
+    wireNL('nl-form-freebie', 'nl-msg-freebie');
+  });
 })();
+
 </script>
