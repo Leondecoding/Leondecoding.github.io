@@ -1,78 +1,67 @@
-/* fz-cart-delegate.js — global delegated handlers that "just work"
-   - Keeps your existing layout & fz-ui.js intact
-   - Always-on handlers: search/login/cart drawer, Add to Cart, +/−/× inside drawer
-   - Legacy cart migration (add uid), de-dupe to avoid double-add, Checkout label EN
+/* fz-cart-delegate.js — FZ Studio cart (localStorage) + editable drawer
+   - Single source of truth: localStorage 'fz_cart'
+   - Cart badge updates automatically
+   - Drawer rows include + / − / × controls (delegated events)
+   - Uses capture-phase listeners + stopPropagation() to prevent other scripts from overriding the drawer rendering
 */
 (function(){
+  if (window.__FZ_CART_WIRED__) return; // guard against double-load
+  window.__FZ_CART_WIRED__ = true;
+
+  // ---------- tiny helpers ----------
   const KEY = 'fz_cart';
-  const $ = (sel, root) => (root||document).querySelector(sel);
-  const $$ = (sel, root) => Array.from((root||document).querySelectorAll(sel));
+  const $ = (s, r=document)=> (r||document).querySelector(s);
+  const $all = (s, r=document)=> Array.from((r||document).querySelectorAll(s));
 
-  // ---------- storage ----------
-  const load = () => { try { return JSON.parse(localStorage.getItem(KEY) || '[]'); } catch(e){ return []; } };
-  const save = (arr) => localStorage.setItem(KEY, JSON.stringify(arr));
-  const count = () => load().reduce((n,i)=> n+(i.qty||1), 0);
-  function updateBadge(){
-    const b = $('#fz-cart-count'); if (!b) return;
-    const n = count(); b.textContent = String(n); b.hidden = n<=0;
+  function load(){ try{ return JSON.parse(localStorage.getItem(KEY)||'[]'); }catch(e){ return []; } }
+  function save(a){ localStorage.setItem(KEY, JSON.stringify(a||[])); }
+  function uid(){ return 'u' + Math.random().toString(36).slice(2) + Date.now().toString(36); }
+  function fmt(v, cc){
+    const n = parseFloat(v||0); const ok = isFinite(n) ? n : 0;
+    const c = (cc||'GBP').toUpperCase();
+    const sym = c==='GBP'?'£':c==='USD'?'$':c==='EUR'?'€':'';
+    return (sym || (c+' ')) + ok.toFixed(2);
   }
 
-  // ---------- utils ----------
-  const uid = () => 'u' + Date.now().toString(36) + Math.random().toString(36).slice(2,7);
-  function fmt(v, code){
-    const sym = (code==='GBP')?'£':(code==='USD')?'$':(code==='EUR')?'€':((code==='JPY'||code==='CNY')?'¥':(code==='HKD')?'HK$':(code==='TWD')?'NT$':'');
-    const n = (typeof v==='number')? v : parseFloat(v||'0');
-    return (sym||'') + (isFinite(n)? n.toFixed(2) : v) + (sym? '' : (code ? (' '+code) : ''));
-  }
+  // read selected option value from a button's context (for product pages)
   function getSelectedValue(btn){
     const name = btn.dataset.optionInput || 'size';
-    const w = btn.closest('.fz-product') || document;
-    const picked = w.querySelector('input[name="'+name+'"]:checked');
-    return picked ? picked.value : '';
+    const root = btn.closest('.fz-product') || document;
+    const el = root.querySelector(`input[name="${name}"]:checked`);
+    return el ? el.value : '';
   }
 
-  // ---------- migrate legacy items (so old zero-price/untitled can be removed) ----------
-  function migrate(){
-    const cart = load(); let changed = false;
-    for (let i=0;i<cart.length;i++){
-      const it = cart[i];
-      if (!it.uid) { it.uid = uid(); changed = true; }
-      if (typeof it.qty !== 'number' || it.qty < 1) { it.qty = 1; changed = true; }
-      const p = (typeof it.price === 'number') ? it.price : parseFloat(it.price);
-      it.price = isFinite(p) ? p : 0;
-      if (!it.currency) it.currency = 'GBP';
-      if (!it.title) it.title = 'Untitled';
-      if (typeof it.sku !== 'string') it.sku = '';
-      if (!Array.isArray(it.options)) it.options = [];
-      if (typeof it.image !== 'string') it.image = '';
-    }
-    if (changed) save(cart);
+  // ---------- badge ----------
+  function updateBadge(){
+    const b = $('#fz-cart-count'); if (!b) return;
+    const n = load().reduce((m,i)=> m + Math.max(1, parseInt(i.qty||1,10)), 0);
+    b.textContent = String(n); b.hidden = n<=0;
   }
 
   // ---------- cart ops (prefer uid, fallback index) ----------
-function setQtyByUid(id, delta){
-  const cart = load(); const i = cart.findIndex(x => x.uid === id);
-  if (i<0) return false;
-  cart[i].qty = (cart[i].qty||1) + delta;
-  if (cart[i].qty <= 0) cart.splice(i,1);
-  save(cart); updateBadge(); renderDrawer(); return true;
-}
-function setQtyByIndex(idx, delta){
-  const cart = load(); if (idx<0 || idx>=cart.length) return false;
-  cart[idx].qty = (cart[idx].qty||1) + delta;
-  if (cart[idx].qty <= 0) cart.splice(idx,1);
-  save(cart); updateBadge(); renderDrawer(); return true;
-}
-function removeByUid(id){
-  const cart = load().filter(x => x.uid !== id);
-  save(cart); updateBadge(); renderDrawer();
-}
-function removeByIndex(idx){
-  const cart = load(); if (idx<0 || idx>=cart.length) return;
-  cart.splice(idx,1); save(cart); updateBadge(); renderDrawer();
-}
+  function setQtyByUid(id, delta){
+    const cart = load(); const i = cart.findIndex(x => x.uid === id);
+    if (i<0) return false;
+    cart[i].qty = Math.max(0, (cart[i].qty||1) + delta);
+    if (cart[i].qty <= 0) cart.splice(i,1);
+    save(cart); updateBadge(); renderDrawer(); return true;
+  }
+  function setQtyByIndex(idx, delta){
+    const cart = load(); if (idx<0 || idx>=cart.length) return false;
+    cart[idx].qty = Math.max(0, (cart[idx].qty||1) + delta);
+    if (cart[idx].qty <= 0) cart.splice(idx,1);
+    save(cart); updateBadge(); renderDrawer(); return true;
+  }
+  function removeByUid(id){
+    const cart = load().filter(x => x.uid !== id);
+    save(cart); updateBadge(); renderDrawer();
+  }
+  function removeByIndex(idx){
+    const cart = load(); if (idx<0 || idx>=cart.length) return;
+    cart.splice(idx,1); save(cart); updateBadge(); renderDrawer();
+  }
 
-  // ---------- add to cart (global de-dupe) ----------
+  // ===== Add to cart（轻量去重 & 防“一次加两件”） =====
   function shouldProcessAdd(sig){
     const now = Date.now();
     const last = window.__FZ_LAST_ADD__ || { ts:0, sig:'' };
@@ -81,31 +70,33 @@ function removeByIndex(idx){
     return true;
   }
   function addFromButton(btn){
-    const optName  = btn.dataset.optionName || 'Option';
-    const optVal   = getSelectedValue(btn);
-    const baseT    = btn.dataset.title || 'Artwork';
-    const title    = baseT + (optVal ? (' - ' + optVal) : '');
-    const baseSku  = btn.dataset.sku || 'item';
-    const sku      = baseSku + (optVal ? ('-' + optVal) : '');
-    const price    = parseFloat(btn.dataset.price || '0');
+    const optionName  = btn.dataset.optionName || 'Option';
+    const optionValue = getSelectedValue(btn);
+    const baseTitle   = btn.dataset.title || 'Artwork';
+    const builtTitle  = baseTitle + (optionValue ? (' - ' + optionValue) : '');
+    const baseSku     = btn.dataset.sku || 'item';
+    const builtSku    = baseSku + (optionValue ? ('-' + optionValue) : '');
+    const price       = parseFloat(btn.dataset.price || '0');
 
-    const sig = (btn.id || '') + '|' + sku + '|' + JSON.stringify(optVal||'');
+    const sig = (btn.id || '') + '|' + builtSku + '|' + JSON.stringify(optionValue||'');
     if (!shouldProcessAdd(sig)) return;
 
     const item = {
-      uid: uid(), sku, title,
+      uid: uid(),
+      sku: builtSku,
+      title: builtTitle,
       price: isFinite(price) ? price : 0,
-      currency: btn.dataset.currency || 'GBP',
+      currency: (btn.dataset.currency || 'GBP').toUpperCase(),
       image: btn.dataset.image || '',
       qty: 1,
-      options: optVal ? [{ name: optName, value: optVal }] : []
+      options: optionValue ? [{ name: optionName, value: optionValue }] : []
     };
 
     const cart = load();
     const exist = cart.find(x => x.sku === item.sku && JSON.stringify(x.options||[]) === JSON.stringify(item.options||[]));
-    if (exist) exist.qty = (exist.qty||1) + 1;
-    else cart.push(item);
+    if (exist) exist.qty = (exist.qty||1) + 1; else cart.push(item);
 
+    // <<< 关键：立即重绘，确保出现 + / − / × >>>
     save(cart); updateBadge(); renderDrawer();
 
     // 小提示
@@ -113,7 +104,7 @@ function removeByIndex(idx){
     setTimeout(()=>{ btn.textContent = old; btn.disabled = false; }, 900);
   }
 
-  // ---------- drawer render (editable +/−/×) ----------
+  // ===== Drawer 渲染（行上带 data-index，按钮上带 data-uid & data-idx） =====
   function renderDrawer(){
     const box = $('#fz-cart-content'); if(!box) return;
     const items = load();
@@ -122,27 +113,27 @@ function removeByIndex(idx){
     let total = 0;
     box.innerHTML = items.map((it, idx) => {
       const p = parseFloat(it.price)||0, q = it.qty||1; total += p*q;
-      const opt = (it.options && it.options[0]) ? ` <div style="color:#666;font-size:.9em;">(${it.options[0].name}: ${it.options[0].value})</div>` : '';
+      const opt = (it.options && it.options[0])
+        ? ` <div style="color:#666;font-size:.9em;">(${it.options[0].name}: ${it.options[0].value})</div>` : '';
       const uidSafe = (typeof it.uid === 'string') ? it.uid : '';
-      return `
-  <div class="fz-cart-row" data-index="${idx}" style="display:grid;grid-template-columns:64px 1fr auto auto;gap:12px;align-items:center;margin-bottom:10px;">
-    ${it.image
-      ? `<img src="${it.image}" alt="" style="width:64px;height:64px;object-fit:cover;border:1px solid #eee;">`
-      : `<div style="width:64px;height:64px;background:#f4f4f4"></div>`}
-    <div>
-      <div style="font-weight:600;line-height:1.2">${it.title || 'Untitled'}</div>
-      ${opt}
-      <div class="fz-qty" style="display:inline-flex;align-items:center;gap:6px;margin-top:6px;">
-        <button type="button" data-action="dec" data-uid="${uidSafe}" data-idx="${idx}" aria-label="Decrease quantity" style="width:26px;height:26px;border:1px solid #ccc;border-radius:4px;">−</button>
-        <span aria-live="polite">${q}</span>
-        <button type="button" data-action="inc" data-uid="${uidSafe}" data-idx="${idx}" aria-label="Increase quantity" style="width:26px;height:26px;border:1px solid #ccc;border-radius:4px;">+</button>
-        <button type="button" data-action="remove" data-uid="${uidSafe}" data-idx="${idx}" aria-label="Remove item" style="margin-left:8px;background:transparent;font-size:18px;line-height:1;">×</button>
-      </div>
-    </div>
-    <div style="white-space:nowrap;font-weight:600;">${fmt(p, it.currency)}</div>
-    <div style="white-space:nowrap;color:#333;">× ${q}</div>
-  </div>`;
 
+      return `
+      <div class="fz-cart-row" data-index="${idx}" style="display:grid;grid-template-columns:64px 1fr auto auto;gap:12px;align-items:center;margin-bottom:10px;">
+        ${it.image ? `<img src="${it.image}" alt="" style="width:64px;height:64px;object-fit:cover;border:1px solid #eee;">`
+                    : `<div style="width:64px;height:64px;background:#f4f4f4"></div>`}
+        <div>
+          <div style="font-weight:600;line-height:1.2">${it.title || 'Untitled'}</div>
+          ${opt}
+          <div class="fz-qty" style="display:inline-flex;align-items:center;gap:6px;margin-top:6px;">
+            <button type="button" data-action="dec" data-uid="${uidSafe}" data-idx="${idx}" aria-label="Decrease quantity" style="width:26px;height:26px;border:1px solid #ccc;border-radius:4px;">−</button>
+            <span aria-live="polite">${q}</span>
+            <button type="button" data-action="inc" data-uid="${uidSafe}" data-idx="${idx}" aria-label="Increase quantity" style="width:26px;height:26px;border:1px solid #ccc;border-radius:4px;">+</button>
+            <button type="button" data-action="remove" data-uid="${uidSafe}" data-idx="${idx}" aria-label="Remove item" title="Remove" style="margin-left:8px;border:none;background:transparent;font-size:18px;line-height:1;">×</button>
+          </div>
+        </div>
+        <div style="white-space:nowrap;font-weight:600;">${fmt(p, it.currency)}</div>
+        <div style="white-space:nowrap;color:#333;">× ${q}</div>
+      </div>`;
     }).join('') +
     `<hr style="margin:12px 0;">
      <div style="display:flex;justify-content:space-between;font-weight:700;">
@@ -152,17 +143,28 @@ function removeByIndex(idx){
 
   // ---------- GLOBAL delegated clicks (capture) ----------
   function onDocClick(ev){
-    if (target.closest('#fz-cart-btn')) { ev.preventDefault(); ev.stopPropagation(); renderDrawer(); const d=$('#fz-cart-drawer'); if(d) d.hidden=false; return; }
+    const target = ev.target;
 
-    // header: open/close cart/search
-    if (target.closest('#fz-cart-btn')) { ev.preventDefault(); renderDrawer(); const d=$('#fz-cart-drawer'); if(d) d.hidden=false; return; }
-    if (target.closest('[data-close="fz-cart-drawer"]')) { ev.preventDefault(); const d=$('#fz-cart-drawer'); if(d) d.hidden=true; return; }
+    // header: open/close cart/search — 先阻止其它脚本干预
+    if (target.closest('#fz-cart-btn')) {
+      ev.preventDefault();
+      ev.stopPropagation();        // 关键：防止其它脚本在冒泡阶段重画抽屉
+      renderDrawer();
+      const d = $('#fz-cart-drawer'); if (d) d.hidden = false;
+      return;
+    }
+    if (target.closest('[data-close="fz-cart-drawer"]')) {
+      ev.preventDefault();
+      ev.stopPropagation();
+      const d = $('#fz-cart-drawer'); if (d) d.hidden = true;
+      return;
+    }
 
-    if (target.closest('#fz-search-btn')) { ev.preventDefault(); const p=$('#fz-search-panel'); if(p) p.hidden=false; return; }
-    if (target.closest('[data-close="fz-search-panel"]')) { ev.preventDefault(); const p=$('#fz-search-panel'); if(p) p.hidden=true; return; }
+    if (target.closest('#fz-search-btn')) { ev.preventDefault(); ev.stopPropagation(); const p=$('#fz-search-panel'); if(p) p.hidden=false; return; }
+    if (target.closest('[data-close="fz-search-panel"]')) { ev.preventDefault(); ev.stopPropagation(); const p=$('#fz-search-panel'); if(p) p.hidden=true; return; }
 
     if (target.closest('#fz-login-btn')) {
-      ev.preventDefault();
+      ev.preventDefault(); ev.stopPropagation();
       const m = $('#fz-login-menu'); if (!m) return;
       const open = m.hidden; m.hidden = !open;
       const loginBtn = $('#fz-login-btn'); if (loginBtn) loginBtn.setAttribute('aria-expanded', String(open));
@@ -173,7 +175,7 @@ function removeByIndex(idx){
     const act = target.closest('#fz-cart-content [data-action]');
     if (act) {
       ev.preventDefault();
-      ev.stopPropagation();
+      ev.stopPropagation(); // 关键：防止其它脚本也尝试处理这个点击
       const action = act.dataset.action;
       let id = act.dataset.uid;
       let idx = parseInt(act.dataset.idx,10);
@@ -187,27 +189,24 @@ function removeByIndex(idx){
       return;
     }
 
-    // product: Add to Cart（全局去重）
+    // product page: Add to Cart
     const addBtn = target.closest('.js-add-to-cart');
-if (addBtn) {
-  ev.preventDefault();
-  ev.stopPropagation();   // ← 加这一行，阻止冒泡重复触发
-  const now = Date.now();
-  if (addBtn._lock && (now - addBtn._lock) < 280) return;
-  addBtn._lock = now;
-  addFromButton(addBtn);
-  return;
-}
-
+    if (addBtn) {
+      ev.preventDefault();
+      ev.stopPropagation(); // 关键：防止其它监听器重复处理或覆盖渲染
+      // 轻量 "double-click" 锁
+      const now = Date.now();
+      if (addBtn._lock && (now - addBtn._lock) < 280) return;
+      addBtn._lock = now;
+      addFromButton(addBtn);
+      return;
+    }
   }
 
-  // ---------- boot ----------
-  document.addEventListener('DOMContentLoaded', function(){
-    // 安全迁移旧条目，并刷新徽标/结算文案
-    migrate(); updateBadge();
-    const ck = $('#fz-cart-drawer .fz-drawer__footer a'); if (ck) ck.textContent = 'Checkout';
+  // capture-phase 绑定，保证先于其它脚本执行
+  document.addEventListener('click', onDocClick, true);
 
-    // 全局捕获事件：无论别的脚本如何，这里都能接住
-    document.addEventListener('click', onDocClick, true);
-  });
+  // ---------- boot ----------
+  function ready(fn){ if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',fn);} else {fn();} }
+  ready(() => { updateBadge(); /* 可选：若抽屉一开始已打开，可渲染一次 */ });
 })();
