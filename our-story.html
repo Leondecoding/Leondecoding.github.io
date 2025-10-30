@@ -90,17 +90,15 @@ permalink: /our-story/
     <p>Leave your email below — we’ll include the download in your next welcome/send-out.</p>
 
     <form id="nl-form-freebie" class="nl-wrap" action="https://script.google.com/macros/s/AKfycbyb_Btzc-7c2qLxAMSk9AVmzQJ9jpzEDhAoeBpHJt6ccQyPz5gP8Co-P1QPqON0zWqjug/exec" method="post" accept-charset="UTF-8" novalidate>
-      <input class="nl-input" type="email" name="email" placeholder="Email Address" required aria-describedby="nl-msg-freebie">
-      <input class="hp" type="text" name="_gotcha" tabindex="-1" autocomplete="off">
-      <input type="hidden" name="source" value="ourstory_freebie_section">
-      <input type="hidden" name="page" value="/our-story/#freebie">
-      <input type="hidden" name="ref" value="">
-      <input type="hidden" name="ua" value="">
-      <input type="hidden" name="token" value="">
-      <button class="nl-submit" type="submit" aria-label="Sign up">Sign up</button>
-      <div id="nl-msg-freebie" class="nl-msg" aria-live="polite"></div>
-      <p style="margin-top:10px;font-size:.95rem">We send only occasional notes. Unsubscribe anytime.</p>
-    </form>
+     <input class="nl-input" type="email" name="email"
+         placeholder="Email Address" required
+         aria-describedby="nl-msg-freebie">
+  <input class="hp" type="text" name="_gotcha" tabindex="-1" autocomplete="off">
+  <input type="hidden" name="source" value="ourstory_freebie_section">
+  <button class="nl-submit" type="submit" aria-label="Sign up">Sign up</button>
+</form>
+
+<p id="nl-msg-freebie" class="nl-msg" role="status" aria-live="polite"></p>
   </section>
 
   <!-- 隐藏 iframe：防止跨域 POST 后页面跳转（静默提交） -->
