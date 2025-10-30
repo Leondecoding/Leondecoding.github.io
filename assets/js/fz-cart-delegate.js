@@ -185,14 +185,16 @@
 
     // product: Add to Cart（全局去重）
     const addBtn = target.closest('.js-add-to-cart');
-    if (addBtn) {
-      ev.preventDefault();
-      const now = Date.now();
-      if (addBtn._lock && (now - addBtn._lock) < 280) return;
-      addBtn._lock = now;
-      addFromButton(addBtn);
-      return;
-    }
+if (addBtn) {
+  ev.preventDefault();
+  ev.stopPropagation();   // ← 加这一行，阻止冒泡重复触发
+  const now = Date.now();
+  if (addBtn._lock && (now - addBtn._lock) < 280) return;
+  addBtn._lock = now;
+  addFromButton(addBtn);
+  return;
+}
+
   }
 
   // ---------- boot ----------
