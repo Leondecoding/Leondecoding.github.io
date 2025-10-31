@@ -62,7 +62,7 @@ layout: default
 
       {%- assign price_raw = page.price | default: page.price_raw -%}
       {%- if price_raw -%}
-      <div class="product-price" style="font-size:1.125rem;font-weight:600;margin:0 0 6px 0;float:none!important;clear:both!important;text-align:left!important;display:block;">
+      <div class="product-info" style="margin-top:32px;max-width:640px;">
         {%- if sym != '' -%}{{ sym }}{{ price_raw }}{%- else -%}{{ price_raw }} {{ currency_code }}{%- endif -%}
       </div>
       {%- endif -%}
