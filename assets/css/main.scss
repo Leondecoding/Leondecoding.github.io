@@ -130,3 +130,8 @@ a { text-decoration: none; color: inherit; }
 .product-grid .product-info .product-actions > *{
   width: 100%;
 }
+/* Product page: force info panel to single column */
+.product-grid .product-info{
+  display: block !important;
+  grid-template-columns: 1fr !important;
+}
