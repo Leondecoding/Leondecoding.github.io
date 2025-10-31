@@ -4,7 +4,8 @@ title: Original Art
 permalink: /original-art/
 ---
 
-<main class="fz-grid fz-grid--4">
+<!-- original-art.html  ~L7 -->
+<main class="fz-grid gallery-grid">
   {% assign items = site.originals | sort: 'date' | reverse | slice: 0, 8 %}
   {% for item in items %}
     {% assign slug_lc = item.slug | default: item.title | slugify %}
@@ -14,6 +15,9 @@ permalink: /original-art/
       <div class="fz-card__img">
         <img class="fz-autoimg"
              alt="{{ item.title }}"
+          loading="lazy"
+     decoding="async"
+     fetchpriority="low"
              src="https://via.placeholder.com/800x800?text=Loading"
              data-candidates='[
                "{{ item.image }}",
