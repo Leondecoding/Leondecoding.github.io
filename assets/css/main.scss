@@ -112,3 +112,21 @@ a { text-decoration: none; color: inherit; }
   min-width: 56px; user-select: none;
 }
 .fz-pill-input:checked + .fz-pill { background: #111; color: #fff; }
+/* ==== Product page hard overrides (fix right-aligned price & buttons) ==== */
+.product-grid .product-info .product-price,
+.product-grid .product-info .product-taxes,
+.product-grid .product-info .product-actions{
+  float: none !important;
+  text-align: left !important;
+}
+
+.product-grid .product-info .product-actions{
+  display: grid;
+  justify-items: stretch;
+  align-items: stretch;
+  row-gap: 12px;
+}
+
+.product-grid .product-info .product-actions > *{
+  width: 100%;
+}
