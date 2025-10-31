@@ -86,31 +86,24 @@ permalink: /our-story/
 
   <!-- 3) Freebie 的第二个入口（同样提交到你的 Apps Script） -->
   <section id="freebie-signup" class="center" style="padding:8px 0 56px;">
-    <h3>Get the free PDF via subscription</h3>
-    <p>Leave your email below — we’ll include the download in your next welcome/send-out.</p>
+  <h3>Get the free PDF via subscription</h3>
+  <p>Leave your email below — we’ll include the download in your next welcome/send-out.</p>
 
-    <form id="nl-form-freebie" class="nl-wrap" action="https://script.google.com/macros/s/AKfycbyb_Btzc-7c2qLxAMSk9AVmzQJ9jpzEDhAoeBpHJt6ccQyPz5gP8Co-P1QPqON0zWqjug/exec" method="post" accept-charset="UTF-8" novalidate>
-     <input class="nl-input" type="email" name="email"
-         placeholder="Email Address" required
-         aria-describedby="nl-msg-freebie">
-  <input class="hp" type="text" name="_gotcha" tabindex="-1" autocomplete="off">
-  <input type="hidden" name="source" value="ourstory_freebie_section">
-  <button class="nl-submit" type="submit" aria-label="Sign up">Sign up</button>
-</form>
+  <form id="nl-form-freebie" class="nl-wrap"
+        action="https://script.google.com/macros/s/AKfycbyb_Btzc-7c2qLxAMSk9AVmzQJ9jpzEDhAoeBpHJt6ccQyPz5gP8Co-P1QPqON0zWqjug/exec"
+        method="post" accept-charset="UTF-8" novalidate>
+    <input class="nl-input" type="email" name="email"
+           placeholder="Email Address" required
+           aria-describedby="nl-msg-freebie">
+    <input class="hp" type="text" name="_gotcha" tabindex="-1" autocomplete="off">
+    <input type="hidden" name="source" value="ourstory_freebie_section">
+    <button class="nl-submit" type="submit" aria-label="Sign up">Sign up</button>
+  </form>
 
-<p id="nl-msg-freebie" class="nl-msg" role="status" aria-live="polite"></p>
+  <!-- 只保留一个提示节点 -->
+  <p id="nl-msg-freebie" class="nl-msg" role="status" aria-live="polite"></p>
+</section>
 
-<!-- 兜底 iframe（防跨域跳转） -->
-<iframe name="nl-silent" style="display:none"></iframe>
-
-<p id="nl-msg-freebie" class="nl-msg" role="status" aria-live="polite"></p>
-  </section>
-
-  <!-- 隐藏 iframe：防止跨域 POST 后页面跳转（静默提交） -->
-  <iframe name="nl-silent" style="display:none"></iframe>
-</div>
-
-<script>
 /* 提交前填入 referrer / userAgent；并在 iframe onload 后提示成功（不依赖跨域读响应） */
 (function(){
   function enhance(formId, msgId){
