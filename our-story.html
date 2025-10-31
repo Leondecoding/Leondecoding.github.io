@@ -103,6 +103,34 @@ permalink: /our-story/
   <!-- 只保留一个提示节点 -->
   <p id="nl-msg-freebie" class="nl-msg" role="status" aria-live="polite"></p>
 </section>
+<script>
+(function () {
+  const f = document.getElementById('nl-form-freebie');
+  const m = document.getElementById('nl-msg-freebie');
+  if (!f || !m) return;
+
+  f.addEventListener('submit', async (e) => {
+    e.preventDefault();                         // 阻止默认跳转
+    const btn = f.querySelector('button[type="submit"]');
+    if (btn) btn.disabled = true;
+    m.textContent = 'Sending...';
+
+    try {
+      await fetch(f.action, {
+        method: 'POST',
+        body: new FormData(f),
+        mode: 'no-cors'                         // 不等跨域响应，避免报错
+      });
+      f.reset();
+      m.textContent = 'Thanks! Your email has been added.';
+    } catch (err) {
+      m.textContent = 'Something went wrong. Please try again.';
+    } finally {
+      if (btn) btn.disabled = false;
+    }
+  });
+})();
+</script>
 
 /* 提交前填入 referrer / userAgent；并在 iframe onload 后提示成功（不依赖跨域读响应） */
 (function(){
