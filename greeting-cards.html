@@ -4,13 +4,21 @@ title: Greeting Cards
 permalink: /greeting-cards/
 ---
 
-<main class="fz-grid">
+<!-- greeting-cards.html  ~L7 -->
+<main class="fz-grid gallery-grid">
+
   {% assign items = site.cards | sort: 'date' | reverse %}
   {% for item in items %}
     <a class="fz-card" href="{{ item.url | relative_url }}">
       <div class="fz-card__img">
         {% assign img = item.images | first %}
-        {% if img %}<img src="{{ img | relative_url }}" alt="{{ item.title }}">{% endif %}
+        {% if img %}<!-- greeting-cards.html  ~L13 -->
+<img src="{{ img | relative_url }}"
+     alt="{{ item.title }}"
+     loading="lazy"
+     decoding="async"
+     fetchpriority="low">
+{% endif %}
       </div>
       <div class="fz-card__meta">
         <span>{{ item.title }}</span>
