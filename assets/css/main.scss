@@ -135,3 +135,20 @@ a { text-decoration: none; color: inherit; }
   display: block !important;
   grid-template-columns: 1fr !important;
 }
+/* === Product page micro-adjustments === */
+/* 1) 左侧图片列整体向右（只影响 .product-grid 的第一列） */
+.product-grid > :first-child {
+  padding-left: 80px !important;  /* ← 这里改数字就能微调：40/60/100 等 */
+}
+
+/* 2) 右侧信息栏整体下移 */
+.product-grid .product-info {
+  margin-top: 100px !important;   /* ← 想更低就加大数值；若 margin 被别处抵消，可换 padding-top */
+  /* padding-top: 100px !important;  // 备用写法，二选一 */
+}
+
+/* （可选）移动端不要偏移，避免单列时留白太大 */
+@media (max-width: 760px){
+  .product-grid > :first-child { padding-left: 0 !important; }
+  .product-grid .product-info { margin-top: 24px !important; }
+}
