@@ -152,3 +152,11 @@ a { text-decoration: none; color: inherit; }
   .product-grid > :first-child { padding-left: 0 !important; }
   .product-grid .product-info { margin-top: 24px !important; }
 }
+/* === Product page micro-adjustments (keep this at the very end) === */
+.product-grid > :first-child { padding-left: 150px !important; }
+.product-grid .product-info  { margin-top: 100px !important; }
+
+@media (max-width: 760px){
+  .product-grid > :first-child { padding-left: 0 !important; }
+  .product-grid .product-info  { margin-top: 24px !important; }
+}
