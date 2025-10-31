@@ -62,11 +62,11 @@ layout: default
 
       {%- assign price_raw = page.price | default: page.price_raw -%}
       {%- if price_raw -%}
-      <div class="product-price" style="font-size:1.125rem;font-weight:600;margin:0 0 6px 0;float:none;clear:both;text-align:left;">
+      <div class="product-price" style="font-size:1.125rem;font-weight:600;margin:0 0 6px 0;float:none!important;clear:both!important;text-align:left!important;display:block;">
         {%- if sym != '' -%}{{ sym }}{{ price_raw }}{%- else -%}{{ price_raw }} {{ currency_code }}{%- endif -%}
       </div>
       {%- endif -%}
-      <div class="product-taxes" style="color:#555;margin:0 0 12px 0;float:none;clear:both;text-align:left;">Taxes included.</div>
+      <div class="product-taxes" style="color:#555;margin:0 0 12px 0;float:none!important;clear:both!important;text-align:left!important;display:block;">Taxes included.</div>
 
 
       {%- comment -%}
@@ -76,7 +76,7 @@ layout: default
       {%- endcomment -%}
       {%- assign default_size = page.selected_size | default: page.size | default: 'A4' -%}
       {%- assign sizes = page.sizes -%}
-      <div class="product-actions" style="display:grid;row-gap:12px;max-width:420px;float:none;clear:both;text-align:left;">
+      <div class="product-actions" style="display:grid;row-gap:12px;max-width:420px;justify-items:stretch;align-items:stretch;float:none!important;clear:both!important;text-align:left!important;margin:0!important;">
         <form class="product-cart" onsubmit="return false;">
           {%- if sizes and sizes.size > 0 -%}
             <div class="options" style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;">
