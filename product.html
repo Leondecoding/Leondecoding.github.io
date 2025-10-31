@@ -47,11 +47,11 @@ layout: default
       <img class="product-main-image"
      src="{{ main_image_url | relative_url }}"
      alt="{{ page.title | escape }}"
-     style="max-width:100%;height:auto;display:block;margin-left:80px;">
+     style="max-width:100%;height:auto;display:block;margin-left:100px;">
     </div>
 
     <!-- 右：信息 -->
-    <div class="product-info" style="display:block!important;grid-template-columns:1fr!important;max-width:640px;margin-top:100px;">
+    <div class="product-info" style="display:block!important;grid-template-columns:1fr!important;max-width:640px;margin-top:90px;">
       <h1 class="product-title" style="margin:0 0 6px 0;">{{ page.title }}</h1>
 
       {%- assign currency_code = page.currency | default: site.default_currency | default: 'GBP' -%}
