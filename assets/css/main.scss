@@ -151,13 +151,10 @@ a { text-decoration: none; color: inherit; }
 .product-grid .product-info { margin-top: 90px !important; }
 
  /* Drawer backdrop: semi-transparent gray dimming */
-
- .fz-drawer::backdrop{
-   background: rgba(0,0,0,.32) !important;  /* 深浅改这里：.25~.45 */
-   opacity: 1 !important;
-   backdrop-filter: none !important;
- }  /* ← 这一行一定要有，收尾括号 */
-
- .fz-drawer{ background: transparent !important; }
- .fz-drawer__panel{ position: relative; z-index: 2; }
-
+.fz-drawer::backdrop{
+  background: rgba(0,0,0,.32) !important;  /* 深浅改这里：.25~.45 */
+  opacity: 1 !important;
+  backdrop-filter: none !important;
+}
+.fz-drawer{ background: transparent !important; }
+.fz-drawer__panel{ position: relative; z-index: 2; }
