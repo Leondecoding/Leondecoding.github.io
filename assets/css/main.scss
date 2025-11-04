@@ -144,11 +144,11 @@ a { text-decoration: none; color: inherit; }
   .product-grid .product-info { margin-top: 24px !important; }
 }
  /* === Product page micro-adjustments (keep this at the very end) === */
- .product-grid > :first-child { 
-   transform: translateX(120px) !important;   /* ← 以后只改这里的数值 */
-   will-change: transform;
- }
- .product-grid .product-info { margin-top: 90px !important; }
+ .product-grid > :first-child {
+  transform: translateX(120px) !important;  /* 需要就改这个数值 */
+  will-change: transform;
+}
+.product-grid .product-info { margin-top: 90px !important; }
 
  /* Drawer backdrop: semi-transparent gray dimming */
 
