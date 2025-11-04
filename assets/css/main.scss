@@ -153,3 +153,5 @@ a { text-decoration: none; color: inherit; }
 background: rgba(0,0,0,.32) !important;  /* 深浅就改这里：.25~.45 */
 opacity: 1 !important;
 backdrop-filter: none !important;        /* 避免毛玻璃导致亮度不均 */
+.fz-drawer{ background: transparent !important; }
+.fz-drawer__panel{ position: relative; z-index: 2; }
