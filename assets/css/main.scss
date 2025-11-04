@@ -145,13 +145,16 @@ a { text-decoration: none; color: inherit; }
 }
 /* === Product page micro-adjustments (keep this at the very end) === */
 .product-grid > :first-child {transform: translateX(120px) !important;  /* ← 以后只改这个数值 */
-  will-change: transform;
+  /* === Product page micro-adjustments (keep this at the very end) === */
+.product-grid > :first-child { transform: translateX(120px) !important; }  /* 你自己的值 */
+will-change: transform;
 }
 .product-grid .product-info  { margin-top: 90px !important; }
 /* Drawer backdrop: semi-transparent gray dimming */
 .fz-drawer::backdrop{
-background: rgba(0,0,0,.32) !important;  /* 深浅就改这里：.25~.45 */
+background: rgba(0,0,0,.32) !important;  /* 深浅改这里 */
 opacity: 1 !important;
-backdrop-filter: none !important;        /* 避免毛玻璃导致亮度不均 */
-.fz-drawer{ background: transparent !important; }
-.fz-drawer__panel{ position: relative; z-index: 2; }
+backdrop-filter: none !important;        /* 避免毛玻璃 */
+}   /* ← 这一行是你漏掉的收尾括号，必须加上 */
+fz-drawer{ background: transparent !important; }
+fz-drawer__panel{ position: relative; z-index: 2; }
