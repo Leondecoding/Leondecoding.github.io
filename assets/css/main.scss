@@ -157,4 +157,4 @@ a { text-decoration: none; color: inherit; }
   backdrop-filter: none !important;
 }
 .fz-drawer{ background: transparent !important; }
-.fz-drawer__panel{ position: relative; z-index: 2; }
+.fz-drawer__panel{ z-index: 9999 !important; }
