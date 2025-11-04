@@ -148,8 +148,8 @@ a { text-decoration: none; color: inherit; }
   will-change: transform;
 }
 .product-grid .product-info  { margin-top: 90px !important; }
-/* Hide page under the cart drawer: make the scrim solid */
-.fz-drawer{
-  background: #fff !important;            /* 实心白：左侧不再透出页面图像 */
-  backdrop-filter: none !important;        /* 防止有毛玻璃效果仍然透底 */
-}
+/* Drawer backdrop: semi-transparent gray dimming */
+.fz-drawer::backdrop{
+background: rgba(0,0,0,.32) !important;  /* 深浅就改这里：.25~.45 */
+opacity: 1 !important;
+backdrop-filter: none !important;        /* 避免毛玻璃导致亮度不均 */
