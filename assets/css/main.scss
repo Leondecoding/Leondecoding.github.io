@@ -183,34 +183,42 @@ html:has(.fz-drawer[open])::before{
   background: #fff !important;
   z-index: 9999 !important;
 }
-/* 强制隐藏每行“第一个单元”（缩略图：可能是 img / a>img / figure / picture / .thumb 等） */
-.fz-drawer__panel .cart-items > li > :first-child,
-.fz-drawer__panel .cart-item  > :first-child,
-.fz-drawer__panel table tr > :first-child{
+/* === Kill the thumbnail column in the cart drawer (robust) === */
+
+/* A. 隐藏任何可能作为缩略图的元素：img/picture/figure/类名里含 thumb/image / 内联背景图 */
+.fz-drawer__panel .cart-items img,
+.fz-drawer__panel .cart-items picture,
+.fz-drawer__panel .cart-items figure,
+.fz-drawer__panel .cart-items [class*="thumb"],
+.fz-drawer__panel .cart-items [class*="image"],
+.fz-drawer__panel .cart-items [style*="background-image"]{
   display: none !important;
 }
 
-/* 兜底：行内出现的各种缩略图写法都隐藏 */
-.fz-drawer__panel .cart-items li img,
-.fz-drawer__panel .cart-items li picture,
-.fz-drawer__panel .cart-items li figure,
-.fz-drawer__panel .cart-items li a > img,
-.fz-drawer__panel .cart-items li [class*="thumb"],
-.fz-drawer__panel .cart-items li [class*="image"],
-.fz-drawer__panel .cart-items li [style*="background-image"]{
+/* B. 把“第一列（原缩略图列）”整体移除，无论是 ul/li 还是 table */
+.fz-drawer__panel .cart-items li > *:first-child,
+.fz-drawer__panel .cart-items tr > *:first-child{
   display: none !important;
+  width: 0 !important;
+  max-width: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
 }
 
-/* 去掉因缩略图列带来的左侧空白（无论是 grid / flex / table 都兜底） */
+/* C. 让每一行只剩信息列：兼容 grid / table 两种布局 */
 .fz-drawer__panel .cart-items li{
-  padding-left: 0 !important;
-  column-gap: 0 !important;
+  /* 如果主题用 grid：强制一列内容区 */
+  display: grid !important;
   grid-template-columns: 1fr !important;
+  column-gap: 8px !important;
+  padding-left: 0 !important;
 }
 .fz-drawer__panel .cart-items{
-  --thumb-w: 0 !important;    /* 若主题用 CSS 变量控制缩略图列宽，直接归零 */
+  /* 若主题用变量控制缩略图列宽，也同时置零（无害项） */
+  --thumb-w: 0 !important;
 }
+
+/* D. table 形态时，去掉首列后保证边框/间距正常 */
 .fz-drawer__panel table{
   border-collapse: collapse !important;
 }
-
