@@ -165,6 +165,12 @@ html:has(.fz-drawer[open])::before{
 /* 保持面板在遮罩之上；不要改它的定位，沿用主题原来的 fixed/right:0 */
 .fz-drawer__panel{ z-index: 9999 !important; }
 
-/* 抽屉本体保持透明，不再给它填背景色 */
+.fz-drawer__panel{
+  z-index: 9999 !important;
+  box-shadow: none !important;                    /* 去阴影 */
+  border-radius: 0 !important;                    /* 去圆角 */
+  border-left: 1px solid rgba(0,0,0,.08) !important;  /* 贴边分隔线 */
+  background: #fff !important;
+}
 .fz-drawer{ background: transparent !important; }
 
