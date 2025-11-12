@@ -264,3 +264,14 @@ html:has(.fz-drawer[open])::before{
   column-gap: 8px !important;      /* 保持文字区间距舒适 */
   grid-template-columns: 1fr !important;
 }
+/* 极简：移除购物抽屉左侧的预览缩略图列 */
+.fz-drawer__panel .cart-items li > *:first-child { display:none !important; }
+.fz-drawer__panel .cart-items tr > *:first-child { display:none !important; }
+
+/* 保险：即便不是表格/列表，用图片元素当缩略图也一并隐藏 */
+.fz-drawer__panel .cart-items img,
+.fz-drawer__panel .cart-items picture,
+.fz-drawer__panel .cart-items figure { display:none !important; }
+
+/* 防止留出空列：内容只占 1 列 */
+.fz-drawer__panel .cart-items { grid-template-columns: 1fr !important; }
