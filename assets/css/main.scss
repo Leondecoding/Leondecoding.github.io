@@ -150,37 +150,39 @@ a { text-decoration: none; color: inherit; }
 }
 .product-grid .product-info { margin-top: 90px !important; }
 
- /* 右侧购物篮：去浮层感，贴边展示（不遮盖页面，不做灰） */
-:root{ --cart-panel-w: min(420px, 92vw); }     /* 若实际更宽/更窄，改这里 */
+/* 抽屉打开时：左侧整块用实灰覆盖，右侧仅显示购物篮面板 */
+:root{ --cart-panel-w: min(420px, 92vw); }   /* 若你的面板宽不同，改这里 */
 
-.fz-drawer{ background: transparent !important; }
+html:has(.fz-drawer[open]){
+  overflow: hidden;                           /* 关掉背景滚动（可选） */
+}
 
-/* 面板本体：去阴影/圆角/位移动画，固定宽度并靠右贴边 */
+/* 左侧整块覆盖为实灰，完全看不到底下页面 */
+html:has(.fz-drawer[open])::before{
+  content:"";
+  position: fixed;
+  top: 0; left: 0; bottom: 0;
+  right: var(--cart-panel-w);                 /* 与面板宽对齐 */
+  background: #e9e9e9;                        /* 灰色你可换成 #eee/#f2f2f2 */
+  z-index: 9998;
+  pointer-events: auto;                       /* 阻断左侧点击/滚动 */
+}
+
+/* 面板贴右侧显示，不要阴影与圆角，避免“漂浮感” */
 .fz-drawer__panel{
   width: var(--cart-panel-w) !important;
-  right: 0 !important;
-  left: auto !important;
-  top: 0 !important;
+  right: 0 !important; left: auto !important; top: 0 !important;
   height: 100vh !important;
+  position: fixed !important;
+  transform: none !important;
+  transition: none !important;
 
-  position: fixed !important;       /* 维持右侧栏定位，但不再“漂浮” */
-  transform: none !important;       /* 关闭进场位移动画，避免悬浮感 */
-  transition: none !important;      /* 可按需保留动画，默认去掉 */
-
-  box-shadow: none !important;      /* 去浮层阴影 */
-  border-radius: 0 !important;      /* 去圆角 */
-  border-left: 1px solid rgba(0,0,0,.08) !important;  /* 贴边分隔线 */
+  box-shadow: none !important;
+  border-radius: 0 !important;
+  border-left: 1px solid rgba(0,0,0,.10) !important;
   background: #fff !important;
   z-index: 9999 !important;
 }
 
-/* 某些主题把阴影/圆角加在内容层或头部，再兜底去掉一次 */
-.fz-drawer,
-.fz-drawer__content,
-.fz-drawer__header{
-  box-shadow: none !important;
-  border-radius: 0 !important;
-}
-
-/* 不再使用任何遮罩/背板（彻底取消“浮在上面”的预览） */
-html::before{ content: none !important; }
+/* 根节点透明，不再使用任何背板/遮罩 */
+.fz-drawer{ background: transparent !important; }
