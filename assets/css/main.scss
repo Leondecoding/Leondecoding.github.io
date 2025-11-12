@@ -222,3 +222,45 @@ html:has(.fz-drawer[open])::before{
 .fz-drawer__panel table{
   border-collapse: collapse !important;
 }
+/* === Cart Drawer: remove the left thumbnail column completely === */
+
+/* 1) 隐藏抽屉里一切可能是缩略图的元素（稳妥起见连 picture/figure/svg 都一起） */
+.fz-drawer__panel img,
+.fz-drawer__panel picture,
+.fz-drawer__panel figure,
+.fz-drawer__panel svg,
+.fz-drawer__panel [class*="thumb"],
+.fz-drawer__panel [class*="image"]{
+  display: none !important;
+  width: 0 !important;
+  max-width: 0 !important;
+  height: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+}
+
+/* 2) 有的主题把缩略图放在“首列”，把这一整列直接折叠（兼容 ul/li 和 table 两种结构） */
+.fz-drawer__panel .cart-items li > *:first-child,
+.fz-drawer__panel .cart-items tr > *:first-child,
+.fz-drawer__panel table tr > *:first-child{
+  display: none !important;
+  width: 0 !important;
+  max-width: 0 !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  border: 0 !important;
+}
+
+/* 3) 有些实现用 inline 背景图做缩略图，再保险把它清掉 */
+.fz-drawer__panel [style*="background-image"],
+.fz-drawer__panel [style*="background"]{
+  background: none !important;
+}
+
+/* 4) 若主题用 CSS 变量控制缩略图列宽，置零（无害） */
+.fz-drawer__panel .cart-items{
+  --thumb-w: 0 !important;
+  column-gap: 8px !important;      /* 保持文字区间距舒适 */
+  grid-template-columns: 1fr !important;
+}
