@@ -151,26 +151,22 @@ a { text-decoration: none; color: inherit; }
 .product-grid .product-info { margin-top: 90px !important; }
 
  /* Drawer backdrop: semi-transparent gray dimming */
-/* Dim only the area LEFT to the cart panel (no gray under the panel) */
-html:has(.fz-drawer[open])::before{
-  content: "";
-  position: fixed;
-  top: 0; left: 0; bottom: 0;
-  right: min(420px, 92vw);           /* ← 与面板同宽：420px 或 92vw 取更小 */
-  background: rgba(0,0,0,.32);       /* 深浅改这里：.25 ~ .45 */
-  z-index: 9998;
-  pointer-events: none;              /* 不影响交互 */
+/* 让页面为右侧购物篮预留空间 —— 抽屉打开时不再“浮动”覆盖 */
+:root{ --cart-panel-w: min(420px, 92vw); }     /* 若你的面板宽不同，就改这里 */
+
+html:has(.fz-drawer[open]) body{
+  margin-right: var(--cart-panel-w) !important;  /* 页面右侧让位给面板 */
 }
 
-/* 保持面板在遮罩之上；不要改它的定位，沿用主题原来的 fixed/right:0 */
-.fz-drawer__panel{ z-index: 9999 !important; }
-
+/* 面板本身贴边显示：去阴影、去圆角，保留分隔线，避免“漂浮感” */
 .fz-drawer__panel{
   z-index: 9999 !important;
-  box-shadow: none !important;                    /* 去阴影 */
-  border-radius: 0 !important;                    /* 去圆角 */
-  border-left: 1px solid rgba(0,0,0,.08) !important;  /* 贴边分隔线 */
+  box-shadow: none !important;
+  border-radius: 0 !important;
+  border-left: 1px solid rgba(0,0,0,.08) !important;
   background: #fff !important;
 }
+
+/* 抽屉根保持透明，不再使用任何遮罩/背板 */
 .fz-drawer{ background: transparent !important; }
 
