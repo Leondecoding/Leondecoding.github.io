@@ -150,23 +150,37 @@ a { text-decoration: none; color: inherit; }
 }
 .product-grid .product-info { margin-top: 90px !important; }
 
- /* Drawer backdrop: semi-transparent gray dimming */
-/* 让页面为右侧购物篮预留空间 —— 抽屉打开时不再“浮动”覆盖 */
-:root{ --cart-panel-w: min(420px, 92vw); }     /* 若你的面板宽不同，就改这里 */
+ /* 右侧购物篮：去浮层感，贴边展示（不遮盖页面，不做灰） */
+:root{ --cart-panel-w: min(420px, 92vw); }     /* 若实际更宽/更窄，改这里 */
 
-html:has(.fz-drawer[open]) body{
-  margin-right: var(--cart-panel-w) !important;  /* 页面右侧让位给面板 */
-}
-
-/* 面板本身贴边显示：去阴影、去圆角，保留分隔线，避免“漂浮感” */
-.fz-drawer__panel{
-  z-index: 9999 !important;
-  box-shadow: none !important;
-  border-radius: 0 !important;
-  border-left: 1px solid rgba(0,0,0,.08) !important;
-  background: #fff !important;
-}
-
-/* 抽屉根保持透明，不再使用任何遮罩/背板 */
 .fz-drawer{ background: transparent !important; }
 
+/* 面板本体：去阴影/圆角/位移动画，固定宽度并靠右贴边 */
+.fz-drawer__panel{
+  width: var(--cart-panel-w) !important;
+  right: 0 !important;
+  left: auto !important;
+  top: 0 !important;
+  height: 100vh !important;
+
+  position: fixed !important;       /* 维持右侧栏定位，但不再“漂浮” */
+  transform: none !important;       /* 关闭进场位移动画，避免悬浮感 */
+  transition: none !important;      /* 可按需保留动画，默认去掉 */
+
+  box-shadow: none !important;      /* 去浮层阴影 */
+  border-radius: 0 !important;      /* 去圆角 */
+  border-left: 1px solid rgba(0,0,0,.08) !important;  /* 贴边分隔线 */
+  background: #fff !important;
+  z-index: 9999 !important;
+}
+
+/* 某些主题把阴影/圆角加在内容层或头部，再兜底去掉一次 */
+.fz-drawer,
+.fz-drawer__content,
+.fz-drawer__header{
+  box-shadow: none !important;
+  border-radius: 0 !important;
+}
+
+/* 不再使用任何遮罩/背板（彻底取消“浮在上面”的预览） */
+html::before{ content: none !important; }
