@@ -186,3 +186,16 @@ html:has(.fz-drawer[open])::before{
 
 /* 根节点透明，不再使用任何背板/遮罩 */
 .fz-drawer{ background: transparent !important; }
+/* 隐藏购物篮列表中每一项的缩略图（不影响 + / - 按钮等） */
+.fz-drawer__panel .cart-item__thumb,
+.fz-drawer__panel .cart-item figure,
+.fz-drawer__panel .cart-item .thumb,
+.fz-drawer__panel .cart-items li > img:first-child,
+.fz-drawer__panel li:has(> img:first-child) > img:first-child{
+  display: none !important;
+}
+
+/* 去掉因为缩略图消失带来的左侧空白（按需保留） */
+.fz-drawer__panel .cart-item{
+  padding-left: 0 !important;
+}
