@@ -127,7 +127,7 @@ a { text-decoration: none; color: inherit; }
   align-items: stretch;
   row-gap: 12px;
 
-  max-width: 260px;    /* ← 控制按钮整体宽度，想更长/更短就改这个值 */
+  max-width: 200px;    /* ← 控制按钮整体宽度，想更长/更短就改这个值 */
   margin-left: 0;      /* 靠左对齐，和标题、文案在一条竖线上 */
   margin-right: auto;  /* 避免整行铺满到右侧 */
 }
