@@ -127,18 +127,25 @@ a { text-decoration: none; color: inherit; }
   align-items: stretch;
   row-gap: 12px;
 
-  max-width: 200px;    /* ← 控制按钮整体宽度，想更长/更短就改这个值 */
-  margin-left: 0;      /* 靠左对齐，和标题、文案在一条竖线上 */
-  margin-right: auto;  /* 避免整行铺满到右侧 */
+  max-width: 260px !important;     /* ← 控制整体宽度，想更短就改这个值 */
+  margin-left: 0 !important;       /* 按钮整体靠左，与标题和正文对齐 */
+  margin-right: auto !important;   /* 防止整行铺满到右边 */
 }
 
 /* 让 PayPal / Add to Cart 等子元素等宽 */
 .product-grid .product-info .product-actions > *{
-  width: 100%;
+  display: block !important;
+  width: 100% !important;
 }
 
-/* 小屏幕（手机）允许按钮铺满整行，提升点按体验 */
+/* 小屏幕（手机）按钮可以继续铺满整行，方便点按 */
 @media (max-width: 760px){
+  .product-grid .product-info .product-actions{
+    max-width: none !important;
+    margin-right: 0 !important;
+  }
+}
+
   .product-grid .product-info .product-actions{
     max-width: none;
     margin-right: 0;
