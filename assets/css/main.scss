@@ -150,80 +150,71 @@ a { text-decoration: none; color: inherit; }
 }
 .product-grid .product-info { margin-top: 90px !important; }
 
-/* === Cart drawer 极简且强制生效版（从第153行开始全量替换） === */
+/* ===== Cart Drawer — minimal, final ===== */
 
-/* 右侧面板宽度（可按需改最后一个上限值） */
-:root{ --cart-w: clamp(320px, 92vw, 440px); }
+/* 统一面板宽度变量（若你主题已有同名变量，可保留为这一值） */
+:root{ --cart-panel-w: min(420px, 92vw); }
 
-/* 让抽屉本体成为“最上层容器”，以便内部伪元素能压住页面上的任何漂浮预览图 */
-.fz-drawer{
-  position: fixed !important;
-  inset: 0 !important;                 /* top/right/bottom/left 全 0 */
-  z-index: 2147483646 !important;      /* 超高：保证盖过页面上一切 */
-  background: transparent !important;  /* 不用内置蒙层 */
-  pointer-events: none;                /* 自身不吃事件，事件交给右侧面板 */
+/* 打开抽屉时，禁止背景滚动 */
+html:has(.fz-drawer[open]){ overflow: hidden; }
+
+/* 用“极高层级”的灰色遮罩，覆盖右侧白色面板以外的全部区域
+   —— 这样任何左侧“浮动预览图”不管 z-index 多高都会被压在下面  */
+.fz-drawer[open]::before{
+  content:"";
+  position: fixed;
+  top:0; left:0; bottom:0;
+  right: var(--cart-panel-w);         /* 留出给右侧面板的宽度 */
+  background: rgba(0,0,0,.35);        /* 半透明灰，能看到底下内容 */
+  z-index: 2147483646 !important;     /* 几乎上限，确保压住一切左侧浮层 */
+  pointer-events: auto;               /* 若你的 JS 监听遮罩点击关闭，可保留为 auto */
 }
 
-/* 左侧半透明灰遮罩 —— 放在抽屉内部，因此永远在页面任何预览图之上 */
-.fz-drawer::before{
-  content: "";
-  position: absolute;
-  top: 0; left: 0; bottom: 0;
-  right: var(--cart-w);                /* 遮到面板左边缘为止 */
-  background: rgba(0,0,0,.28);         /* 透明灰，按需 0.20~0.35 */
-  pointer-events: auto;
-}
-
-/* 右侧面板：贴右显示，层级高于遮罩 */
+/* 右侧白色面板：置于遮罩之上 */
 .fz-drawer__panel{
-  position: absolute !important;
-  top: 0; right: 0; bottom: 0;
-  width: var(--cart-w) !important;
+  position: fixed !important;
+  top: 0 !important;
+  right: 0 !important;
+  left: auto !important;
+  width: var(--cart-panel-w) !important;
+  height: 100vh !important;
   background: #fff !important;
   border-left: 1px solid rgba(0,0,0,.08) !important;
   box-shadow: none !important;
+  z-index: 2147483647 !important;     /* 比遮罩再高一层 */
   transform: none !important;
   transition: none !important;
-  z-index: 2147483647 !important;      /* 高于遮罩 */
-  pointer-events: auto;
 }
 
-/* —— 面板里任何缩略图，一律移除 —— */
-
-/* 直接元素 / 背景图 / 常见“thumb / image”关键字容器 */
-.fz-drawer__panel img,
-.fz-drawer__panel picture,
-.fz-drawer__panel figure,
-.fz-drawer__panel [style*="background-image"],
-.fz-drawer__panel [class*="thumb"],
-.fz-drawer__panel [class*="image"],
-.fz-drawer__panel [data-thumb],
-.fz-drawer__panel [data-thumbnail]{
-  display: none !important;
-  width: 0 !important;
-  height: auto !important;
-  padding: 0 !important;
-  margin: 0 !important;
-  border: 0 !important;
+/* ===== 恢复并仅保留“右侧面板里的缩略图” =====
+   之前通杀隐藏规则会误伤面板内缩略图，这里显式恢复显示  */
+.fz-drawer__panel .cart-items img,
+.fz-drawer__panel .cart-items picture,
+.fz-drawer__panel .cart-items figure,
+.fz-drawer__panel .cart-items [class*="thumb"],
+.fz-drawer__panel .cart-items [class*="image"]{
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
 }
 
-/* 若缩略图是在“第一列”（兼容 ul/li 与 table 两种结构），也整体拿掉 */
-.fz-drawer__panel li > :first-child,
-.fz-drawer__panel tr > *:first-child{
-  display: none !important;
-  width: 0 !important;
-  padding: 0 !important;
-  margin: 0 !important;
-  border: 0 !important;
+/* 若你的列表渲染为 table/ul，避免“第一列被强行隐藏”的副作用 */
+.fz-drawer__panel .cart-items li > *:first-child,
+.fz-drawer__panel .cart-items tr > *:first-child{
+  display: revert !important;
+  width: auto !important;
+  max-width: none !important;
+  padding: revert !important;
+  border: revert !important;
 }
 
-/* 去掉首列后，保证每一行只剩信息区一个单列，不留空位 */
-.fz-drawer__panel li{
-  display: grid !important;
-  grid-template-columns: 1fr !important;
-  column-gap: 8px !important;
+/* 保持面板内布局自然，不再强制 grid 单列或置零间距 */
+.fz-drawer__panel .cart-items{
+  display: revert !important;
+  grid-template-columns: none !important;
+  column-gap: revert !important;
+  padding-left: revert !important;
 }
+.fz-drawer__panel table{ border-collapse: collapse !important; }
 
-.fz-drawer__panel table{
-  border-collapse: collapse !important;
-}
+/* ===== 结束 ===== */
