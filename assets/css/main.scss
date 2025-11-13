@@ -146,11 +146,18 @@ a { text-decoration: none; color: inherit; }
   }
 }
 
-/* Product page: force info panel to single column */
+/* Product page: force info panel to single column + unify panel position */
 .product-grid .product-info{
   display: block !important;
   grid-template-columns: 1fr !important;
+
+  /* 固定右侧信息栏的宽度和位置（按你满意的作品 1 为参考） */
+  max-width: 360px !important;     /* 信息栏最大宽度；想窄一点就调小，比如 340 */
+  margin-top: 90px !important;     /* 保持你现在满意的纵向位置 */
+  margin-left: auto !important;    /* 把整块信息栏推到容器最右侧 */
+  margin-right: 0 !important;
 }
+
 /* === Product page micro-adjustments === */
 /* 1) 左侧图片列整体向右（只影响 .product-grid 的第一列） */
 
@@ -159,12 +166,12 @@ a { text-decoration: none; color: inherit; }
   .product-grid > :first-child { transform: translateX(0) !important; }
   .product-grid .product-info { margin-top: 24px !important; }
 }
- /* === Product page micro-adjustments (keep this at the very end) === */
- .product-grid > :first-child {
-  transform: translateX(120px) !important;  /* 需要就改这个数值 */
+
+/* === Product page micro-adjustments (keep this at the very end) === */
+.product-grid > :first-child {
+  transform: translateX(120px) !important;  /* 这个仍然是“左侧大图整体右移”的控制项 */
   will-change: transform;
 }
-.product-grid .product-info { margin-top: 90px !important; }
 
 /* === Cart drawer 极简修复版（从第153行开始全量替换） ================== */
 /* 目标：
