@@ -150,77 +150,73 @@ a { text-decoration: none; color: inherit; }
 }
 .product-grid .product-info { margin-top: 90px !important; }
 
-/* === Cart drawer 极简稳定版（从第153行开始替换） === */
+/* === Cart drawer 极简重写（从第153行开始全部替换） === */
 
-/* 统一的面板宽度变量（与主题保持一致） */
-:root{ --cart-panel-w: min(420px, 92vw); }
+/* 面板宽度：按需改最后一个上限值 440px */
+:root{ --cart-w: clamp(320px, 92vw, 440px); }
 
-/* 抽屉打开时：锁背景滚动 */
+/* 打开抽屉：锁滚动 */
 html:has(.fz-drawer[open]) body{ overflow: hidden; }
 
-/* 左侧半透明灰遮罩：盖住页面，但不盖住右侧面板 */
+/* 左侧半透明灰遮罩（右侧留出面板宽度） */
 html:has(.fz-drawer[open]) body::before{
   content: "";
   position: fixed;
-  top: 0; left: 0; bottom: 0;
-  right: var(--cart-panel-w);
-  background: rgba(0,0,0,.26);         /* 透明灰，可按喜好 0.20~0.35 调整 */
-  z-index: 100000;                      /* 比任何预览层都高，但低于面板 */
-  pointer-events: none;                 /* 避免挡住面板外的点击探测 */
+  inset: 0;
+  right: var(--cart-w);                /* 灰层只到面板左边缘 */
+  background: rgba(0,0,0,.28);         /* 透明灰，按需 0.20~0.35 */
+  z-index: 2147483637;
+  pointer-events: none;
 }
 
-/* 右侧抽屉面板：贴右、固定、不动画、不投影 */
+/* 右侧抽屉面板：固定、贴右、无动画无投影 */
 .fz-drawer__panel{
   position: fixed !important;
-  top: 0 !important;
-  right: 0 !important;
-  left: auto !important;
-  width: var(--cart-panel-w) !important;
+  inset: 0 0 0 auto !important;        /* top/right/bottom=0, left=auto */
+  width: var(--cart-w) !important;
   height: 100vh !important;
   background: #fff !important;
   border-left: 1px solid rgba(0,0,0,.08) !important;
-  border-radius: 0 !important;
   box-shadow: none !important;
   transform: none !important;
   transition: none !important;
-  z-index: 100001 !important;           /* 高于遮罩 */
+  z-index: 2147483638 !important;      /* 高于灰层 */
 }
 
-/* 根节点透明：不再使用它自带的背景半透明层 */
+/* 根节点透明：不使用任何自带背景 */
 .fz-drawer{ background: transparent !important; }
 
-/* —— 彻底移除“缩略图/第一列图片”，覆盖所有常见写法 —— */
+/* —— 彻底移除任何形式的缩略图 —— */
 
-/* A. 直接图片或图片容器 */
-.fz-drawer__panel .cart-items img,
-.fz-drawer__panel .cart-items picture,
-.fz-drawer__panel .cart-items figure,
-.fz-drawer__panel .cart-items [class*="thumb"],
-.fz-drawer__panel .cart-items [class*="image"],
-.fz-drawer__panel .cart-items [data-thumb],
-.fz-drawer__panel .cart-items [data-thumbnail],
-.fz-drawer__panel .cart-items [style*="background-image"],
-.fz-drawer__panel .cart-items li > :first-child:is(img,picture,figure,svg,canvas){
+/* A. 直接图片/容器/背景图/带关键字的容器，统一隐藏 */
+.fz-drawer__panel img,
+.fz-drawer__panel picture,
+.fz-drawer__panel figure,
+.fz-drawer__panel [style*="background-image"],
+.fz-drawer__panel [class*="thumb"],
+.fz-drawer__panel [class*="image"],
+.fz-drawer__panel [data-thumb],
+.fz-drawer__panel [data-thumbnail]{
   display: none !important;
   width: 0 !important; height: auto !important;
   padding: 0 !important; margin: 0 !important; border: 0 !important;
 }
 
-/* B. 若列表是 ul/li 或 table：把“首列”整体拿掉 */
-.fz-drawer__panel .cart-items tr > *:first-child,
-.fz-drawer__panel .cart-items thead > tr > *:first-child,
-.fz-drawer__panel .cart-items tbody > tr > *:first-child{
+/* B. 如果缩略图在“第一列/第一个单元”，也一并拿掉（兼容 ul/li 和 table） */
+.fz-drawer__panel li > :first-child,
+.fz-drawer__panel tr > *:first-child{
   display: none !important;
   width: 0 !important; padding: 0 !important; margin: 0 !important; border: 0 !important;
 }
 
-/* C. 让每行只剩信息区（单列），不留空列 */
-.fz-drawer__panel .cart-items{ display: block !important; }
-.fz-drawer__panel .cart-items li{
+/* C. 移除首列后，让每行只剩信息区（单列布局），避免留空 */
+.fz-drawer__panel li{
   display: grid !important;
   grid-template-columns: 1fr !important;
   column-gap: 8px !important;
 }
+.fz-drawer__panel table{ border-collapse: collapse !important; }
+
 
 /* D. table 兜底：去掉表格边距与空隙 */
 .fz-drawer__panel table{ border-collapse: collapse !important; }
