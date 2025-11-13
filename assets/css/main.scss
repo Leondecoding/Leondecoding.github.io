@@ -152,7 +152,7 @@ a { text-decoration: none; color: inherit; }
   grid-template-columns: 1fr !important;
 
   /* 固定右侧信息栏的宽度和位置（按你满意的作品 1 为参考） */
-  max-width: 360px !important;     /* 信息栏最大宽度；想窄一点就调小，比如 340 */
+  max-width: 400px !important;     /* 信息栏最大宽度；想窄一点就调小，比如 340 */
   margin-top: 90px !important;     /* 保持你现在满意的纵向位置 */
   margin-left: auto !important;    /* 把整块信息栏推到容器最右侧 */
   margin-right: 0 !important;
