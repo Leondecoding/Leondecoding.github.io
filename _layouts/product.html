@@ -2,7 +2,7 @@
 layout: default
 ---
 
-<div class="container product-page{% if page.collection == 'cards' %} product-page--card{% endif %}">
+<div class="container product-page{% if page.collection == 'cards' or page.collection == 'prints' or page.collection == 'art-prints' %} product-page--card{% endif %}">
   <div class="product-grid" style="display:grid;grid-template-columns:minmax(260px,1fr) minmax(360px,1fr);gap:64px;align-items:start;padding-left:30px;">
 
        <!-- 左：主图 + 下方三张小图（支持点击放大） -->
