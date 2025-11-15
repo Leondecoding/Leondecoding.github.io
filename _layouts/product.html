@@ -42,7 +42,7 @@ layout: default
     </div>
 
     <!-- 右：信息栏（标题 → 价格 → Taxes → 按钮 → 说明） -->
-    <div class="product-info fz-product" style="margin-top:32px;">
+    <div class="product-info fz-product">
       {% assign file_display = main_image_url | split: '/' | last %}
       {% if file_display == '' or file_display == nil %}{% assign file_display = page.title %}{% endif %}
       <h1 class="product-title" style="margin:0 0 8px 0;">{{ file_display }}</h1>
