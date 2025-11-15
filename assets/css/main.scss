@@ -391,7 +391,7 @@ a { text-decoration: none; color: inherit; }
 
 /* === Product page: 强制左右两列顶端对齐（通杀覆盖版） === */
 
-/* 让产品页的 grid 两列都从顶部开始对齐 */
+ /* 让产品页的 grid 两列都从顶部开始对齐 */
 .container.product-page .product-grid{
   align-items: flex-start !important;
 }
