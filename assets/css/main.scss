@@ -389,33 +389,34 @@ a { text-decoration: none; color: inherit; }
   cursor: pointer;
 }
 
-/* === Product page: 强制左右两列顶端对齐（通杀覆盖版） === */
+/* === Product page: 强制左右两列顶端对齐（统一版本） === */
 
- /* 让产品页的 grid 两列都从顶部开始对齐 */
+/* 让产品页的 grid 两列都从顶部开始对齐 */
 .container.product-page .product-grid{
   align-items: flex-start !important;
 }
 
-/* 清掉左右两列自身的垂直位移 */
+/* 清掉左右两列自身的垂直位移 + 任何历史 transform 残留 */
 .container.product-page .product-grid > .product-gallery,
 .container.product-page .product-grid > .product-info{
   margin-top: 0 !important;
   padding-top: 0 !important;
   position: relative;
   top: 0 !important;
+  transform: none !important;
 }
 
-/* 左侧图片列：只做水平右移，不做上下位移 */
-.container.product-page .product-grid > .product-gallery{
-  transform: translateX(120px) translateY(0) !important;
+/* 桌面端：左侧图片列只做水平右移（不做垂直位移） */
+@media (min-width: 761px){
+  .container.product-page .product-grid > .product-gallery{
+    transform: translateX(120px) !important;  /* 保留你原来满意的横向位置 */
+  }
 }
 
-/* 右侧信息栏：完全不位移 */
-.container.product-page .product-grid > .product-info{
-  transform: translateY(0) !important;
-}
-
-/* 两列里面的第一个元素也不要再有额外的顶部外边距 */
+/* 两列里面的第一个元素也不要再有额外的顶部外边距
+ * 左：主图 figure.product-gallery__main
+ * 右：第一个元素（标题 h1.product-title）
+ */
 .container.product-page .product-gallery__main,
 .container.product-page .product-info > *:first-child{
   margin-top: 0 !important;
