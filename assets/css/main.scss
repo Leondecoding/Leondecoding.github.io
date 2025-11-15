@@ -152,7 +152,7 @@ a { text-decoration: none; color: inherit; }
 
   /* 固定右侧信息栏的宽度和位置 (按你满意的作品 1 为参考) */
   max-width: 400px !important;      /* 信息栏最大宽度；想窄一点就调小，比如 340 */
-  margin-top: 90 !important;         /* ⬅ 顶部对齐：把这里从 90px 改成 0 */
+  margin-top: 0 !important;         /* ⬅ 顶部对齐：把这里从 90px 改成 0 */
   margin-left: auto !important;     /* 把整块信息栏推到容器最右侧 */
   margin-right: 80px !important;    /* 右侧留一点空白 */
 }
@@ -389,3 +389,35 @@ a { text-decoration: none; color: inherit; }
   cursor: pointer;
 }
 
+/* === Product page: 强制左右两列顶端对齐（通杀覆盖版） === */
+
+/* 让产品页的 grid 两列都从顶部开始对齐 */
+.container.product-page .product-grid{
+  align-items: flex-start !important;
+}
+
+/* 清掉左右两列自身的垂直位移 */
+.container.product-page .product-grid > .product-gallery,
+.container.product-page .product-grid > .product-info{
+  margin-top: 0 !important;
+  padding-top: 0 !important;
+  position: relative;
+  top: 0 !important;
+}
+
+/* 左侧图片列：只做水平右移，不做上下位移 */
+.container.product-page .product-grid > .product-gallery{
+  transform: translateX(120px) translateY(0) !important;
+}
+
+/* 右侧信息栏：完全不位移 */
+.container.product-page .product-grid > .product-info{
+  transform: translateY(0) !important;
+}
+
+/* 两列里面的第一个元素也不要再有额外的顶部外边距 */
+.container.product-page .product-gallery__main,
+.container.product-page .product-info > *:first-child{
+  margin-top: 0 !important;
+  padding-top: 0 !important;
+}
