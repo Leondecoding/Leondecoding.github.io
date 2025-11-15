@@ -298,3 +298,86 @@ a { text-decoration: none; color: inherit; }
 .fz-drawer__panel figure{
   display: inline-block;  /* 或留给组件自身覆盖 */
 }
+/* ==== Product page: 图片画廊 + Lightbox 布局 ==== */
+
+/* 左侧主图 + 三张小图的容器 */
+.product-page .product-gallery{
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  align-items: flex-start;
+
+  /* 整体往下挪，让主图和右侧标题（文件名）大致对齐 */
+  margin-top: 90px;
+}
+
+/* 主图 */
+.product-page .product-gallery__main{
+  margin: 0;
+}
+.product-page .product-gallery__main img{
+  display: block;
+  max-width: 100%;
+  height: auto;
+  cursor: zoom-in;  /* 小手提示可以点击放大 */
+}
+
+/* 下方三张小图 */
+.product-page .product-gallery__thumbs{
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+.product-page .product-gallery__thumb{
+  margin: 0;
+}
+.product-page .product-gallery__thumb img{
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 4 / 3;       /* 保持统一比例 */
+  object-fit: cover;
+  cursor: pointer;           /* 也是小手，可点击放大 */
+}
+
+/* ==== Lightbox 整体样式 ==== */
+
+.fz-lightbox{
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: rgba(0,0,0,.8);
+  padding: 40px 24px;
+  display: none;             /* 默认隐藏 */
+  align-items: center;
+  justify-content: center;
+}
+
+.fz-lightbox[aria-hidden="false"]{
+  display: flex;             /* 打开时显示为居中弹窗 */
+}
+
+.fz-lightbox__img-wrap{
+  max-width: 90vw;
+  max-height: 90vh;
+  overflow: auto;            /* 大图可以滚动看细节 */
+}
+
+.fz-lightbox__img-wrap img{
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.fz-lightbox__close{
+  position: absolute;
+  top: 20px;
+  right: 24px;
+  border: none;
+  background: transparent;
+  color: #fff;
+  font-size: 32px;
+  line-height: 1;
+  cursor: pointer;
+}
+
