@@ -196,18 +196,29 @@ a { text-decoration: none; color: inherit; }
 /* === Product page micro-adjustments === */
 /* 1) 左侧图片列整体向右（只影响 .product-grid 的第一列） */
 
-/* （可选）移动端不要偏移，避免单列时留白太大 */
+/* 移动端：单列时不要横向偏移，并给左右内容一点上下间距 */
 @media (max-width: 760px){
   .product-grid > :first-child { transform: translateX(0) !important; }
-  .product-grid .product-info .product-grid .product-gallery{ margin-top: 24px !important; }
+  .product-page .product-gallery,
+  .product-page .product-info{
+    margin-top: 24px;
+  }
 }
 
 /* === Product page micro-adjustments (keep this at the very end) === */
 .product-grid > :first-child {
-  transform: translateX(120px) !important;  /* 这个仍然是“左侧大图整体右移”的控制项 */
+  transform: translateX(120px) !important;  /* 左侧大图整体右移的控制项 */
   will-change: transform;
 }
-.product-page--card .product-info { margin-top: 90px !important; }
+
+/* 桌面端：确保图片列和信息列的顶部对齐 */
+@media (min-width: 761px){
+  .product-page .product-gallery,
+  .product-page .product-info{
+    margin-top: 0;
+  }
+}
+
 /* === Cart drawer 极简修复版（从第153行开始全量替换） ================== */
 /* 目标：
  * - 左侧：整块半透明灰遮罩（下面页面可见）
@@ -307,12 +318,6 @@ a { text-decoration: none; color: inherit; }
   gap: 24px;
   align-items: flex-start;
   margin-top: 0;              /* 默认不下移 */
-}
-
-/* Greeting Cards 专用：左图 + 右侧信息一起整体下移 */
-.product-page--card .product-gallery,
-.product-page--card .product-info{
-  margin-top: 90px;
 }
 
 /* 主图 */
