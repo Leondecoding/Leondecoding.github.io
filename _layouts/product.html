@@ -164,6 +164,45 @@ layout: default
   }
 
   ready(function(){
+        // 产品图片 Lightbox（点击主图或小图放大）
+    var lb = $('#fz-lightbox');
+    if (lb) {
+      var lbImg   = lb.querySelector('img');
+      var lbClose = lb.querySelector('.fz-lightbox__close');
+
+      function openLightbox(src, alt){
+        if (!lbImg) return;
+        lbImg.src = src;
+        lbImg.alt = alt || '';
+        lb.setAttribute('aria-hidden', 'false');
+      }
+
+      function closeLightbox(){
+        lb.setAttribute('aria-hidden', 'true');
+      }
+
+      // 点击背景关闭
+      lb.addEventListener('click', function(e){
+        if (e.target === lb) closeLightbox();
+      });
+      // 右上角 × 关闭
+      if (lbClose) lbClose.addEventListener('click', closeLightbox);
+
+      // ESC 键关闭
+      document.addEventListener('keydown', function(e){
+        if (e.key === 'Escape') closeLightbox();
+      });
+
+      // 绑定所有可点击的预览图 / 小图
+      $all('.js-lightbox-trigger').forEach(function(img){
+        img.style.cursor = 'zoom-in';
+        img.addEventListener('click', function(){
+          var src = img.getAttribute('data-lightbox-src') || img.src;
+          var alt = img.getAttribute('alt') || '';
+          openLightbox(src, alt);
+        });
+      });
+    }
     // Add to Cart — 如果 fz-ui.js 未绑定，则本页接管
     var btn = $('#btn-add-to-cart');
     if (btn && !btn._fzWired) {
