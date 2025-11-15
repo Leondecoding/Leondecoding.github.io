@@ -300,14 +300,18 @@ a { text-decoration: none; color: inherit; }
 }
 /* ==== Product page: 图片画廊 + Lightbox 布局 ==== */
 
-/* 左侧主图 + 三张小图的容器 */
+/* 左侧主图 + 三张小图的容器（默认：顶对齐） */
 .product-page .product-gallery{
   display: flex;
   flex-direction: column;
   gap: 24px;
   align-items: flex-start;
 
-  /* 整体往下挪，让主图和右侧标题（文件名）大致对齐 */
+  margin-top: 0;   /* 原来的 90px 改成 0，让默认产品恢复顶对齐 */
+}
+
+/* Greeting Cards 专用：左侧大图整体下移，让它和右侧文字对齐 */
+.product-page--card .product-gallery{
   margin-top: 90px;
 }
 
