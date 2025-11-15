@@ -300,18 +300,18 @@ a { text-decoration: none; color: inherit; }
 }
 /* ==== Product page: 图片画廊 + Lightbox 布局 ==== */
 
-/* 左侧主图 + 三张小图的容器（默认：顶对齐） */
+/* 左侧主图 + 三张小图的容器（所有产品共用，默认顶对齐） */
 .product-page .product-gallery{
   display: flex;
   flex-direction: column;
   gap: 24px;
   align-items: flex-start;
-
-  margin-top: 0;   /* 原来的 90px 改成 0，让默认产品恢复顶对齐 */
+  margin-top: 0;              /* 默认不下移 */
 }
 
-/* Greeting Cards 专用：左侧大图整体下移，让它和右侧文字对齐 */
-.product-page--card .product-gallery{
+/* Greeting Cards 专用：左图 + 右侧信息一起整体下移 */
+.product-page--card .product-gallery,
+.product-page--card .product-info{
   margin-top: 90px;
 }
 
