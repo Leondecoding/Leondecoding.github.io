@@ -157,6 +157,41 @@ a { text-decoration: none; color: inherit; }
   margin-left: auto !important;    /* 把整块信息栏推到容器最右侧 */
   margin-right: 80 !important;
 }
+/* 左侧 gallery：上面一张大图，下面三张小图并排 */
+.product-grid .product-gallery{
+  margin-top: 90px !important;   /* 把左边主图整体往下拉，和右边标题对齐 */
+  display: flex;
+  flex-direction: column;
+  gap: 24px;                     /* 大图和小图之间的垂直间距 */
+}
+
+.product-gallery__main{
+  margin: 0;
+}
+
+.product-gallery__main img{
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+/* 下方 3 张小图一排 */
+.product-gallery__thumbs{
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.product-gallery__thumb{
+  margin: 0;
+}
+
+.product-gallery__thumb img{
+  display: block;
+  width: 100%;
+  height: auto;
+  object-fit: cover;   /* 让小图填满自己的小框，效果像你画的红色示意图 */
+}
 
 /* === Product page micro-adjustments === */
 /* 1) 左侧图片列整体向右（只影响 .product-grid 的第一列） */
@@ -164,7 +199,7 @@ a { text-decoration: none; color: inherit; }
 /* （可选）移动端不要偏移，避免单列时留白太大 */
 @media (max-width: 760px){
   .product-grid > :first-child { transform: translateX(0) !important; }
-  .product-grid .product-info { margin-top: 24px !important; }
+  .product-grid .product-info .product-grid .product-gallery{ margin-top: 24px !important; }
 }
 
 /* === Product page micro-adjustments (keep this at the very end) === */
