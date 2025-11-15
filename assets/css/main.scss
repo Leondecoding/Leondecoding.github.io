@@ -207,7 +207,7 @@ a { text-decoration: none; color: inherit; }
   transform: translateX(120px) !important;  /* 这个仍然是“左侧大图整体右移”的控制项 */
   will-change: transform;
 }
-
+.product-page--card .product-info { margin-top: 90px !important; }
 /* === Cart drawer 极简修复版（从第153行开始全量替换） ================== */
 /* 目标：
  * - 左侧：整块半透明灰遮罩（下面页面可见）
