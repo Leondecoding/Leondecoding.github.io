@@ -176,10 +176,29 @@ a { text-decoration: none; color: inherit; }
   margin-right: 80px !important;
 }
 
-/* 信息栏里的第一个元素（标题）顶端和左主图对齐 */
+/* 左侧主图和右侧标题都不要额外顶部间距 */
+.container.product-page .product-gallery__main,
 .container.product-page .product-info > *:first-child{
   margin-top: 0 !important;
   padding-top: 0 !important;
+}
+
+/* === Product page vertical alignment by type (Original vs Prints/Cards) === */
+
+/* 1) Original Art（没有 .product-page--card 的产品页）：
+ *    左侧作品栏不动，只把右侧信息栏整体下移 90px，
+ *    让标题顶部和左侧大图顶部对齐
+ */
+.container.product-page:not(.product-page--card) .product-grid > .product-info{
+  margin-top: 90px !important;
+}
+
+/* 2) Art Prints + Greeting Cards（带 .product-page--card）：
+ *    左右两列的相对关系不变，整块产品区域一起向下移 90px，
+ *    让这些页面的左大图顶部也落在 Original Art 的基准线上
+ */
+.container.product-page.product-page--card .product-grid{
+  margin-top: 90px !important;
 }
 
 /* 5) 价格 + 税 + 按钮：全部左对齐，按钮同宽 */
