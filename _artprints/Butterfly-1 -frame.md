@@ -3,8 +3,9 @@ layout: product
 title: "Butterfly"
 price: 25
 currency: GBP
-sizes: [A5, A4]
-image: /assets/images/artprints/Butterfly-1 -frame.jpg
+sizes:
+  - A5
+  - A4
+image: /assets/images/artprints/Butterfly-1-frame.jpg
 ---
-
 Fine art print on archival paper (Hahnemühle German Etching, 310gsm). Signed in the corner.
