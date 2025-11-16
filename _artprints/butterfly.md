@@ -1,6 +1,6 @@
 ---
 layout: product
-title: "Great tit 1"
+title: "Butterfly"
 price: 25
 currency: GBP
 sizes: [A5, A4]
