@@ -187,12 +187,12 @@ a { text-decoration: none; color: inherit; }
 
 /* Original Art：信息栏向左挪一点（减小右侧外边距） */
 .container.product-page.product-page--originals .product-grid > .product-info{
-  margin-right: 60px !important;  /* 数字越小越靠左，可以自己微调 */
+  margin-right: 40px !important;  /* 数字越小越靠左，可以自己微调 */
 }
 
 /* Greeting Cards：信息栏也向左挪一点 */
 .container.product-page.product-page--cards .product-grid > .product-info{
-  margin-right: 60px !important;  /* 同上，先用 60 试效果 */
+  margin-right: 40px !important;  /* 同上，先用 60 试效果 */
 }
 
 /* === Product page vertical alignment by type (Original vs Prints/Cards) === */
