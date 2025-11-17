@@ -148,25 +148,6 @@ a { text-decoration: none; color: inherit; }
   width: 100%;
   height: auto;
 }
-
-/* 下方 3 张小图一排 */
-.container.product-page .product-gallery__thumbs{
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 16px;
-}
-
-.container.product-page .product-gallery__thumb{
-  margin: 0;
-}
-
-.container.product-page .product-gallery__thumb img{
-  display: block;
-  width: 100%;
-  height: auto;
-  object-fit: cover;
-}
-
 /* 4) 右侧信息栏：限制宽度，靠右对齐，不做垂直位移 */
 .container.product-page .product-grid > .product-info{
   display: block !important;
@@ -176,79 +157,6 @@ a { text-decoration: none; color: inherit; }
   margin-right: 80px !important;
 }
 
-/* 左侧主图和右侧标题都不要额外顶部间距 */
-.container.product-page .product-gallery__main,
-.container.product-page .product-info > *:first-child{
-  margin-top: 0 !important;
-  padding-top: 0 !important;
-}
-/* === Product page vertical alignment by type (Original vs Prints/Cards) === */
-
-/* 1) Original Art（没有 .product-page--card 的产品页）：
- *    左侧作品栏不动，只把右侧信息栏整体下移 90px，
- *    让标题顶部和左侧大图顶部对齐
- */
-.container.product-page:not(.product-page--card) .product-grid > .product-info{
-  margin-top: 90px !important;
-}
-
-/* 2) Art Prints + Greeting Cards（带 .product-page--card）：
- *    左右两列的相对关系不变，整块产品区域一起向下移 90px，
- *    让这些页面的左大图顶部也落在 Original Art 的基准线上
- */
-.container.product-page.product-page--card .product-grid{
-  margin-top: 90px !important;
-}
-
-/* 5) 价格 + 税 + 按钮：全部左对齐，按钮同宽 */
-.container.product-page .product-info .product-price,
-.container.product-page .product-info .product-taxes,
-.container.product-page .product-info .product-actions{
-  float: none !important;
-  text-align: left !important;
-}
-
-.container.product-page .product-info .product-actions{
-  display: grid !important;
-  justify-items: stretch;
-  align-items: stretch;
-  row-gap: 12px;
-  max-width: 260px !important;
-  margin: 0 !important;
-}
-
-.container.product-page .product-info .product-actions > *{
-  display: block !important;
-  width: 100% !important;
-}
-
-/* 6) 小屏幕：两列改为单列堆叠，图片列不再横向偏移 */
-@media (max-width: 760px){
-  .container.product-page .product-grid{
-    grid-template-columns: 1fr !important;
-    padding-left: 0 !important;
-    row-gap: 24px;
-  }
-
-  .container.product-page .product-grid > .product-info{
-    margin-right: 0 !important;
-  }
-
-  .container.product-page .product-grid > .product-gallery{
-    transform: none !important;
-  }
-
-  .container.product-page .product-info .product-actions{
-    max-width: none !important;
-  }
-}
-
-/* 7) 桌面端：只给左侧图片列一点水平右移（不做垂直 translateY） */
-@media (min-width: 761px){
-  .container.product-page .product-grid > .product-gallery{
-    transform: translateX(120px) !important;
-  }
-}
 /* === Cart drawer 极简修复版（从第153行开始全量替换） ================== */
 /* 目标：
  * - 左侧：整块半透明灰遮罩（下面页面可见）
@@ -342,43 +250,6 @@ a { text-decoration: none; color: inherit; }
 /* ==== Product page: 图片画廊 + Lightbox 布局 ==== */
 
 /* 左侧主图 + 三张小图的容器（所有产品共用，默认顶对齐） */
-.product-page .product-gallery{
-  display: flex;
-  flex-direction: column;
-  gap: 24px;
-  align-items: flex-start;
-  margin-top: 0;              /* 默认不下移 */
-}
-
-/* 主图 */
-.product-page .product-gallery__main{
-  margin: 0;
-}
-.product-page .product-gallery__main img{
-  display: block;
-  max-width: 100%;
-  height: auto;
-  cursor: zoom-in;  /* 小手提示可以点击放大 */
-}
-
-/* 下方三张小图 */
-.product-page .product-gallery__thumbs{
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 16px;
-}
-.product-page .product-gallery__thumb{
-  margin: 0;
-}
-.product-page .product-gallery__thumb img{
-  display: block;
-  width: 100%;
-  height: auto;
-  aspect-ratio: 4 / 3;       /* 保持统一比例 */
-  object-fit: cover;
-  cursor: pointer;           /* 也是小手，可点击放大 */
-}
-
 /* ==== Lightbox 整体样式 ==== */
 
 .fz-lightbox{
@@ -418,12 +289,4 @@ a { text-decoration: none; color: inherit; }
   font-size: 32px;
   line-height: 1;
   cursor: pointer;
-}
-/* === Product page: horizontal alignment via translateX (Original + Cards) === */
-/* 只移动 Original Art 和 Greeting Cards 的右侧信息栏 */
-/* 负值 = 向左平移，正值 = 向右平移 */
-
-.container.product-page.product-page--originals .product-grid > .product-info,
-.container.product-page.product-page--cards .product-grid > .product-info{
-  transform: translateX(-40px) !important;
 }
