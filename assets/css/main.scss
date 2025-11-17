@@ -66,6 +66,7 @@ a { text-decoration: none; color: inherit; }
 @media (max-width:1100px){ .fz-grid--4 { grid-template-columns:repeat(3,1fr); } }
 @media (max-width:760px){ .fz-grid--4 { grid-template-columns:repeat(2,1fr); } }
 @media (max-width:480px){ .fz-grid--4 { grid-template-columns:1fr; } }
+
 /* === 列表页通用 3 列网格（手机1 / 平板2 / 桌面3） === */
 .gallery-grid {
   display: grid;
@@ -91,7 +92,7 @@ a { text-decoration: none; color: inherit; }
 .fz-card__meta{ display:flex; justify-content:space-between; align-items:center; gap:12px; margin-top:10px; }
 .fz-price{ color:#666; }
 
-/* ===== 详情页：左图右信息 ===== */
+/* ===== 旧详情页：左图右信息（保留，防止旧页面用到） ===== */
 .fz-product{ max-width:1100px; margin:32px auto; display:grid; grid-template-columns:1.1fr .9fr; gap:36px; }
 @media (max-width:900px){ .fz-product{ grid-template-columns:1fr; gap:22px; } }
 .fz-hero{ border:1px solid #eee; background:#fafafa; border-radius:10px; overflow:hidden; }
@@ -101,6 +102,7 @@ a { text-decoration: none; color: inherit; }
 .fz-prop{ margin:.25rem 0; color:#555; }
 .fz-buy{ display:flex; gap:10px; flex-wrap:wrap; margin-top:14px; }
 .fz-buy .fz-btn{ min-width:160px; }
+
 /* === 选项：A5/A4 药丸按钮 === */
 .fz-field { margin: 12px 0 8px; }
 .fz-field__label { font-weight: 600; margin-bottom: 6px; }
@@ -112,52 +114,60 @@ a { text-decoration: none; color: inherit; }
   min-width: 56px; user-select: none;
 }
 .fz-pill-input:checked + .fz-pill { background: #111; color: #fff; }
-/* ==== Product page hard overrides (fix right-aligned price & buttons) ==== */
-/* ==== Product page layout（全新简化版） ========================= */
 
-/* 1) Grid 容器：两列布局，左右内容从顶部对齐 */
-.container.product-page .product-grid{
-  /* inline 里已经有 display:grid / grid-template-columns / gap 等 */
-  align-items: flex-start !important;
+/* ===== Product page: unified layout (Original / Art Prints / Greeting Cards) ===== */
+
+/* Grid container: align left gallery & right info to the top */
+.container.product-page .product-grid {
+  align-items: flex-start;
 }
 
-/* 2) 清空左右两列自己的垂直偏移（margin / top / transform） */
+/* Clear vertical offsets on both columns */
 .container.product-page .product-grid > .product-gallery,
-.container.product-page .product-grid > .product-info{
-  margin-top: 0 !important;
-  padding-top: 0 !important;
-  position: static !important;
-  top: auto !important;
-  transform: none !important;
+.container.product-page .product-grid > .product-info {
+  margin: 0;
+  padding: 0;
 }
 
-/* 3) 左侧图片列：上大图 + 下 3 张小图，保持你现在的结构 */
-.container.product-page .product-grid > .product-gallery{
+/* Right column (info panel) */
+.container.product-page .product-info {
+  display: block;
+  max-width: 420px;
+  margin: 0;
+}
+
+/* Ensure the first element (title) sits flush with the top */
+.container.product-page .product-info > *:first-child {
+  margin-top: 0;
+  padding-top: 0;
+}
+
+/* Price / tax / actions: left aligned, no floats */
+.container.product-page .product-info .product-price,
+.container.product-page .product-info .product-taxes,
+.container.product-page .product-info .product-actions {
+  float: none;
+  text-align: left;
+}
+
+/* Action buttons: stack vertically with consistent width */
+.container.product-page .product-info .product-actions {
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 12px;
+  max-width: 260px;
 }
 
-/* 主图本身不再额外加 margin-top */
-.container.product-page .product-gallery__main{
-  margin: 0 !important;
+/* Small screens: collapse to single column */
+@media (max-width: 760px) {
+  .container.product-page .product-grid {
+    grid-template-columns: 1fr;
+    padding-left: 0;
+    row-gap: 24px;
+  }
 }
 
-.container.product-page .product-gallery__main img{
-  display: block;
-  width: 100%;
-  height: auto;
-}
-/* 4) 右侧信息栏：限制宽度，靠右对齐，不做垂直位移 */
-.container.product-page .product-grid > .product-info{
-  display: block !important;
-  max-width: 400px !important;
-  margin-top: 0 !important;
-  margin-left: auto !important;
-  margin-right: 80px !important;
-}
-
-/* === Cart drawer 极简修复版（从第153行开始全量替换） ================== */
+/* === Cart drawer 极简修复版 ================== */
 /* 目标：
  * - 左侧：整块半透明灰遮罩（下面页面可见）
  * - 右侧：白色面板 + 商品缩略图正常显示
@@ -212,19 +222,6 @@ a { text-decoration: none; color: inherit; }
   flex-direction: column;
 }
 
-/* ================== 只隐藏“左侧预览大图” ==================
- * 假设结构大致为：
- * <div class="fz-drawer">
- *   <div class="某个预览容器"><img ...></div>   ← 需要隐藏
- *   <div class="fz-drawer__panel">...</div>     ← 需保留缩略图
- * </div>
- *
- * 下面规则：
- * - 只针对 .fz-drawer 下面、非 .fz-drawer__panel 的直接子级中的图像
- * - 以及带有 preview 语义的直接子级容器
- * - 不对 .fz-drawer__panel 内部做任何“通杀隐藏”
- */
-
 /* 抽屉中，非右侧面板区域里的任何 img/picture/figure 统统压制 */
 .fz-drawer > :not(.fz-drawer__panel) img,
 .fz-drawer > :not(.fz-drawer__panel) picture,
@@ -241,15 +238,53 @@ a { text-decoration: none; color: inherit; }
   pointer-events: none !important;
 }
 
-/* 明确声明：右侧面板内部的缩略图完全不做限制，使用组件原本样式 */
+/* 明确声明：右侧面板内的缩略图完全不做限制，使用组件原本样式 */
 .fz-drawer__panel img,
 .fz-drawer__panel picture,
 .fz-drawer__panel figure{
   display: inline-block;  /* 或留给组件自身覆盖 */
 }
+
 /* ==== Product page: 图片画廊 + Lightbox 布局 ==== */
 
 /* 左侧主图 + 三张小图的容器（所有产品共用，默认顶对齐） */
+.product-page .product-gallery{
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  align-items: flex-start;
+  margin-top: 0;              /* 默认不下移 */
+}
+
+/* 主图 */
+.product-page .product-gallery__main{
+  margin: 0;
+}
+.product-page .product-gallery__main img{
+  display: block;
+  max-width: 100%;
+  height: auto;
+  cursor: zoom-in;  /* 小手提示可以点击放大 */
+}
+
+/* 下方三张小图 */
+.product-page .product-gallery__thumbs{
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+.product-page .product-gallery__thumb{
+  margin: 0;
+}
+.product-page .product-gallery__thumb img{
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 4 / 3;       /* 保持统一比例 */
+  object-fit: cover;
+  cursor: pointer;           /* 也是小手，可点击放大 */
+}
+
 /* ==== Lightbox 整体样式 ==== */
 
 .fz-lightbox{
