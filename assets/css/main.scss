@@ -182,14 +182,6 @@ a { text-decoration: none; color: inherit; }
   margin-top: 0 !important;
   padding-top: 0 !important;
 }
-/* === Product page horizontal offset fine-tuning =================== */
-/* Art Prints 使用通用的 margin-right: 80px，不做额外修改 */
-
-/* Original Art + Greeting Cards：信息栏一起向左挪一点 */
-.container.product-page.product-page--originals .product-grid > .product-info,
-.container.product-page.product-page--cards .product-grid > .product-info{
-  margin-right: 60px !important;  /* 数字越小越靠左，你可以改 50 / 70 自己微调 */
-}
 /* === Product page vertical alignment by type (Original vs Prints/Cards) === */
 
 /* 1) Original Art（没有 .product-page--card 的产品页）：
@@ -426,4 +418,12 @@ a { text-decoration: none; color: inherit; }
   font-size: 32px;
   line-height: 1;
   cursor: pointer;
+}
+/* === Product page: horizontal alignment via translateX (Original + Cards) === */
+/* 只移动 Original Art 和 Greeting Cards 的右侧信息栏 */
+/* 负值 = 向左平移，正值 = 向右平移 */
+
+.container.product-page.product-page--originals .product-grid > .product-info,
+.container.product-page.product-page--cards .product-grid > .product-info{
+  transform: translateX(-40px) !important;
 }
