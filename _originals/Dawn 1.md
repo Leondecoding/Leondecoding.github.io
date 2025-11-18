@@ -3,7 +3,7 @@ layout: product
 title: "Dawn-1"
 price: 470
 currency: GBP
-image: /assets/images/originals/Dawn-1.jpg
+image: /assets/images/originals/Dawn 1.jpg
 stock: 1
 ---
 
