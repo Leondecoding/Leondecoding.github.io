@@ -134,7 +134,7 @@ a { text-decoration: none; color: inherit; }
 /* Original Art: 调整整块上下位置（相对 Art Prints / Greeting Cards 略微抬高） */
 @media (min-width: 761px){
   .container.product-page.product-page--originals {
-    margin-top: 40px;   /* 全局是 80px，这里比其他 section 稍微高 10px */
+    margin-top: 10px;   /* 全局是 80px，这里比其他 section 稍微高 10px */
   }
 }
 /* ===== Product page: unified layout (Original / Art Prints / Greeting Cards) ===== */
