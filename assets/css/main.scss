@@ -24,25 +24,94 @@ body {
 .fz-input { width:100%; padding:.7rem .9rem; border:1px solid #ccc; border-radius:.6rem; font-size:1rem; }
 [hidden] { display:none !important; }
 
-/* ===== Header（按参考图②） ===== */
-.fz-site-header { position:sticky; top:0; z-index:50; background:#fff; border-bottom:1px solid #eee; }
-.fz-header-inner {
-  max-width:1280px; margin:0 auto; padding:18px 28px;
-  display:grid; grid-template-columns:auto 1fr auto; align-items:center;
-}
-.fz-logo { display:inline-flex; align-items:center; }
-.fz-logo img { height:30px; width:auto; display:block; }
+/* ===== Header：顶部导航 ===== */
 
-.fz-nav { justify-self:center; display:flex; gap:48px; }
-.fz-nav__link {
-  color:#111; font-weight:600; letter-spacing:.04em;
-  font-size: 0.6rem;   /* ≈ 14–15px，比正文小一点 */
-  padding-bottom:6px; border-bottom:2px solid transparent;
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: #fff;
+  border-bottom: 1px solid #eee;
 }
-.fz-nav__link:hover { border-bottom-color:#111; }
-.fz-nav__link.is-active { border-bottom-color:#111; }
 
-.fz-actions { justify-self:end; display:flex; gap:14px; }
+/* 内层 container（原来写在 style="" 里的 flex 布局） */
+.site-header > .container {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 18px 28px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+/* Logo 区 */
+.site-logo {
+  display: inline-flex;
+  align-items: center;
+}
+.site-logo img {
+  height: 30px;
+  width: auto;
+  display: block;
+}
+
+/* 主导航 */
+.site-nav {
+  display: flex;
+  gap: 24px;
+  align-items: center;
+  flex: 1;
+  justify-content: center;
+}
+
+/* 导航里的文字样式（真正控制字体大小的是这里） */
+.site-nav a {
+  color: #111;
+  font-weight: 600;
+  letter-spacing: .04em;
+  font-size: 0.9rem;   /* 想再小就改这个数：0.85rem / 0.8rem 都可以 */
+  padding-bottom: 6px;
+  border-bottom: 2px solid transparent;
+}
+.site-nav a:hover,
+.site-nav a[aria-current="page"] {
+  border-bottom-color: #111;
+}
+
+/* 右上角按钮区域（搜索 / 登录 / 购物车） */
+.site-actions {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+/* 下面两条保留你原来的设置，继续给圆形图标按钮用 */
+.fz-icon-btn {
+  display:inline-grid;
+  place-items:center;
+  width:40px;
+  height:40px;
+  border:1px solid #e6e6e6;
+  border-radius:999px;
+  background:#fff;
+  cursor:pointer;
+}
+
+.fz-badge {
+  position:absolute;
+  transform:translate(10px,-10px);
+  min-width:18px;
+  height:18px;
+  padding:0 5px;
+  border-radius:999px;
+  font-size:.75rem;
+  line-height:18px;
+  text-align:center;
+  color:#fff;
+  background:#111;
+}
+
 .fz-icon-btn {
   display:inline-grid; place-items:center;
   width:40px; height:40px; border:1px solid #e6e6e6; border-radius:999px; background:#fff; cursor:pointer;
