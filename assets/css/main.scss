@@ -6,7 +6,14 @@
 /* ===== Reset bits ===== */
 * { box-sizing: border-box; }
 a { text-decoration: none; color: inherit; }
-
+body {
+  font-family: "Lato", -apple-system, BlinkMacSystemFont, "Segoe UI",
+               "Helvetica Neue", Arial, "PingFang SC", "Hiragino Sans GB",
+               "Microsoft YaHei", sans-serif;
+  font-size: 16px;
+  line-height: 1.6;
+  color: #222;
+}
 /* ===== Buttons & inputs (占位) ===== */
 .fz-btn {
   display:inline-flex; align-items:center; justify-content:center;
