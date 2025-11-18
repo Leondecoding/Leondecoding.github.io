@@ -114,10 +114,11 @@ a { text-decoration: none; color: inherit; }
   min-width: 56px; user-select: none;
 }
 .fz-pill-input:checked + .fz-pill { background: #111; color: #fff; }
+
 /* ===== Product page: global spacing ===== */
 /* 控制产品页整体相对导航栏的上下距离 & 水平位置 */
 .container.product-page {
-  max-width: 1200px;      /* 限制整体宽度，居中 */
+  max-width: none;      /* 限制整体宽度，居中 */
   margin: 80px auto 0;    /* 顶部留 80px 空隙，你可以之后调成 70/90 看效果 */
   padding: 0 40px 0 70px; /* 左右内边距：左 70px 会把整块内容稍微推向右边 */
 }
