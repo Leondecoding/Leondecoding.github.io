@@ -54,7 +54,7 @@ layout: default
       {% if curr == 'GBP' %}{% assign sym = '£' %}{% elsif curr == 'USD' %}{% assign sym = '$' %}{% elsif curr == 'EUR' %}{% assign sym = '€' %}{% elsif curr == 'CNY' or curr == 'JPY' %}{% assign sym = '¥' %}{% elsif curr == 'HKD' %}{% assign sym = 'HK$' %}{% elsif curr == 'TWD' %}{% assign sym = 'NT$' %}{% endif %}
 
       {% if price_raw %}
-        <div class="product-price" style="font-size:1.125rem;font-weight:600;margin:0 0 6px 0;float:none;clear:both;text-align:left;">
+        <div class="product-price" style="font-size:1.125rem;margin:0 0 6px 0;float:none;clear:both;text-align:left;">
           {% if sym != '' %}{{ sym }}{{ price_raw }}{% else %}{{ price_raw }}{% if curr %} {{ curr }}{% endif %}{% endif %}
         </div>
       {% endif %}
