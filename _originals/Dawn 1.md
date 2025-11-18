@@ -7,10 +7,10 @@ image: /assets/images/originals/Dawn 1.jpg
 stock: 1
 ---
 
-**Original watercolour** on paper. Signed on the front.
+Original watercolour on paper. Signed on the front.
 
-- Size: **30×40 cm**
-- Paper: **Hahnemühle**
-- Year: **2025**
+- Size: 30×40 cm
+- Paper: Hahnemühle
+- Year: 2025
 - Unframed
 
