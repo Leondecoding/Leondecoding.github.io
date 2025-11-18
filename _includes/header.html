@@ -1,13 +1,13 @@
 <!-- === TOP BAR：Logo + 主导航 + 动作按钮 === -->
-<header class="site-header" style="position:relative;z-index:20;">
-  <div class="container" style="display:flex;align-items:center;justify-content:space-between;gap:16px;">
+<header class="site-header">
+  <div class="container">
     <!-- LOGO -->
     <a class="site-logo" href="{{ '/' | relative_url }}" aria-label="{{ site.title | default: 'FZ Studio' }}">
-      <img src="{{ site.logo | default: '/assets/images/logo.svg' | relative_url }}" alt="{{ site.title | default: 'FZ Studio' }}" style="height:40px;display:block;">
+      <img src="{{ site.logo | default: '/assets/images/logo.svg' | relative_url }}" alt="{{ site.title | default: 'FZ Studio' }}">
     </a>
 
     <!-- 主导航（按你站点结构） -->
-    <nav class="site-nav" aria-label="Primary" style="display:flex;gap:24px;align-items:center;flex:1;justify-content:center;">
+    <nav class="site-nav" aria-label="Primary">
       <a href="{{ '/' | relative_url }}">HOME</a>
       <a href="{{ '/our-story/' | relative_url }}">OUR STORY</a>
       <a href="{{ '/blog/' | relative_url }}">BLOG</a>
@@ -18,7 +18,7 @@
     </nav>
 
     <!-- 右上角动作按钮 -->
-    <div class="site-actions" style="display:flex;gap:12px;align-items:center;">
+    <div class="site-actions">
       <button id="fz-search-btn" aria-label="Search" title="Search">🔍</button>
       <button id="fz-login-btn" aria-label="Account" aria-expanded="false" title="Account">👤</button>
       <button id="fz-cart-btn" aria-label="Cart" title="Cart">🛒 <span id="fz-cart-count" hidden>0</span></button>
