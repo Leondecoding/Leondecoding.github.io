@@ -68,9 +68,9 @@ body {
 /* 导航里的文字样式（真正控制字体大小的是这里） */
 .site-nav a {
   color: #111;
-  font-weight: 600;
+  font-weight: 400;
   letter-spacing: .04em;
-  font-size: 0.9rem;   /* 想再小就改这个数：0.85rem / 0.8rem 都可以 */
+  font-size: 0.7rem;   /* 想再小就改这个数：0.85rem / 0.8rem 都可以 */
   padding-bottom: 6px;
   border-bottom: 2px solid transparent;
 }
