@@ -179,12 +179,6 @@ body {
   float: none;
   text-align: left;
 }
-/* Product price: 普通字重，不加粗，字号和正文一致或略大一点 */
-.container.product-page .product-info .product-price {
-  font-weight: 400;   /* 或 normal */
-  font-size: 1rem;    /* 想略微大一点可以改成 1.1rem */
-}
-
 /* Action buttons: stack vertically with consistent width */
 .container.product-page .product-info .product-actions {
   display: flex;
