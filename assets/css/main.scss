@@ -184,7 +184,7 @@ a { text-decoration: none; color: inherit; }
 /* 只针对 Original Art（.product-page--originals），把右侧信息栏整体往下挪一点 */
 @media (min-width: 761px){
   .container.product-page.product-page--originals .product-info{
-    margin-top: 40px;   /* 24px 是一个起点，你可以改成 20/28 调整到你最满意的对齐 */
+    margin-top: 80px;   /* 24px 是一个起点，你可以改成 20/28 调整到你最满意的对齐 */
   }
 }
 
