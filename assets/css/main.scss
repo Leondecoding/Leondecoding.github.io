@@ -282,21 +282,23 @@ body {
 
 /* ===== Our Story page typography ===== */
 #our-story-page {
-  color: #666;                /* 整个 Our Story 页的文字默认变成灰色 */
+  color: #555;                /* 整个 Our Story 页的文字默认变成灰色 */
 }
 
 /* 让段落和列表的灰色更明确一点（可写可不写） */
 #our-story-page p,
 #our-story-page li {
-  color: #666;
+  color: #555;
 }
 /* Our Story 页面：标题 & strong 不要那么粗 */
 #our-story-page h1,
 #our-story-page h2,
-#our-story-page h3,
+#our-story-page h3,{
+  color: #111;
+}
 #our-story-page strong,
 #our-story-page b {
-  font-weight: 400;   /* 从 700 变成普通字重 */
+  font-weight: 300;   /* 从 700 变成普通字重 */
 }
 
 /* === Cart drawer 极简修复版 ================== */
