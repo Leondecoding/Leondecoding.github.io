@@ -217,7 +217,7 @@ body {
 /* Art Prints + Greeting Cards: 让右侧信息栏稍微上移一点 */
 @media (min-width: 761px){
   .container.product-page.product-page--card .product-grid > .product-info{
-    margin-top: -10px;   /* 先试 -10px，觉得还是偏低就改成 -15 / -20 */
+    margin-top: -11px;   /* 先试 -10px，觉得还是偏低就改成 -15 / -20 */
   }
 }
 
