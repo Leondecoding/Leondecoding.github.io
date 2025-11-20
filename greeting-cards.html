@@ -6,24 +6,52 @@ permalink: /greeting-cards/
 
 <!-- greeting-cards.html  ~L7 -->
 <main class="fz-grid gallery-grid">
+  {% assign items = site.cards | sort: 'date' | reverse | slice: 0, 8 %}
 
-  {% assign items = site.cards | sort: 'date' | reverse %}
   {% for item in items %}
+    {% assign img = item.image
+      | default: item.featured_image
+      | default: item.cover
+      | default: item.hero
+      | default: item.thumbnail
+      | default: item.thumb
+      | default: item.picture
+      | default: item.photo %}
+
+    {% assign slug_lc   = item.slug  | default: item.title | slugify %}
+    {% assign title_dash = item.title | default: item.slug | replace: ' ', '-' %}
+
+    {%- comment -%}
+      如果 front matter 里没填 image，就退回到
+      /assets/images/cards/<title_dash>.jpg 这种命名
+    {%- endcomment -%}
+    {% if img %}
+      {% assign img_src = img | relative_url %}
+    {% else %}
+      {% assign img_src = '/assets/images/cards/' | append: title_dash | append: '.jpg' | relative_url %}
+    {% endif %}
+
     <a class="fz-card" href="{{ item.url | relative_url }}">
       <div class="fz-card__img">
-        {% assign img = item.images | first %}
-        {% if img %}<!-- greeting-cards.html  ~L13 -->
-<img src="{{ img | relative_url }}"
-     alt="{{ item.title }}"
-     loading="lazy"
-     decoding="async"
-     fetchpriority="low">
-{% endif %}
+        <img
+          class="fz-autoimg"
+          src="{{ img_src }}"
+          alt="{{ item.title }}"
+          loading="lazy">
       </div>
       <div class="fz-card__meta">
         <span>{{ item.title }}</span>
-        {% if item.price %}<span class="fz-price">{{ item.currency | default: 'GBP' | replace: 'GBP','£' | replace:'USD','$' | replace:'EUR','€' }}{{ item.price }}</span>{% endif %}
+        {% if item.price %}
+          {% assign c = item.currency | default: 'GBP' %}
+          <span class="fz-price">
+            {% case c %}
+              {% when 'USD' %}${% when 'EUR' %}€{% else %}£
+            {% endcase %}
+            {{ item.price }}
+          </span>
+        {% endif %}
       </div>
     </a>
   {% endfor %}
 </main>
+
