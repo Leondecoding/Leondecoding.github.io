@@ -309,6 +309,11 @@ body {
   font-weight: 300;   /* 从 700 变成普通字重 */
 }
 
+.product-price,
+    .product-price strong {
+      font-weight: 300 !important;
+    }
+
 /* === Cart drawer 极简修复版 ================== */
 /* 目标：
  * - 左侧：整块半透明灰遮罩（下面页面可见）
