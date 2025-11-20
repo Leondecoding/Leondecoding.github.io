@@ -7,53 +7,51 @@ permalink: /art-prints/
 <!-- art-prints.html  ~L7 -->
 <main class="fz-grid gallery-grid">
   {% assign items = site.artprints | sort: 'date' | reverse | slice: 0, 8 %}
+
   {% for item in items %}
-    {% assign slug_lc = item.slug | default: item.title | slugify %}
+    {% assign img = item.image
+      | default: item.featured_image
+      | default: item.cover
+      | default: item.hero
+      | default: item.thumbnail
+      | default: item.thumb
+      | default: item.picture
+      | default: item.photo %}
+
+    {% assign slug_lc   = item.slug  | default: item.title | slugify %}
     {% assign title_dash = item.title | default: item.slug | replace: ' ', '-' %}
+
+    {%- comment -%}
+      如果 front matter 里没填 image，就退回到
+      /assets/images/artprints/<title_dash>.jpg 这种命名
+    {%- endcomment -%}
+    {% if img %}
+      {% assign img_src = img | relative_url %}
+    {% else %}
+      {% assign img_src = '/assets/images/artprints/' | append: title_dash | append: '.jpg' | relative_url %}
+    {% endif %}
 
     <a class="fz-card" href="{{ item.url | relative_url }}">
       <div class="fz-card__img">
-        <img class="fz-autoimg"
-             alt="{{ item.title }}"
-          loading="lazy"
-     decoding="async"
-     fetchpriority="low"
-             src="https://via.placeholder.com/800x800?text=Loading"
-             data-candidates='[
-               "{{ item.image }}",
-               "{{ item.featured_image }}",
-               "{{ item.cover }}",
-               "{{ item.hero }}",
-               "{{ item.thumbnail }}",
-               "{{ item.thumb }}",
-               "{{ item.picture }}",
-               "{{ item.photo }}",
-               {% if item.images %}"{{ item.images | first }}",{% endif %}
-               {% if item.photos %}"{{ item.photos  | first }}",{% endif %}
-
-               "/assets/images/artprints/{{ title_dash }}.jpg",
-               "/assets/images/artprints/{{ title_dash }}.jpeg",
-               "/assets/images/artprints/{{ title_dash }}.png",
-               "/assets/images/artprints/{{ title_dash }}.webp",
-
-               "/assets/images/artprints/{{ slug_lc }}.jpg",
-               "/assets/images/artprints/{{ slug_lc }}.jpeg",
-               "/assets/images/artprints/{{ slug_lc }}.png",
-               "/assets/images/artprints/{{ slug_lc }}.webp",
-
-               "/assets/images/artprints/{{ title_dash }}/hero.jpg",
-               "/assets/images/artprints/{{ slug_lc }}/hero.jpg",
-               "/assets/images/artprints/{{ title_dash }}/cover.jpg",
-               "/assets/images/artprints/{{ slug_lc }}/cover.jpg"
-             ]'>
+        <img
+          class="fz-autoimg"
+          src="{{ img_src }}"
+          alt="{{ item.title }}"
+          loading="lazy">
       </div>
       <div class="fz-card__meta">
         <span>{{ item.title }}</span>
         {% if item.price %}
           {% assign c = item.currency | default: 'GBP' %}
-          <span class="fz-price">{% case c %}{% when 'USD' %}${% when 'EUR' %}€{% else %}£{% endcase %}{{ item.price }}</span>
+          <span class="fz-price">
+            {% case c %}
+              {% when 'USD' %}${% when 'EUR' %}€{% else %}£
+            {% endcase %}
+            {{ item.price }}
+          </span>
         {% endif %}
       </div>
     </a>
   {% endfor %}
 </main>
+
