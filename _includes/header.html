@@ -28,35 +28,36 @@
 
 <!-- === 搜索面板 === -->
 <div class="fz-panel" id="fz-search-panel" role="dialog" aria-modal="true" aria-labelledby="fz-search-title" hidden>
-  <div class="fz-panel__backdrop" data-close="fz-search-panel"></div>
-  <div class="fz-panel__body" role="document">
-    <button class="fz-close" data-close="fz-search-panel" aria-label="关闭搜索">×</button>
-    <h2 id="fz-search-title">搜索</h2>
-    <form action="{{ '/search/' | relative_url }}" method="get" role="search">
-      <input class="fz-input" type="search" name="q" placeholder="搜索…" autofocus>
-      <button class="fz-btn fz-btn--primary" type="submit">搜索</button>
-    </form>
-  </div>
+  <header class="fz-panel__header">
+    <h2 id="fz-search-title">Search</h2>
+    <button class="fz-close" data-close="fz-search-panel" aria-label="Close search">×</button>
+  </header>
+  <form class="fz-search" action="/search/" method="get">
+    <label class="sr-only" for="q">Search term</label>
+    <input class="fz-input" id="q" name="q" type="search" placeholder="What are you looking for?">
+    <button class="fz-btn fz-btn--primary" type="submit">Search</button>
+  </form>
 </div>
 
 <!-- === 登录菜单 === -->
 <div class="fz-menu" id="fz-login-menu" role="menu" hidden>
   <ul>
-    <li><a href="#" role="menuitem">登录</a></li>
-    <li><a href="#" role="menuitem">注册</a></li>
+    <li><a href="#" role="menuitem">Log in</a></li>
+    <li><a href="#" role="menuitem">Sign up</a></li>
   </ul>
 </div>
 
 <!-- === 购物车抽屉（唯一 footer，含 Checkout + PayPal 容器） === -->
+<!-- === Cart drawer (footer, includes Checkout + PayPal container) === -->
 <aside class="fz-drawer" id="fz-cart-drawer" role="dialog" aria-modal="true" aria-labelledby="fz-cart-title" hidden>
   <div class="fz-drawer__backdrop" data-close="fz-cart-drawer"></div>
   <div class="fz-drawer__panel">
     <header class="fz-drawer__header">
-      <h2 id="fz-cart-title">购物篮</h2>
-      <button class="fz-close" data-close="fz-cart-drawer" aria-label="关闭购物篮">×</button>
+      <h2 id="fz-cart-title">Cart</h2>
+      <button class="fz-close" data-close="fz-cart-drawer" aria-label="Close cart">×</button>
     </header>
 
-    <div class="fz-drawer__content" id="fz-cart-content"><p>当前为空。</p></div>
+    <div class="fz-drawer__content" id="fz-cart-content"><p>Your cart is empty.</p></div>
 
     <footer class="fz-drawer__footer">
       <a class="fz-btn fz-btn--primary" href="{{ '/checkout/' | relative_url }}">Checkout</a>
