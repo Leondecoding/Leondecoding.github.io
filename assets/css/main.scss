@@ -290,6 +290,13 @@ body {
 #our-story-page li {
   color: #999;
 }
+
+/* Our Story 页里，两句 email 说明文字的字号 */
+#our-story-page .signup-note {
+  font-size: 1rem;      /* 跟按钮里的 “Sign up” 差不多大 */
+  font-weight: 400;     /* 确保是正常粗细，不会变粗 */
+}
+
 /* Our Story 页面：标题 & strong 不要那么粗 */
 #our-story-page h1,
 #our-story-page h2,
