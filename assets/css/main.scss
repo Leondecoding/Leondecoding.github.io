@@ -280,11 +280,6 @@ body {
   }
 }
 
-/* 确保 [hidden] 一定是 display:none；防止其它规则覆盖 */
-[hidden] {
-  display: none !important;
-}
-
 /* ===== Our Story page typography ===== */
 #our-story-page {
   color: #999;                /* 整个 Our Story 页的文字默认变成灰色 */
