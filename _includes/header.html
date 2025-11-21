@@ -28,15 +28,22 @@
 
 <!-- === 搜索面板 === -->
 <div class="fz-panel" id="fz-search-panel" role="dialog" aria-modal="true" aria-labelledby="fz-search-title" hidden>
-  <header class="fz-panel__header">
-    <h2 id="fz-search-title">Search</h2>
-    <button class="fz-close" data-close="fz-search-panel" aria-label="Close search">×</button>
-  </header>
-  <form class="fz-search" action="/search/" method="get">
-    <label class="sr-only" for="q">Search term</label>
-    <input class="fz-input" id="q" name="q" type="search" placeholder="What are you looking for?">
-    <button class="fz-btn fz-btn--primary" type="submit">Search</button>
-  </form>
+  <!-- 半透明背景，点击也能关闭 -->
+  <div class="fz-panel__backdrop" data-close="fz-search-panel"></div>
+
+  <!-- 中间这块白色弹窗主体 -->
+  <div class="fz-panel__body">
+    <header class="fz-panel__header">
+      <h2 id="fz-search-title">Search</h2>
+      <button class="fz-close" data-close="fz-search-panel" aria-label="Close search">×</button>
+    </header>
+
+    <form class="fz-search" action="/search/" method="get">
+      <label class="sr-only" for="q">Search term</label>
+      <input class="fz-input" id="q" name="q" type="search" placeholder="What are you looking for?">
+      <button class="fz-btn fz-btn--primary" type="submit">Search</button>
+    </form>
+  </div>
 </div>
 
 <!-- === 登录菜单 === -->
