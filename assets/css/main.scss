@@ -280,33 +280,85 @@ body {
   }
 }
 
-/* ===== Our Story page typography ===== */
-#our-story-page {
-  color: #777;                /* 整个 Our Story 页的文字默认变成灰色 */
-}
+/* ===== Our Story & Studio page typography ===== */
 
-/* 让段落和列表的灰色更明确一点（可写可不写） */
-#our-story-page p,
-#our-story-page li {
+/* 两个页面的正文都用更柔和一点的灰色 */
+#our-story-page,
+#studio-page {
   color: #777;
 }
 
-/* Our Story 页里，两句 email 说明文字的字号 */
-#our-story-page .signup-note {
-  font-size: 0.9rem;      /* 跟按钮里的 “Sign up” 差不多大 */
-  font-weight: 400;     /* 确保是正常粗细，不会变粗 */
+/* 段落和列表正文 */
+#our-story-page p,
+#our-story-page li,
+#studio-page p,
+#studio-page li {
+  color: #777;
 }
 
-/* Our Story 页面：标题 & strong 不要那么粗 */
+/* Our Story 页里，两句 email 说明文字的字号（Studio 暂时不用这个类） */
+#our-story-page .signup-note {
+  font-size: 0.9rem;
+  font-weight: 400;
+}
+
+/* 标题 & strong 不要那么粗：两个页面共用 */
 #our-story-page h1,
 #our-story-page h2,
-#our-story-page h3{
+#our-story-page h3,
+#studio-page h1,
+#studio-page h2,
+#studio-page h3 {
   color: #111;
   font-weight: 300;
 }
+
 #our-story-page strong,
-#our-story-page b {
-  font-weight: 300;   /* 从 700 变成普通字重 */
+#our-story-page b,
+#studio-page strong,
+#studio-page b {
+  font-weight: 300;
+}
+
+/* ===== Studio page layout & alignment ===== */
+
+/* 整个 Studio 页面：内容居中 */
+#studio-page {
+  text-align: center;
+}
+
+/* Follow the studio 区块：在居中容器里改为左对齐 */
+#studio-page .studio-follow-list {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 0;
+  list-style: none;
+}
+
+#studio-page .studio-follow-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+/* 文字靠左，按钮在右侧 */
+#studio-page .studio-follow-item span {
+  text-align: left;
+}
+
+/* 按钮不换行，尽量和文字保持在一行 */
+#studio-page .studio-link-btn {
+  white-space: nowrap;
+}
+
+/* 小屏幕下允许换行，避免一行挤爆 */
+@media (max-width: 640px) {
+  #studio-page .studio-follow-item {
+    flex-direction: column;
+    align-items: flex-start;
+  }
 }
 
 .product-price,
