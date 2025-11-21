@@ -11,18 +11,31 @@
   function updateBadge(){ const b=$('#fz-cart-count'); if(!b) return; const n=count(); b.textContent=String(n); b.hidden=n<=0; }
 
   // ===== Utils =====
-  const uid = () => 'u' + Date.now().toString(36) + Math.random().toString(36).slice(2,7);
-  function fmt(v, code){
-    const sym = (code==='GBP')?'£':(code==='USD')?'$':(code==='EUR')?'€':(code==='JPY'||code==='CNY')?'¥':(code==='HKD')?'HK$':(code==='TWD')?'NT$':'';
-const n   = (typeof v === 'number') ? v : parseFloat(v || '0');
-return (sym || '') + (isFinite(n) ? n.toFixed(2) : v) + (sym ? ' ' : (code ? (' ' + code) : ''));
+const uid = () => 'u' + Date.now().toString(36) + Math.random().toString(36).slice(2,7);
 
-  function getSelectedValue(btn){
-    const name = btn.dataset.optionInput || 'size';
-    const wrap = btn.closest('.fz-product') || document;
-    const picked = wrap.querySelector('input[name="'+name+'"]:checked');
-    return picked ? picked.value : '';
-  }
+function fmt(v, code) {
+  const sym =
+    (code === 'GBP') ? '£' :
+    (code === 'USD') ? '$' :
+    (code === 'EUR') ? '€' :
+    (code === 'JPY' || code === 'CNY') ? '¥' :
+    (code === 'HKD') ? 'HK$' :
+    (code === 'TWD') ? 'NT$' :
+    '';
+
+  const n = (typeof v === 'number') ? v : parseFloat(v || '0');
+
+  return (sym || '') +
+         (isFinite(n) ? n.toFixed(2) : v) +
+         (sym ? ' ' : (code ? (' ' + code) : ''));
+}
+
+function getSelectedValue(btn){
+  const name = btn.dataset.optionInput || 'size';
+  const wrap = btn.closest('.fz-product') || document;
+  const picked = wrap.querySelector('input[name="'+name+'"]:checked');
+  return picked ? picked.value : '';
+}
 
   // ===== Legacy migration（确保旧条目可删/可改） =====
   function migrate(){
@@ -167,34 +180,12 @@ return (sym || '') + (isFinite(n) ? n.toFixed(2) : v) + (sym ? ' ' : (code ? (' 
     const closeDrawer = ev.target.closest('[data-close="fz-cart-drawer"]');
     if (closeDrawer) { ev.preventDefault(); const d=$('#fz-cart-drawer'); if(d) d.hidden=true; return; }
 
-    // 搜索开关（点击放大镜：开/关切换；遮罩和 × 关闭）
-const searchBtn = ev.target.closest('#fz-search-btn');
-if (searchBtn) {
-  ev.preventDefault();
-  const panel = $('#fz-search-panel');
-  if (!panel) return;
-
-  // 使用 hidden 属性做显隐切换
-  const willOpen = panel.hidden === true;
-  panel.hidden = !willOpen;
-
-  // 打开时把焦点放到输入框上（如果存在）
-  if (willOpen) {
-    const input = panel.querySelector('#q');
-    if (input) input.focus();
+    // 搜索开关
+    const searchBtn = ev.target.closest('#fz-search-btn');
+    if (searchBtn) { ev.preventDefault(); const p=$('#fz-search-panel'); if(p) p.hidden=false; return; }
+    const closeSearch = ev.target.closest('[data-close="fz-search-panel"]');
+    if (closeSearch) { ev.preventDefault(); const p=$('#fz-search-panel'); if(p) p.hidden=true; return; }
   }
-  return;
-}
-
-// 点击遮罩或关闭按钮关闭
-const closeSearch = ev.target.closest('[data-close="fz-search-panel"]');
-if (closeSearch) {
-  ev.preventDefault();
-  const panel = $('#fz-search-panel');
-  if (panel) panel.hidden = true;
-  return;
-}
-
 
   // ===== Bind add-to-cart（保持单一监听；移除旧监听风险由全局去重兜底） =====
   function wireAddButtons(){
