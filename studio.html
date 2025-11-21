@@ -1,0 +1,147 @@
+---
+layout: default
+title: Studio
+permalink: /studio/
+---
+
+<style>
+  #studio-page {
+    max-width: 920px;
+    margin: 0 auto;
+    padding: 0 12px 40px;
+  }
+  #studio-page p {
+    line-height: 1.9;
+    margin: 0 0 1em;
+    color: #555;
+  }
+  #studio-page h1 {
+    margin: 24px 0 16px;
+    font-size: 2rem;
+    text-align: left;
+  }
+  #studio-page h2 {
+    margin: 24px 0 8px;
+    font-size: 1.3rem;
+    text-align: left;
+  }
+
+  /* hero */
+  .studio-hero {
+    margin-top: 24px;
+    margin-bottom: 24px;
+  }
+  .studio-hero__img {
+    margin-bottom: 16px;
+  }
+  .studio-hero__img img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    border-radius: 4px;
+  }
+
+  /* follow 区块 */
+  .studio-follow-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  .studio-follow-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 10px;
+    flex-wrap: wrap;
+  }
+  .studio-follow-item span {
+    flex: 1 1 auto;
+  }
+  .studio-link-btn {
+    flex: 0 0 auto;
+    padding: 6px 14px;
+    border: 1px solid #222;
+    border-radius: 999px;
+    background: none;
+    font-size: 0.85rem;
+    text-decoration: none;
+    color: #222;
+  }
+  .studio-link-btn:hover {
+    text-decoration: underline;
+  }
+
+  /* gallery 占位 */
+  .studio-gallery-placeholder {
+    margin-top: 12px;
+    padding: 16px;
+    border: 1px dashed #ccc;
+    font-size: 0.9rem;
+    color: #777;
+    text-align: center;
+  }
+</style>
+
+<div id="studio-page">
+  <!-- 1. Page Title / Hero -->
+  <section class="studio-hero">
+    <div class="studio-hero__img">
+      <!-- 先用占位图，等你有合适的照片再换路径 -->
+      <img src="{{ '/assets/images/studio-hero.jpg' | relative_url }}" alt="Inside the Studio">
+    </div>
+
+    <h1>Inside the Studio</h1>
+
+    <p>FZ Studio is a small, quiet workspace in London.
+    This is where I spend most days with watercolour, watching how light moves across paper and everyday objects.
+    I don’t appear on camera very often, but every painting you see online begins here – on this table by the window.</p>
+  </section>
+
+  <!-- 2. What I’m working on now -->
+  <section>
+    <h2>What I’m working on now</h2>
+
+    <p>My work moves between two kinds of paintings:</p>
+    <p>– realistic observation studies of flowers and simple objects, where I practise seeing light and colour clearly<br>
+    – Inner Light paintings, softer and more poetic scenes inspired by mornings, forest edges and small details from daily life</p>
+
+    <p>The studies often appear in my “paint with me” videos.
+    The Inner Light works become the originals, prints and greeting cards on this website.</p>
+  </section>
+
+  <!-- 3. Observation Studies -->
+  <section>
+    <h2>Observation Studies</h2>
+
+    <p>Before I enter the Inner Light series, I make many small realism studies.
+    They help me slow down, notice how colours blend, and let my hand find a calm rhythm.</p>
+
+    <p>These works are not for sale – they are simply notes from my daily practice.
+    You may recognise some of them from my YouTube channel.</p>
+
+    <div class="studio-gallery-placeholder">
+      Gallery coming soon – this is where a small observation-studies gallery will live.
+    </div>
+  </section>
+
+  <!-- 4. Follow the studio -->
+  <section>
+    <h2>Follow the studio</h2>
+
+    <ul class="studio-follow-list">
+      <li class="studio-follow-item">
+        <span>– YouTube – slow realistic “paint with me” videos from this desk</span>
+        <a class="studio-link-btn" href="#" target="_blank" rel="noopener">YouTube</a>
+      </li>
+      <li class="studio-follow-item">
+        <span>– Substack – Inner Light essays, reflections and practice journals</span>
+        <a class="studio-link-btn" href="#" target="_blank" rel="noopener">Substack</a>
+      </li>
+      <li class="studio-follow-item">
+        <span>– Shop – original paintings, prints and greeting cards from the Inner Light collection</span>
+        <a class="studio-link-btn" href="{{ '/' | relative_url }}">Shop</a>
+      </li>
+    </ul>
+  </section>
+</div>
