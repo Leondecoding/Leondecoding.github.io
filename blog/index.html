@@ -1,66 +1,147 @@
 ---
 layout: default
-title: Blog
-permalink: /blog/
+title: Studio
+permalink: /studio/
 ---
 
 <style>
-  .blog-list{max-width:1200px;margin:0 auto;padding:0 20px;}
-  .blog-list h1{margin:0 0 16px;}
-
-  .blog-list .grid{
-    margin-top:20px;
-    display:grid; gap:40px;
-    grid-template-columns:repeat(3,1fr);
+  #studio-page {
+    max-width: 920px;
+    margin: 0 auto;
+    padding: 0 12px 40px;
   }
-  @media (max-width:1000px){ .blog-list .grid{grid-template-columns:repeat(2,1fr);} }
-  @media (max-width:640px){  .blog-list .grid{grid-template-columns:1fr; gap:28px;} }
-
-  .blog-list .card h2{font-size:18px; line-height:1.3; margin:10px 0 6px;}
-  .blog-list .card time{font-size:13px; color:#999;}
-
-  .blog-list .thumb{
-    display:block; position:relative; overflow:hidden;
-    aspect-ratio:16/9; background:#f6f6f6; border:1px solid #eee;
+  #studio-page p {
+    line-height: 1.9;
+    margin: 0 0 1em;
+    color: #555;
   }
-  .blog-list .thumb img{width:100%; height:100%; object-fit:cover; display:block;}
-  .blog-list .thumb .play{
-    position:absolute; right:10px; bottom:10px;
-    width:36px; height:36px; border-radius:999px;
-    display:grid; place-items:center; font-size:16px;
-    background:#111; color:#fff; line-height:1;
+  #studio-page h1 {
+    margin: 24px 0 16px;
+    font-size: 2rem;
+    text-align: left;
   }
-  .blog-list .card a{ color:inherit; text-decoration:none; }
-  .blog-list .card a:hover h2{ text-decoration:underline; }
+  #studio-page h2 {
+    margin: 24px 0 8px;
+    font-size: 1.3rem;
+    text-align: left;
+  }
+
+  /* hero */
+  .studio-hero {
+    margin-top: 24px;
+    margin-bottom: 24px;
+  }
+  .studio-hero__img {
+    margin-bottom: 16px;
+  }
+  .studio-hero__img img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    border-radius: 4px;
+  }
+
+  /* follow 区块 */
+  .studio-follow-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  .studio-follow-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 10px;
+    flex-wrap: wrap;
+  }
+  .studio-follow-item span {
+    flex: 1 1 auto;
+  }
+  .studio-link-btn {
+    flex: 0 0 auto;
+    padding: 6px 14px;
+    border: 1px solid #222;
+    border-radius: 999px;
+    background: none;
+    font-size: 0.85rem;
+    text-decoration: none;
+    color: #222;
+  }
+  .studio-link-btn:hover {
+    text-decoration: underline;
+  }
+
+  /* gallery 占位 */
+  .studio-gallery-placeholder {
+    margin-top: 12px;
+    padding: 16px;
+    border: 1px dashed #ccc;
+    font-size: 0.9rem;
+    color: #777;
+    text-align: center;
+  }
 </style>
 
-<div class="blog-list">
-  <h1>Blog</h1>
+<div id="studio-page">
+  <!-- 1. Page Title / Hero -->
+  <section class="studio-hero">
+    <div class="studio-hero__img">
+      <!-- 先用占位图，等你有合适的照片再换路径 -->
+      <img src="{{ '/assets/images/studio-hero.jpg' | relative_url }}" alt="Inside the Studio">
+    </div>
 
-  <div class="grid">
-    {% for post in site.posts %}
-      {%- comment -%}
-        生成预览图：
-        - 优先使用 post.cover
-        - 其次如果有 post.video_id，用 YouTube 缩略图
-        - 否则用站内占位图 /assets/images/blog/placeholder.jpg（可自备）
-      {%- endcomment -%}
-      {% if post.cover %}
-        {% assign thumb = post.cover %}
-      {% elsif post.video_id %}
-        {% assign thumb = 'https://img.youtube.com/vi/' | append: post.video_id | append: '/hqdefault.jpg' %}
-      {% else %}
-        {% assign thumb = '/assets/images/blog/placeholder.jpg' %}
-      {% endif %}
+    <h1>Inside the Studio</h1>
 
-      <article class="card">
-        <a class="thumb" href="{{ post.url | relative_url }}" aria-label="{{ post.title }}">
-          <img src="{{ thumb }}" alt="{{ post.title }}">
-          {% if post.video_id %}<span class="play">▶</span>{% endif %}
-        </a>
-        <h2><a href="{{ post.url | relative_url }}">{{ post.title }}</a></h2>
-        <time datetime="{{ post.date | date_to_xmlschema }}">{{ post.date | date: "%-d %b %Y" }}</time>
-      </article>
-    {% endfor %}
-  </div>
+    <p>FZ Studio is a small, quiet workspace in London.
+    This is where I spend most days with watercolour, watching how light moves across paper and everyday objects.
+    I don’t appear on camera very often, but every painting you see online begins here – on this table by the window.</p>
+  </section>
+
+  <!-- 2. What I’m working on now -->
+  <section>
+    <h2>What I’m working on now</h2>
+
+    <p>My work moves between two kinds of paintings:</p>
+    <p>– realistic observation studies of flowers and simple objects, where I practise seeing light and colour clearly<br>
+    – Inner Light paintings, softer and more poetic scenes inspired by mornings, forest edges and small details from daily life</p>
+
+    <p>The studies often appear in my “paint with me” videos.
+    The Inner Light works become the originals, prints and greeting cards on this website.</p>
+  </section>
+
+  <!-- 3. Observation Studies -->
+  <section>
+    <h2>Observation Studies</h2>
+
+    <p>Before I enter the Inner Light series, I make many small realism studies.
+    They help me slow down, notice how colours blend, and let my hand find a calm rhythm.</p>
+
+    <p>These works are not for sale – they are simply notes from my daily practice.
+    You may recognise some of them from my YouTube channel.</p>
+
+    <div class="studio-gallery-placeholder">
+      Gallery coming soon – this is where a small observation-studies gallery will live.
+    </div>
+  </section>
+
+  <!-- 4. Follow the studio -->
+  <section>
+    <h2>Follow the studio</h2>
+
+    <ul class="studio-follow-list">
+      <li class="studio-follow-item">
+        <span>– YouTube – slow realistic “paint with me” videos from this desk</span>
+        <a class="studio-link-btn" href="#" target="_blank" rel="noopener">YouTube</a>
+      </li>
+      <li class="studio-follow-item">
+        <span>– Substack – Inner Light essays, reflections and practice journals</span>
+        <a class="studio-link-btn" href="#" target="_blank" rel="noopener">Substack</a>
+      </li>
+      <li class="studio-follow-item">
+        <span>– Shop – original paintings, prints and greeting cards from the Inner Light collection</span>
+        <a class="studio-link-btn" href="{{ '/' | relative_url }}">Shop</a>
+      </li>
+    </ul>
+  </section>
 </div>
