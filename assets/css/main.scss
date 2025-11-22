@@ -361,6 +361,88 @@ body {
   }
 }
 
+/* === Header：语言切换 + 图标按钮（补丁） === */
+
+/* 按钮排成一行，间距类似你发的截图 */
+.site-header .site-actions {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+/* 去掉默认按钮背景，统一成细线风格 */
+.site-header .site-actions .icon-btn,
+.site-header .site-actions .lang-toggle {
+  border: none;
+  background: transparent;
+  padding: 0;
+  cursor: pointer;
+  font: inherit;
+}
+
+/* 图标尺寸 */
+.site-header .site-actions .fz-icon {
+  width: 22px;
+  height: 22px;
+  display: block;
+}
+
+/* 购物袋角标 */
+.site-header #fz-cart-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.site-header #fz-cart-count {
+  font-size: 0.75rem;
+  min-width: 1.2em;
+  text-align: center;
+}
+
+/* 语言按钮：文字 + 小三角 */
+.lang-switch {
+  margin-right: 12px;
+}
+
+.lang-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.95rem;
+  color: #111;
+}
+
+.lang-toggle .lang-caret {
+  font-size: 0.7em;
+}
+
+/* 语言菜单：使用 fz-menu 的基础样式，再略微缩小一些 */
+.fz-menu--lang {
+  min-width: auto;
+  padding: 6px 12px;
+}
+
+.fz-menu--lang ul {
+  display: flex;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.fz-menu--lang button {
+  border: none;
+  background: transparent;
+  font-size: 0.9rem;
+  padding: 2px 4px;
+  cursor: pointer;
+}
+
+.fz-menu--lang button.is-current {
+  font-weight: 600;
+}
+
 .product-price,
     .product-price strong {
       font-weight: 400 !important;
