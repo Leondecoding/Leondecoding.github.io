@@ -152,12 +152,13 @@ function getSelectedValue(btn){
      </div>`;
   }
 
-  // ===== Global delegated clicks（捕获阶段，避免被其他脚本拦截） =====
+    // ===== Global delegated clicks（捕获阶段，避免被其他脚本拦截） =====
   function onDocClick(ev){
-    // 购物车内的 + / − / ×
+    // 1）购物车抽屉里：+ / − / ×
     const actBtn = ev.target.closest('#fz-cart-content [data-action]');
     if (actBtn) {
-      ev.preventDefault(); ev.stopPropagation();
+      ev.preventDefault();
+      ev.stopPropagation();
       const action = actBtn.dataset.action;
       let id  = actBtn.dataset.uid;
       let idx = Number(actBtn.dataset.idx);
@@ -166,25 +167,145 @@ function getSelectedValue(btn){
         if (row && row.dataset.index) idx = Number(row.dataset.index);
       }
       const noUid = !id || id === 'undefined' || id === 'null';
-      if (action === 'inc') { if (!(noUid ? setQtyByIndex(idx,+1) : setQtyByUid(id,+1))) setQtyByIndex(idx,+1); }
-      else if (action === 'dec') { if (!(noUid ? setQtyByIndex(idx,-1) : setQtyByUid(id,-1))) setQtyByIndex(idx,-1); }
-      else if (action === 'remove') { if (noUid) removeByIndex(idx); else removeByUid(id); }
+      if (action === 'inc') {
+        if (!(noUid ? setQtyByIndex(idx, +1) : setQtyByUid(id, +1))) setQtyByIndex(idx, +1);
+      } else if (action === 'dec') {
+        if (!(noUid ? setQtyByIndex(idx, -1) : setQtyByUid(id, -1))) setQtyByIndex(idx, -1);
+      } else if (action === 'remove') {
+        if (noUid) removeByIndex(idx); else removeByUid(id);
+      }
       return;
     }
 
-    // 顶部购物车按钮：打开并渲染
+    // 2）顶部购物车按钮：打开并渲染抽屉
     const cartBtn = ev.target.closest('#fz-cart-btn');
-    if (cartBtn) { ev.preventDefault(); renderDrawer(); const d=$('#fz-cart-drawer'); if(d) d.hidden=false; return; }
+    if (cartBtn) {
+      ev.preventDefault();
+      renderDrawer();
+      const d = $('#fz-cart-drawer');
+      if (d) d.hidden = false;
+      return;
+    }
 
-    // 关闭抽屉
+    // 3）关闭抽屉（背景 + × 按钮）
     const closeDrawer = ev.target.closest('[data-close="fz-cart-drawer"]');
-    if (closeDrawer) { ev.preventDefault(); const d=$('#fz-cart-drawer'); if(d) d.hidden=true; return; }
+    if (closeDrawer) {
+      ev.preventDefault();
+      const d = $('#fz-cart-drawer');
+      if (d) d.hidden = true;
+      return;
+    }
 
-    // 搜索开关
+    // 4）搜索面板开关
     const searchBtn = ev.target.closest('#fz-search-btn');
-    if (searchBtn) { ev.preventDefault(); const p=$('#fz-search-panel'); if(p) p.hidden=false; return; }
+    if (searchBtn) {
+      ev.preventDefault();
+      const p = $('#fz-search-panel');
+      if (p) p.hidden = false;
+      return;
+    }
     const closeSearch = ev.target.closest('[data-close="fz-search-panel"]');
-    if (closeSearch) { ev.preventDefault(); const p=$('#fz-search-panel'); if(p) p.hidden=true; return; }
+    if (closeSearch) {
+      ev.preventDefault();
+      const p = $('#fz-search-panel');
+      if (p) p.hidden = true;
+      return;
+    }
+
+    // 5）登录菜单开关
+    const loginBtn = ev.target.closest('#fz-login-btn');
+    if (loginBtn) {
+      ev.preventDefault();
+      ev.stopPropagation(); // 避免兜底脚本再处理一次
+
+      const menu = $('#fz-login-menu');
+      if (menu) {
+        const open = menu.hidden;
+        menu.hidden = !open;
+        loginBtn.setAttribute('aria-expanded', String(open));
+      }
+
+      // 打开登录时，收起语言菜单
+      const langMenu = $('#fz-lang-menu');
+      if (langMenu && !langMenu.hidden) {
+        langMenu.hidden = true;
+        const lb = $('#fz-lang-btn');
+        if (lb) lb.setAttribute('aria-expanded', 'false');
+      }
+      return;
+    }
+
+    // 6）语言按钮开关
+    const langBtn = ev.target.closest('#fz-lang-btn');
+    if (langBtn) {
+      ev.preventDefault();
+      ev.stopPropagation(); // 避免事件传到兜底
+
+      const menu = $('#fz-lang-menu');
+      if (menu) {
+        const open = menu.hidden;
+        menu.hidden = !open;
+        langBtn.setAttribute('aria-expanded', String(open));
+      }
+
+      // 打开语言菜单时，顺手关掉登录菜单
+      const loginMenu = $('#fz-login-menu');
+      if (loginMenu && !loginMenu.hidden) {
+        loginMenu.hidden = true;
+        const lb = $('#fz-login-btn');
+        if (lb) lb.setAttribute('aria-expanded', 'false');
+      }
+      return;
+    }
+
+    // 7）点击语言选项（English / 中文）
+    const langOption = ev.target.closest('#fz-lang-menu button[data-lang]');
+    if (langOption) {
+      ev.preventDefault();
+
+      const code = langOption.dataset.lang || 'en';
+
+      // 更新顶部按钮上的文字
+      const labelEl = $('#fz-lang-btn .lang-label');
+      if (labelEl) labelEl.textContent = (code === 'zh') ? '中文' : 'English';
+
+      // 高亮当前语言
+      $$('#fz-lang-menu button[data-lang]').forEach(btn => {
+        btn.classList.toggle('is-current', btn === langOption);
+      });
+
+      // 选完就收起菜单
+      const menu = $('#fz-lang-menu');
+      if (menu) menu.hidden = true;
+      const lb = $('#fz-lang-btn');
+      if (lb) lb.setAttribute('aria-expanded', 'false');
+      return;
+    }
+
+    // 8）点击空白处：收起登录菜单 + 语言菜单
+    const loginMenu = $('#fz-login-menu');
+    if (
+      loginMenu &&
+      !loginMenu.hidden &&
+      !ev.target.closest('#fz-login-menu') &&
+      !ev.target.closest('#fz-login-btn')
+    ) {
+      loginMenu.hidden = true;
+      const lb = $('#fz-login-btn');
+      if (lb) lb.setAttribute('aria-expanded', 'false');
+    }
+
+    const langMenu = $('#fz-lang-menu');
+    if (
+      langMenu &&
+      !langMenu.hidden &&
+      !ev.target.closest('#fz-lang-menu') &&
+      !ev.target.closest('#fz-lang-btn')
+    ) {
+      langMenu.hidden = true;
+      const lb = $('#fz-lang-btn');
+      if (lb) lb.setAttribute('aria-expanded', 'false');
+    }
   }
 
   // ===== Bind add-to-cart（保持单一监听；移除旧监听风险由全局去重兜底） =====
