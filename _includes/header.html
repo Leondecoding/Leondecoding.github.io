@@ -17,13 +17,66 @@
       <a href="{{ '/contact/' | relative_url }}">CONTACT</a>
     </nav>
 
-    <!-- 右上角动作按钮 -->
+        <!-- 右上角动作按钮 -->
     <div class="site-actions">
-      <button id="fz-search-btn" aria-label="Search" title="Search">🔍</button>
-      <button id="fz-login-btn" aria-label="Account" aria-expanded="false" title="Account">👤</button>
-      <button id="fz-cart-btn" aria-label="Cart" title="Cart">🛒 <span id="fz-cart-count" hidden>0</span></button>
+      <!-- 语言切换 -->
+      <div class="lang-switch">
+        <button
+          id="fz-lang-btn"
+          class="lang-toggle"
+          type="button"
+          aria-haspopup="true"
+          aria-expanded="false"
+        >
+          <span class="lang-label">English</span>
+          <span class="lang-caret">▾</span>
+        </button>
+      </div>
+
+      <!-- 搜索 -->
+      <button id="fz-search-btn" class="icon-btn" type="button" aria-label="Search" title="Search">
+        <svg class="fz-icon" viewBox="0 0 24 24" aria-hidden="true">
+          <circle cx="11" cy="11" r="6" fill="none" stroke="currentColor" stroke-width="1.4" />
+          <line x1="15" y1="15" x2="20" y2="20" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" />
+        </svg>
+      </button>
+
+      <!-- 登录 -->
+      <button id="fz-login-btn" class="icon-btn" type="button" aria-label="Account" aria-expanded="false" title="Account">
+        <svg class="fz-icon" viewBox="0 0 24 24" aria-hidden="true">
+          <circle cx="12" cy="9" r="4" fill="none" stroke="currentColor" stroke-width="1.4" />
+          <path
+            d="M5 19c1.5-3 4-4.5 7-4.5s5.5 1.5 7 4.5"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.4"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          />
+        </svg>
+      </button>
+
+      <!-- 购物袋 -->
+      <button id="fz-cart-btn" class="icon-btn" type="button" aria-label="Cart" title="Cart">
+        <svg class="fz-icon" viewBox="0 0 24 24" aria-hidden="true">
+          <path
+            d="M7 8h10l-1 11H8L7 8z"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.4"
+            stroke-linejoin="round"
+          />
+          <path
+            d="M9.5 8a2.5 2.5 0 0 1 5 0"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.4"
+            stroke-linecap="round"
+          />
+        </svg>
+        <span id="fz-cart-count" hidden>0</span>
+      </button>
     </div>
-  </div>
 </header>
 
 <!-- === 搜索面板 === -->
