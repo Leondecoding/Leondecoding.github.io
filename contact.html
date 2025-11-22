@@ -1,31 +1,207 @@
-<!DOCTYPE html><html lang='en'><head><meta charset='utf-8'/><meta name='viewport' content='width=device-width, initial-scale=1'/><title>Contact</title><link rel='stylesheet' href='./styles.css?v=160'/><link rel="stylesheet" href="./styles.css?v=20251010j">
+---
+layout: default
+title: Contact
+permalink: /contact/
+---
+
 <style>
-  /* 列表页：去掉顶部栏与列表的 20px */
-  .topbar::after{ height:0 !important; }
-  .topbar + .grid,
-  .topbar + .container,
-  .topbar + section,
-  .topbar + main { margin-top:0 !important; }
+  /* Contact 页面整体布局 */
+  #contact-page {
+    max-width: 920px;
+    margin: 0 auto;
+    padding: 40px 12px 60px;
+  }
+  #contact-page h1 {
+    margin: 0 0 40px;
+    font-size: 2.6rem;
+    text-align: left;
+  }
+
+  .contact-form {
+    margin-top: 16px;
+  }
+
+  .contact-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 24px;
+    margin-bottom: 20px;
+  }
+
+  .contact-row--two .contact-field {
+    flex: 1 1 0;
+    min-width: 220px;
+  }
+
+  .contact-field {
+    flex: 1 1 100%;
+  }
+
+  .contact-label {
+    display: block;
+    font-size: 0.9rem;
+    margin-bottom: 6px;
+    color: #555;
+  }
+
+  .contact-input,
+  .contact-textarea {
+    width: 100%;
+    border: 1px solid #999;
+    padding: 14px 16px;
+    font: inherit;
+    box-sizing: border-box;
+    outline: none;
+  }
+
+  .contact-input:focus,
+  .contact-textarea:focus {
+    border-color: #222;
+  }
+
+  .contact-textarea {
+    min-height: 160px;
+    resize: vertical;
+  }
+
+  .contact-actions {
+    margin-top: 10px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .contact-send-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 14px 48px;
+    border: none;
+    background: #111;
+    color: #fff;
+    font-size: 1rem;
+    letter-spacing: 0.04em;
+    cursor: pointer;
+  }
+
+  .contact-send-btn:disabled {
+    opacity: 0.6;
+    cursor: default;
+  }
+
+  .contact-status {
+    font-size: 0.9rem;
+    color: #777;
+  }
+  .contact-status.is-success {
+    color: #1a7f4b;
+  }
+  .contact-status.is-error {
+    color: #b32727;
+  }
+
+  @media (max-width: 640px) {
+    #contact-page h1 {
+      font-size: 2.2rem;
+    }
+  }
 </style>
-</head><body class="contact"><header class="topbar">
-  <div class="container row a-center j-between">
-    <a class="logo" href="./index.html" aria-label="FZ Studio">
-      <img src="./assets/images/logo.jpg" alt="FZ Studio logo" />
-    </a>
-    <nav class="nav row a-center">
-      <a href="./index.html" data-nav="home">Home</a>
-      <a href="./our-story.html" data-nav="ourstory">Our Story</a>
-      <a href="./blog.html" data-nav="blog">Blog</a>
-      <a href="./original-art.html" data-nav="original">Original Art</a>
-      <a href="./art-prints.html" data-nav="prints">Art Prints</a>
-      <a href="./greeting-cards.html" data-nav="cards">Greeting Cards</a>
-      <a href="./contact.html" data-nav="contact">Contact</a>
-    </nav>
-    <div class="right">
-      <a href="#" aria-label="Login">Login</a>
-      <button id="cartBtn" class="icon-btn badge" data-count="0" title="Cart" aria-label="Cart">
-        <svg viewBox="0 0 24 24"><path d="M3 3h2l.6 3M7 13h10l3-8H6l1 8zm-1 0l-2 8m14-8l2 8M10 21a1 1 0 110-2 1 1 0 010 2m8 0a1 1 0 110-2 1 1 0 010 2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      </button>
+
+<div id="contact-page">
+  <h1>Contact</h1>
+
+  <form id="contact-form" class="contact-form">
+    <!-- 第一行：Name + Email -->
+    <div class="contact-row contact-row--two">
+      <div class="contact-field">
+        <label class="contact-label" for="contact-name">Name</label>
+        <input
+          class="contact-input"
+          id="contact-name"
+          name="name"
+          type="text"
+          autocomplete="name"
+        >
+      </div>
+      <div class="contact-field">
+        <label class="contact-label" for="contact-email">Email *</label>
+        <input
+          class="contact-input"
+          id="contact-email"
+          name="email"
+          type="email"
+          required
+          autocomplete="email"
+        >
+      </div>
     </div>
-  </div>
-</header><main class='container'><div class='prose'><p>For commissions, collaborations, and wholesale, please email <a href='mailto:hello@fzstudio.example'>hello@fzstudio.example</a>.</p></div></main><footer class="footer"><div class="container">&copy; <span id="year"></span> FZ Studio</div></footer><script src='./app.js'></script></body></html>
+
+    <!-- 第二行：Comment -->
+    <div class="contact-row">
+      <div class="contact-field">
+        <label class="contact-label" for="contact-comment">Comment</label>
+        <textarea
+          class="contact-textarea"
+          id="contact-comment"
+          name="comment"
+          required
+        ></textarea>
+      </div>
+    </div>
+
+    <!-- 按钮 + 状态提示 -->
+    <div class="contact-actions">
+      <button type="submit" class="contact-send-btn">Send</button>
+      <p id="contact-status" class="contact-status" aria-live="polite"></p>
+    </div>
+  </form>
+</div>
+
+<script>
+  (function () {
+    var form = document.getElementById('contact-form');
+    if (!form) return;
+
+    // TODO：这里换成你部署好的 Apps Script Web App 地址
+    var ENDPOINT = 'YOUR_APPS_SCRIPT_WEB_APP_URL_HERE';
+
+    var statusEl = document.getElementById('contact-status');
+    var submitBtn = form.querySelector('.contact-send-btn');
+
+    form.addEventListener('submit', function (ev) {
+      ev.preventDefault();
+      if (!ENDPOINT) {
+        console.warn('Missing contact form endpoint.');
+        return;
+      }
+
+      if (statusEl) {
+        statusEl.textContent = 'Sending…';
+        statusEl.className = 'contact-status';
+      }
+      if (submitBtn) submitBtn.disabled = true;
+
+      var data = new FormData(form);
+
+      // 用 no-cors 模式提交到 Google Apps Script，前端不读取返回值
+      fetch(ENDPOINT, {
+        method: 'POST',
+        mode: 'no-cors',
+        body: data
+      }).then(function () {
+        if (statusEl) {
+          statusEl.textContent = 'Thank you — your message has been sent.';
+          statusEl.classList.add('is-success');
+        }
+        form.reset();
+        if (submitBtn) submitBtn.disabled = false;
+      }).catch(function () {
+        if (statusEl) {
+          statusEl.textContent = 'Sorry, something went wrong. Please email me directly.';
+          statusEl.classList.add('is-error');
+        }
+        if (submitBtn) submitBtn.disabled = false;
+      });
+    });
+  })();
+</script>
