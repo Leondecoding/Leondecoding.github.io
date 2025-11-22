@@ -110,7 +110,11 @@ permalink: /contact/
 <div id="contact-page">
   <h1>Contact</h1>
 
-  <form id="contact-form" class="contact-form">
+  <form
+  id="contact-form"
+  action="https://script.google.com/macros/s/AKfycbwjCEKLqU5mOLrlrmy01P28z0eDxFrUFojeXwEyFCuHpcZrRQNKWuZRdIB_p6VhZs7WTg/exec"
+  method="POST"
+>
     <!-- 第一行：Name + Email -->
     <div class="contact-row contact-row--two">
       <div class="contact-field">
@@ -156,52 +160,3 @@ permalink: /contact/
     </div>
   </form>
 </div>
-
-<script>
-  (function () {
-    var form = document.getElementById('contact-form');
-    if (!form) return;
-
-    // TODO：这里换成你部署好的 Apps Script Web App 地址
-    var ENDPOINT = 'https://script.google.com/macros/s/AKfycbwjCEKLqU5mOLrlrmy01P28z0eDxFrUFojeXwEyFCuHpcZrRQNKWuZRdIB_p6VhZs7WTg/exec';
-
-    var statusEl = document.getElementById('contact-status');
-    var submitBtn = form.querySelector('.contact-send-btn');
-
-    form.addEventListener('submit', function (ev) {
-      ev.preventDefault();
-      if (!ENDPOINT) {
-        console.warn('Missing contact form endpoint.');
-        return;
-      }
-
-      if (statusEl) {
-        statusEl.textContent = 'Sending…';
-        statusEl.className = 'contact-status';
-      }
-      if (submitBtn) submitBtn.disabled = true;
-
-      var data = new FormData(form);
-
-      // 用 no-cors 模式提交到 Google Apps Script，前端不读取返回值
-      fetch(ENDPOINT, {
-        method: 'POST',
-        mode: 'no-cors',
-        body: data
-      }).then(function () {
-        if (statusEl) {
-          statusEl.textContent = 'Thank you — your message has been sent.';
-          statusEl.classList.add('is-success');
-        }
-        form.reset();
-        if (submitBtn) submitBtn.disabled = false;
-      }).catch(function () {
-        if (statusEl) {
-          statusEl.textContent = 'Sorry, something went wrong. Please email me directly.';
-          statusEl.classList.add('is-error');
-        }
-        if (submitBtn) submitBtn.disabled = false;
-      });
-    });
-  })();
-</script>
