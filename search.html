@@ -1,0 +1,243 @@
+---
+layout: default
+title: Search
+permalink: /search/
+---
+
+<style>
+  #search-page {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 24px 12px 40px;
+  }
+  #search-page h1 {
+    margin: 0 0 12px;
+    text-align: left;
+  }
+  #search-page .search-note {
+    margin: 0 0 16px;
+    font-size: 0.95rem;
+    color: #777;
+  }
+  #search-page .fz-search {
+    margin: 0 0 24px;
+  }
+</style>
+
+<div id="search-page">
+  <h1>Search</h1>
+
+  <!-- 页面上的搜索框（和弹出的搜索面板共用同一个参数 q） -->
+  <form class="fz-search" action="/search/" method="get">
+    <label class="sr-only" for="search-q">Search term</label>
+    <input
+      class="fz-input"
+      id="search-q"
+      name="q"
+      type="search"
+      placeholder="Search paintings, prints and cards">
+    <button class="fz-btn fz-btn--primary" type="submit">Search</button>
+  </form>
+
+  <p id="search-summary" class="search-note"></p>
+
+  <!-- 结果区域：沿用列表页的卡片样式 -->
+  <main id="search-results" class="fz-grid gallery-grid"></main>
+
+  <!-- 用 Liquid 预先把所有产品做成一个 JSON，交给前端 JS 搜索 -->
+  <script id="fz-search-data" type="application/json">
+  [
+  {% assign first = true %}
+
+  {%- comment -%} Art Prints {%- endcomment -%}
+  {% for item in site.artprints %}
+    {% if first == false %},{% endif %}
+    {% assign first = false %}
+
+    {% assign img = item.image
+      | default: item.featured_image
+      | default: item.cover
+      | default: item.hero
+      | default: item.thumbnail
+      | default: item.thumb
+      | default: item.picture
+      | default: item.photo %}
+
+    {% assign title_dash = item.title | default: item.slug | replace: ' ', '-' %}
+
+    {% if img %}
+      {% assign img_src = img | relative_url %}
+    {% else %}
+      {% assign img_src = '/assets/images/artprints/' | append: title_dash | append: '.jpg' | relative_url %}
+    {% endif %}
+
+    {
+      "title": {{ item.title | default: item.slug | jsonify }},
+      "url": {{ item.url | relative_url | jsonify }},
+      "collection": "artprints",
+      "price": {{ item.price | default: item.price_gbp | default: item.priceGBP | default: item.amount | default: item.Price | jsonify }},
+      "currency": {{ item.currency | default: site.default_currency | default: 'GBP' | upcase | jsonify }},
+      "image": {{ img_src | jsonify }},
+      "tags": {{ item.tags | join: ' ' | jsonify }}
+    }
+  {% endfor %}
+
+  {%- comment -%} Original Art {%- endcomment -%}
+  {% for item in site.originals %}
+    {% if first == false %},{% endif %}
+    {% assign first = false %}
+
+    {% assign img = item.image
+      | default: item.featured_image
+      | default: item.cover
+      | default: item.hero
+      | default: item.thumbnail
+      | default: item.thumb
+      | default: item.picture
+      | default: item.photo %}
+
+    {% assign title_dash = item.title | default: item.slug | replace: ' ', '-' %}
+
+    {% if img %}
+      {% assign img_src = img | relative_url %}
+    {% else %}
+      {% assign img_src = '/assets/images/originals/' | append: title_dash | append: '.jpg' | relative_url %}
+    {% endif %}
+
+    {
+      "title": {{ item.title | default: item.slug | jsonify }},
+      "url": {{ item.url | relative_url | jsonify }},
+      "collection": "originals",
+      "price": {{ item.price | default: item.price_gbp | default: item.priceGBP | default: item.amount | default: item.Price | jsonify }},
+      "currency": {{ item.currency | default: site.default_currency | default: 'GBP' | upcase | jsonify }},
+      "image": {{ img_src | jsonify }},
+      "tags": {{ item.tags | join: ' ' | jsonify }}
+    }
+  {% endfor %}
+
+  {%- comment -%} Greeting Cards {%- endcomment -%}
+  {% for item in site.cards %}
+    {% if first == false %},{% endif %}
+    {% assign first = false %}
+
+    {% assign img = item.image
+      | default: item.featured_image
+      | default: item.cover
+      | default: item.hero
+      | default: item.thumbnail
+      | default: item.thumb
+      | default: item.picture
+      | default: item.photo %}
+
+    {% assign title_dash = item.title | default: item.slug | replace: ' ', '-' %}
+
+    {% if img %}
+      {% assign img_src = img | relative_url %}
+    {% else %}
+      {% assign img_src = '/assets/images/cards/' | append: title_dash | append: '.jpg' | relative_url %}
+    {% endif %}
+
+    {
+      "title": {{ item.title | default: item.slug | jsonify }},
+      "url": {{ item.url | relative_url | jsonify }},
+      "collection": "cards",
+      "price": {{ item.price | default: item.price_gbp | default: item.priceGBP | default: item.amount | default: item.Price | jsonify }},
+      "currency": {{ item.currency | default: site.default_currency | default: 'GBP' | upcase | jsonify }},
+      "image": {{ img_src | jsonify }},
+      "tags": {{ item.tags | join: ' ' | jsonify }}
+    }
+  {% endfor %}
+
+  ]
+  </script>
+
+  <script>
+    (function () {
+      function getQuery () {
+        var params = new URLSearchParams(window.location.search || '');
+        return (params.get('q') || '').trim();
+      }
+
+      function fmtPrice (v, code) {
+        if (v === null || v === undefined || v === '') return '';
+        var n = parseFloat(v);
+        if (!isFinite(n)) return '';
+        var c = (code || 'GBP').toUpperCase();
+        var sym =
+          c === 'GBP' ? '£' :
+          c === 'USD' ? '$' :
+          c === 'EUR' ? '€' :
+          (c === 'CNY' || c === 'JPY') ? '¥' :
+          c === 'HKD' ? 'HK$' :
+          c === 'TWD' ? 'NT$' : '';
+        return (sym || '') + n + (sym ? '' : (' ' + c));
+      }
+
+      function escapeHtml (str) {
+        return String(str || '').replace(/[&<>"']/g, function (s) {
+          return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[s]);
+        });
+      }
+
+      var raw = document.getElementById('fz-search-data');
+      var items = [];
+      if (raw && raw.textContent.trim()) {
+        try { items = JSON.parse(raw.textContent); } catch (e) { items = []; }
+      }
+
+      var q = getQuery();
+      var input = document.getElementById('search-q');
+      if (input) input.value = q;
+
+      var summary = document.getElementById('search-summary');
+      var box = document.getElementById('search-results');
+
+      if (!q) {
+        if (summary) {
+          summary.textContent = 'Type a product name to search original paintings, prints and greeting cards.';
+        }
+        if (box) box.innerHTML = '';
+        return;
+      }
+
+      var term = q.toLowerCase();
+      var results = items.filter(function (it) {
+        var hay = (it.title || '') + ' ' + (it.tags || '') + ' ' + (it.collection || '');
+        return hay.toLowerCase().indexOf(term) !== -1;
+      });
+
+      if (summary) {
+        if (results.length) {
+          summary.textContent = 'Found ' + results.length + ' result' + (results.length > 1 ? 's' : '') + ' for "' + q + '".';
+        } else {
+          summary.textContent = 'No products found for "' + q + '".';
+        }
+      }
+
+      if (!box) return;
+      if (!results.length) {
+        box.innerHTML = '';
+        return;
+      }
+
+      box.innerHTML = results.map(function (it) {
+        var price = fmtPrice(it.price, it.currency);
+        return (
+          '<a class="fz-card" href="' + it.url + '">' +
+            '<div class="fz-card__img">' +
+              (it.image
+                ? '<img class="fz-autoimg" src="' + it.image +
+                  '" alt="' + escapeHtml(it.title) + '" loading="lazy">'
+                : ''
+              ) +
+            '</div>' +
+            '<div class="fz-card__meta">' +
+              '<span>' + escapeHtml(it.title || 'Untitled') + '</span>' +
+              (price ? '<span class="fz-price">' + price + '</span>' : '') +
+            '</div>' +
+          '</a>'
+        );
+      }).join('');
+    })();
+  </script>
+</div>
