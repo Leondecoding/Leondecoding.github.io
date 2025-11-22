@@ -160,3 +160,51 @@ permalink: /contact/
     </div>
   </form>
 </div>
+<script>
+  (function () {
+    var form = document.getElementById('contact-form');
+    if (!form) return;
+
+    // 和刚才表单 action 同一个 Web App URL
+    var ENDPOINT = 'https://script.google.com/macros/s/AKfycbwjCEKLqU5mOLrlrmy01P28z0eDxFrUFojeXwEyFCuHpcZrRQNKWuZRdIB_p6VhZs7WTg/exec';
+
+    var statusEl  = document.getElementById('contact-status');
+    var submitBtn = form.querySelector('.contact-send-btn');
+
+    form.addEventListener('submit', function (ev) {
+      ev.preventDefault();          // 阻止默认提交 → 不跳转页面
+
+      if (statusEl) {
+        statusEl.textContent = 'Sending…';
+        statusEl.className   = 'contact-status contact-status--pending';
+      }
+      if (submitBtn) submitBtn.disabled = true;
+
+      var data = new FormData(form);
+
+      // 用 fetch 把表单发给 Apps Script（no-cors 模式，不读返回值）
+      fetch(ENDPOINT, {
+        method: 'POST',
+        mode: 'no-cors',
+        body: data
+      })
+      .then(function () {
+        // 这里默认认为成功：Apps Script 会负责发邮件
+        if (statusEl) {
+          statusEl.textContent = 'Thank you, your message has been sent.';
+          statusEl.className   = 'contact-status contact-status--ok';
+        }
+        if (submitBtn) submitBtn.disabled = false;
+        form.reset();
+      })
+      .catch(function (err) {
+        console.error(err);
+        if (statusEl) {
+          statusEl.textContent = 'Sorry, something went wrong. Please try again later.';
+          statusEl.className   = 'contact-status contact-status--error';
+        }
+        if (submitBtn) submitBtn.disabled = false;
+      });
+    });
+  })();
+</script>
