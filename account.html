@@ -221,6 +221,38 @@ permalink: /account/
     });
   }
 
+    // 忘记密码：发送重置密码邮件
+  const forgotBtn = document.getElementById('forgot-password-btn');
+
+  if (forgotBtn && loginForm) {
+    forgotBtn.addEventListener('click', async () => {
+      const email = loginForm.email.value.trim();
+
+      if (!email) {
+        setStatus(loginStatus, 'Please enter your email first.', 'error');
+        return;
+      }
+
+      setStatus(loginStatus, 'Sending password reset email…', null);
+
+      try {
+        await sendPasswordResetEmail(auth, email);
+        setStatus(
+          loginStatus,
+          'Password reset email has been sent. Please check your inbox.',
+          'ok'
+        );
+      } catch (err) {
+        console.error(err);
+        let msg = err.message || 'Failed to send password reset email.';
+        if (err.code === 'auth/user-not-found') {
+          msg = 'No account found with this email.';
+        }
+        setStatus(loginStatus, msg, 'error');
+      }
+    });
+  }
+
   // 根据 URL 锚点自动滚动到 signup / login
   window.addEventListener('load', () => {
     if (location.hash === '#login') {
