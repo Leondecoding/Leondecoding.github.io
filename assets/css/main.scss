@@ -451,8 +451,9 @@ body {
     }
 
 .home-hero .stage img {
-  width: 100%;   /* 按容器宽度缩放 */
-  height: auto;  /* 高度自动，保持原始比例 */
+  width: 100%;
+  height: 100%;
+  object-fit: cover;   /* 填满盒子，但四周会被裁掉一点 */
   display: block;
 }
 
