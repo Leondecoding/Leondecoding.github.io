@@ -450,6 +450,12 @@ body {
       font-size: 0.9rem !important;
     }
 
+.home-hero .stage img {
+  width: 100%;   /* 按容器宽度缩放 */
+  height: auto;  /* 高度自动，保持原始比例 */
+  display: block;
+}
+
 /* === Cart drawer 极简修复版 ================== */
 /* 目标：
  * - 左侧：整块半透明灰遮罩（下面页面可见）
