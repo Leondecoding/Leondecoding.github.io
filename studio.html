@@ -94,15 +94,32 @@ permalink: /studio/
   text-decoration: underline;
 }
 
-/* gallery 占位 */
-.studio-gallery-placeholder {
-  margin-top: 12px;
-  padding: 16px;
-  border: 1px dashed #ccc;
-  font-size: 0.9rem;
-  color: #777;
-  text-align: center;
+/* gallery 图片栅格 */
+.studio-gallery {
+  margin-top: 16px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr); /* 一行 3 张 */
+  gap: 16px;
 }
+
+@media (max-width: 768px) {
+  .studio-gallery {
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  }
+}
+
+.studio-gallery__item {
+  overflow: hidden;
+  border-radius: 4px;
+}
+
+.studio-gallery__item img {
+  display: block;
+  width: 100%;
+  height: auto;
+  object-fit: cover;
+}
+
 </style>
 
 <div id="studio-page">
