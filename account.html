@@ -103,10 +103,18 @@ permalink: /account/
         <label for="login-password">Password</label>
         <input id="login-password" type="password" name="password" required>
       </div>
-      <div class="account-actions">
-        <button type="submit">Log in</button>
-        <p id="login-status" class="account-status" aria-live="polite"></p>
-      </div>
+          <div class="account-actions">
+      <button type="submit">Log in</button>
+
+      <!-- 新增：忘记密码按钮 -->
+      <button type="button"
+              id="forgot-password-btn"
+              class="account-forgot">
+        Forgot your password?
+      </button>
+
+      <p id="login-status" class="account-status" aria-live="polite"></p>
+    </div>
     </form>
   </section>
 </div>
