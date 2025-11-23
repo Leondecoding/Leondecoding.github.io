@@ -1,0 +1,215 @@
+---
+layout: default
+title: Account
+permalink: /account/
+---
+
+<style>
+  /* 简单排版，可以根据你现有风格微调 */
+
+  #account-page {
+    max-width: 520px;
+    margin: 0 auto;
+    padding: 48px 12px 80px;
+    text-align: left;
+  }
+  #account-page h1 {
+    text-align: center;
+    margin-bottom: 32px;
+  }
+  #account-page h2 {
+    font-size: 1.3rem;
+    margin: 32px 0 12px;
+  }
+  .account-note {
+    font-size: 0.9rem;
+    color: #777;
+    margin-bottom: 8px;
+  }
+  .account-form {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .account-field label {
+    display: block;
+    font-size: 0.9rem;
+    margin-bottom: 4px;
+  }
+  .account-field input {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #ccc;
+    font-size: 0.95rem;
+  }
+  .account-actions {
+    margin-top: 12px;
+  }
+  .account-actions button {
+    padding: 10px 18px;
+    border: none;
+    background: #000;
+    color: #fff;
+    font-size: 0.95rem;
+    cursor: pointer;
+  }
+  .account-status {
+    margin-top: 8px;
+    font-size: 0.9rem;
+  }
+  .account-status--ok    { color: #2e7d32; }
+  .account-status--error { color: #b71c1c; }
+</style>
+
+<div id="account-page">
+  <h1>Account</h1>
+
+  <!-- Sign up 部分 -->
+  <section id="signup">
+    <h2>Sign up</h2>
+    <p class="account-note">
+      Create an account with your email and a password.
+    </p>
+
+    <form id="signup-form" class="account-form">
+      <div class="account-field">
+        <label for="signup-email">Email</label>
+        <input id="signup-email" type="email" name="email" autocomplete="email" required>
+      </div>
+      <div class="account-field">
+        <label for="signup-password">Password</label>
+        <input id="signup-password" type="password" name="password" required minlength="6">
+      </div>
+      <div class="account-actions">
+        <button type="submit">Create account</button>
+        <p id="signup-status" class="account-status" aria-live="polite"></p>
+      </div>
+    </form>
+  </section>
+
+  <!-- Login 部分 -->
+  <section id="login">
+    <h2>Log in</h2>
+    <p class="account-note">
+      Already have an account? Log in with your email and password.
+    </p>
+
+    <form id="login-form" class="account-form">
+      <div class="account-field">
+        <label for="login-email">Email</label>
+        <input id="login-email" type="email" name="email" autocomplete="email" required>
+      </div>
+      <div class="account-field">
+        <label for="login-password">Password</label>
+        <input id="login-password" type="password" name="password" required>
+      </div>
+      <div class="account-actions">
+        <button type="submit">Log in</button>
+        <p id="login-status" class="account-status" aria-live="polite"></p>
+      </div>
+    </form>
+  </section>
+</div>
+
+<!-- Firebase SDK（只在这个页面加载） -->
+<script type="module">
+  import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js';
+  import {
+    getAuth,
+    createUserWithEmailAndPassword,
+    signInWithEmailAndPassword,
+    onAuthStateChanged,
+    signOut
+  } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js';
+
+  // TODO：把这里替换成你在 Firebase 控制台里拿到的配置
+  const firebaseConfig = {
+    apiKey: 'YOUR_API_KEY',
+    authDomain: 'YOUR_PROJECT_ID.firebaseapp.com',
+    projectId: 'YOUR_PROJECT_ID',
+    storageBucket: 'YOUR_PROJECT_ID.appspot.com',
+    messagingSenderId: 'XXXX',
+    appId: 'XXXX'
+  };
+
+  const app  = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+
+  const signupForm   = document.getElementById('signup-form');
+  const signupStatus = document.getElementById('signup-status');
+
+  const loginForm   = document.getElementById('login-form');
+  const loginStatus = document.getElementById('login-status');
+
+  function setStatus(el, msg, type) {
+    if (!el) return;
+    el.textContent = msg || '';
+    el.className = 'account-status' + (type ? ' account-status--' + type : '');
+  }
+
+  // 处理 Sign up
+  if (signupForm) {
+    signupForm.addEventListener('submit', async (ev) => {
+      ev.preventDefault();
+      setStatus(signupStatus, 'Creating account…', null);
+
+      const email    = signupForm.email.value.trim();
+      const password = signupForm.password.value;
+
+      try {
+        await createUserWithEmailAndPassword(auth, email, password);
+        setStatus(signupStatus, 'Account created. You are now logged in.', 'ok');
+        signupForm.reset();
+      } catch (err) {
+        console.error(err);
+        let msg = err.message || 'Sign up failed.';
+        if (err.code === 'auth/email-already-in-use') {
+          msg = 'This email is already in use. Try logging in instead.';
+        } else if (err.code === 'auth/weak-password') {
+          msg = 'Password should be at least 6 characters.';
+        }
+        setStatus(signupStatus, msg, 'error');
+      }
+    });
+  }
+
+  // 处理 Login
+  if (loginForm) {
+    loginForm.addEventListener('submit', async (ev) => {
+      ev.preventDefault();
+      setStatus(loginStatus, 'Logging in…', null);
+
+      const email    = loginForm.email.value.trim();
+      const password = loginForm.password.value;
+
+      try {
+        await signInWithEmailAndPassword(auth, email, password);
+        setStatus(loginStatus, 'Logged in successfully.', 'ok');
+        loginForm.reset();
+      } catch (err) {
+        console.error(err);
+        let msg = err.message || 'Login failed.';
+        if (err.code === 'auth/user-not-found' || err.code === 'auth/wrong-password') {
+          msg = 'Email or password is incorrect.';
+        }
+        setStatus(loginStatus, msg, 'error');
+      }
+    });
+  }
+
+  // 根据 URL 锚点自动滚动到 signup / login
+  window.addEventListener('load', () => {
+    if (location.hash === '#login') {
+      const s = document.getElementById('login');
+      if (s) s.scrollIntoView({ behavior: 'smooth' });
+    } else if (location.hash === '#signup') {
+      const s = document.getElementById('signup');
+      if (s) s.scrollIntoView({ behavior: 'smooth' });
+    }
+  });
+
+  // 可选：监听登录状态，以后可以用来更新 Header 文案（比如显示 “Log out”）
+  onAuthStateChanged(auth, (user) => {
+    console.log('Auth state changed:', user ? user.email : 'signed out');
+  });
+</script>
