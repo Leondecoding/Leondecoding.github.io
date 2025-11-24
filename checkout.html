@@ -7,35 +7,112 @@ permalink: /checkout/
 <div class="container fz-checkout-page" style="max-width:880px;margin:32px auto;padding:0 16px;">
   <h1 style="margin-bottom:12px;">Checkout</h1>
 
+  <!-- 购物车摘要 -->
   <div id="fz-checkout-summary" style="margin:12px 0 16px 0;"></div>
 
-  <!-- 与抽屉同一个容器 ID，fz-paypal.js 会自动渲染 -->
-  <div id="fz-paypal-buttons" style="margin-top:12px;"></div>
-  <div id="fz-paypal-hint" style="font-size:.9em;color:#666;margin-top:6px;"></div>
+  <!-- Checkout 页面自己的 PayPal 按钮 -->
+  <div id="fz-checkout-paypal" style="margin-top:16px;">
+    {% assign _biz = site.paypal_business | default: '' %}
+    {% if _biz != '' %}
+      <form id="fz-checkout-paypal-form"
+            action="https://www.paypal.com/cgi-bin/webscr"
+            method="post"
+            target="_blank"
+            style="margin:0;">
+        <input type="hidden" name="cmd" value="_xclick">
+        <input type="hidden" name="business" value="{{ _biz }}">
+        <input type="hidden" name="item_name" value="FZ Studio order">
+        <!-- 金额和币种由下面的脚本写入 -->
+        <input type="hidden" name="amount" id="fz-checkout-paypal-amount" value="">
+        <input type="hidden" name="currency_code" id="fz-checkout-paypal-currency" value="">
+        <button type="submit"
+                class="fz-btn fz-btn--primary"
+                style="width:100%;max-width:260px;padding:10px 16px;">
+          Pay via PayPal
+        </button>
+      </form>
+      <p style="font-size:.9em;color:#666;margin-top:6px;">
+        You’ll be redirected to PayPal to complete your purchase.
+      </p>
+    {% else %}
+      <p style="font-size:.9em;color:#666;margin-top:6px;">
+        PayPal is not configured yet. Please contact me directly to complete your order.
+      </p>
+    {% endif %}
+  </div>
 </div>
 
-<!-- 轻量摘要渲染（只读） -->
+<!-- 轻量摘要渲染（只读）+ 把总金额写入 PayPal 表单 -->
 <script>
 (function(){
-  const KEY='fz_cart';
-  const $=(s,r=document)=>(r||document).querySelector(s);
-  function load(){ try{ return JSON.parse(localStorage.getItem(KEY)||'[]'); }catch(e){ return []; } }
-  function fmt(v,cc){ const n=parseFloat(v||0); const sym=cc==='GBP'?'£':cc==='USD'?'$':cc==='EUR'?'€':''; return (sym||'')+(isFinite(n)?n.toFixed(2):v); }
-  function render(){
-    const box = $('#fz-checkout-summary'); if(!box) return;
-    const items = load();
-    if(!items.length){ box.innerHTML = '<p>Your cart is empty.</p>'; return; }
-    let tot=0, cc= (items[0]&&items[0].currency)||'GBP';
-    box.innerHTML = '<div style="border:1px solid #eee;border-radius:8px;padding:12px">'+items.map(it=>{
-      const p=parseFloat(it.price)||0, q=it.qty||1; tot+=p*q;
-      const opt=(it.options&&it.options[0])?` <span style="color:#666">(${it.options[0].name}: ${it.options[0].value})</span>`:'';
-      return `<div style="display:grid;grid-template-columns:64px 1fr auto;gap:12px;align-items:center;margin:6px 0;">
-        ${it.image?`<img src="${it.image}" style="width:64px;height:64px;object-fit:cover;border:1px solid #eee">`:'<div style="width:64px;height:64px;background:#f4f4f4"></div>'}
-        <div><div style="font-weight:600">${it.title||'Item'}</div>${opt}</div>
-        <div style="white-space:nowrap">${fmt(p,cc)} × ${q}</div>
-      </div>`;
-    }).join('')+`<hr><div style="display:flex;justify-content:space-between;font-weight:700"><span>Total</span><span>${fmt(tot,cc)}</span></div></div>`;
+  const KEY = 'fz_cart';
+  const $ = (s, r=document) => (r || document).querySelector(s);
+
+  function load(){
+    try { return JSON.parse(localStorage.getItem(KEY) || '[]'); }
+    catch(e){ return []; }
   }
+
+  function fmt(v, cc){
+    const n   = parseFloat(v || 0);
+    const sym = cc === 'GBP' ? '£'
+             : cc === 'USD' ? '$'
+             : cc === 'EUR' ? '€'
+             : '';
+    return (sym || '') + (isFinite(n) ? n.toFixed(2) : v);
+  }
+
+  function render(){
+    const box     = $('#fz-checkout-summary');
+    const payWrap = $('#fz-checkout-paypal');
+    if (!box) return;
+
+    const items = load();
+
+    // 购物车为空：显示提示 & 隐藏支付区域
+    if (!items.length){
+      box.innerHTML = '<p>Your cart is empty.</p>';
+      if (payWrap) payWrap.style.display = 'none';
+      return;
+    }
+    if (payWrap) payWrap.style.display = '';
+
+    let tot = 0;
+    let cc  = (items[0] && items[0].currency) || 'GBP';
+
+    box.innerHTML =
+      '<div style="border:1px solid #eee;border-radius:8px;padding:12px">' +
+      items.map(it => {
+        const p = parseFloat(it.price) || 0;
+        const q = it.qty || 1;
+        tot += p * q;
+        const opt = (it.options && it.options[0])
+          ? ` <span style="color:#666">(${it.options[0].name}: ${it.options[0].value})</span>`
+          : '';
+        return `
+          <div style="display:grid;grid-template-columns:64px 1fr auto;gap:12px;align-items:center;margin:6px 0;">
+            ${it.image
+              ? `<img src="${it.image}" style="width:64px;height:64px;object-fit:cover;border:1px solid #eee">`
+              : '<div style="width:64px;height:64px;background:#f4f4f4"></div>'}
+            <div>
+              <div style="font-weight:600">${it.title || 'Item'}</div>${opt}
+            </div>
+            <div style="white-space:nowrap">${fmt(p, cc)} × ${q}</div>
+          </div>`;
+      }).join('') +
+      `<hr>
+       <div style="display:flex;justify-content:space-between;font-weight:700">
+         <span>Total</span><span>${fmt(tot, cc)}</span>
+       </div>
+      </div>`;
+
+    // 把总金额 & 币种写入 PayPal 表单
+    const amtInput = $('#fz-checkout-paypal-amount');
+    const curInput = $('#fz-checkout-paypal-currency');
+    if (amtInput) amtInput.value = tot.toFixed(2);
+    if (curInput) curInput.value = cc;
+  }
+
   document.addEventListener('DOMContentLoaded', render);
 })();
 </script>
