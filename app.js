@@ -60,7 +60,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // === 移动端导航：汉堡菜单 ===
   const header = qs('.site-header');
-  const nav    = qs('.site-nav');
+  const nav    = qs('.site-header nav, .site-nav, .nav');
   const navBtn = qs('.nav-toggle');
 
   if (header && nav && navBtn) {
