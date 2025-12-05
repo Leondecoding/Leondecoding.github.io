@@ -119,6 +119,45 @@ body {
 }
 .fz-badge { position:absolute; transform:translate(10px,-10px); min-width:18px; height:18px; padding:0 5px; border-radius:999px; font-size:.75rem; line-height:18px; text-align:center; color:#fff; background:#111; }
 
+/* === 汉堡按钮基础样式 === */
+.nav-toggle {
+  display: none;
+  position: relative;
+  width: 28px;
+  height: 24px;
+  padding: 0;
+  border: none;
+  background: none;
+  cursor: pointer;
+}
+
+.nav-toggle-bar {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 2px;
+  border-radius: 999px;
+  background: currentColor;
+  transition: transform 0.2s ease, opacity 0.2s ease, top 0.2s ease, bottom 0.2s ease;
+}
+
+.nav-toggle-bar:nth-child(1) { top: 4px; }
+.nav-toggle-bar:nth-child(2) { top: 11px; }
+.nav-toggle-bar:nth-child(3) { bottom: 4px; }
+
+/* 打开状态时变成“X” */
+.site-header.nav-open .nav-toggle-bar:nth-child(1) {
+  top: 11px;
+  transform: rotate(45deg);
+}
+.site-header.nav-open .nav-toggle-bar:nth-child(2) {
+  opacity: 0;
+}
+.site-header.nav-open .nav-toggle-bar:nth-child(3) {
+  bottom: 11px;
+  transform: rotate(-45deg);
+}
+
 /* ===== 弹窗/抽屉占位 ===== */
 .fz-panel,.fz-drawer{ position:fixed; inset:0; display:block; }
 .fz-panel__backdrop,.fz-drawer__backdrop{ position:absolute; inset:0; background:rgba(0,0,0,.35); }
@@ -137,6 +176,41 @@ body {
 .fz-drawer__header{ padding:1rem; border-bottom:1px solid #eee; display:flex; align-items:center; justify-content:space-between; }
 .fz-drawer__content{ padding:1rem; overflow:auto; flex:1; }
 .fz-drawer__footer{ padding:1rem; border-top:1px solid #eee; }
+
+/* === Mobile 导航：汉堡菜单 === */
+@media (max-width: 900px) {
+  .site-header > .container {
+    padding-inline: 16px;
+    gap: 8px;
+  }
+
+  .nav-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .site-nav {
+    position: fixed;
+    inset: 0;
+    padding: 80px 24px 32px;
+    background: #fff;
+    display: none;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 24px;
+    font-size: 0.95rem;
+    z-index: 60;
+  }
+
+  .site-header.nav-open .site-nav {
+    display: flex;
+  }
+
+  body.nav-open {
+    overflow: hidden;
+  }
+}
 
 /* ===== 列表页：4 列网格（上4下4） ===== */
 .fz-grid { max-width:1200px; margin:28px auto 48px; display:grid; gap:28px; }
