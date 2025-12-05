@@ -35,10 +35,60 @@ function renderCart(){ensureCartUI(); const list=readCart(); const cont=qs('#car
 function openCart(){ensureCartUI(); qs('#cartDrawer').setAttribute('open',''); renderCart()}
 function closeCart(){qs('#cartDrawer')?.removeAttribute('open')}
 
-document.addEventListener('DOMContentLoaded', ()=>{
-  const y=qs('#year'); if(y) y.textContent=new Date().getFullYear();
+document.addEventListener('DOMContentLoaded', () => {
+  // 页脚年份
+  const y = qs('#year');
+  if (y) y.textContent = new Date().getFullYear();
+
+  // 当前导航高亮（沿用你现在的 .nav a 选择器）
   const path = location.pathname.split('/').pop() || 'index.html';
-  qsa('.nav a').forEach(a=>{if(a.getAttribute('href').endswith(path)) a.classList.add('active')});
+  qsa('.nav a').forEach(a => {
+    const href = a.getAttribute('href') || '';
+    if (href.endsWith(path)) {
+      a.classList.add('active');
+    }
+  });
+
+  // 购物车角标
   updateCartBadge();
-  qs('#cartBtn')?.addEventListener('click', openCart);
+
+  // ✅ 保留你原来的第 43 行：给购物车按钮绑事件
+  const cartBtn = qs('#cartBtn');
+  if (cartBtn) {
+    cartBtn.addEventListener('click', openCart);
+  }
+
+  // === 移动端导航：汉堡菜单 ===
+  const header = qs('.site-header');
+  const nav    = qs('.site-nav');
+  const navBtn = qs('.nav-toggle');
+
+  if (header && nav && navBtn) {
+    const closeNav = () => {
+      header.classList.remove('nav-open');
+      document.body.classList.remove('nav-open');
+      navBtn.setAttribute('aria-expanded', 'false');
+    };
+
+    navBtn.addEventListener('click', () => {
+      const willOpen = !header.classList.contains('nav-open');
+      header.classList.toggle('nav-open', willOpen);
+      document.body.classList.toggle('nav-open', willOpen);
+      navBtn.setAttribute('aria-expanded', willOpen ? 'true' : 'false');
+    });
+
+    // 点菜单里的链接后自动收起
+    nav.addEventListener('click', (e) => {
+      if (e.target.matches('a')) {
+        closeNav();
+      }
+    });
+
+    // 按 ESC 关闭菜单（可选）
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        closeNav();
+      }
+    });
+  }
 });
