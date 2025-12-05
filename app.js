@@ -36,31 +36,30 @@ function openCart(){ensureCartUI(); qs('#cartDrawer').setAttribute('open',''); r
 function closeCart(){qs('#cartDrawer')?.removeAttribute('open')}
 
 document.addEventListener('DOMContentLoaded', () => {
-  // 页脚年份
+  // ===== 页脚年份 =====
   const y = qs('#year');
   if (y) y.textContent = new Date().getFullYear();
 
-  // 当前导航高亮（沿用你现在的 .nav a 选择器）
+  // ===== 导航高亮当前页面 =====
   const path = location.pathname.split('/').pop() || 'index.html';
-  qsa('.nav a').forEach(a => {
+  qsa('.nav a').forEach((a) => {
     const href = a.getAttribute('href') || '';
     if (href.endsWith(path)) {
       a.classList.add('active');
     }
   });
 
-  // 购物车角标
+  // ===== 购物车角标 & 购物车抽屉按钮 =====
   updateCartBadge();
 
-  // ✅ 保留你原来的第 43 行：给购物车按钮绑事件
   const cartBtn = qs('#cartBtn');
   if (cartBtn) {
     cartBtn.addEventListener('click', openCart);
   }
 
-  // === 移动端导航：汉堡菜单 ===
+  // ===== 移动端导航：汉堡菜单 =====
   const header = qs('.site-header');
-  const nav    = qs('.site-header nav, .site-nav, .nav');
+  const nav = qs('.site-nav, .site-header nav, .nav'); // 三重兜底，保证能选到
   const navBtn = qs('.nav-toggle');
 
   if (header && nav && navBtn) {
@@ -70,6 +69,7 @@ document.addEventListener('DOMContentLoaded', () => {
       navBtn.setAttribute('aria-expanded', 'false');
     };
 
+    // 点击汉堡按钮：打开 / 关闭菜单
     navBtn.addEventListener('click', () => {
       const willOpen = !header.classList.contains('nav-open');
       header.classList.toggle('nav-open', willOpen);
@@ -77,7 +77,7 @@ document.addEventListener('DOMContentLoaded', () => {
       navBtn.setAttribute('aria-expanded', willOpen ? 'true' : 'false');
     });
 
-    // 点菜单里的链接后自动收起
+    // 点击菜单里的任意链接后自动收起
     nav.addEventListener('click', (e) => {
       if (e.target.matches('a')) {
         closeNav();
