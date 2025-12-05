@@ -5,7 +5,21 @@
     <a class="site-logo" href="{{ '/' | relative_url }}" aria-label="{{ site.title | default: 'FZ Studio' }}">
       <img src="{{ site.logo | default: '/assets/images/logo.svg' | relative_url }}" alt="{{ site.title | default: 'FZ Studio' }}">
     </a>
-
+    
+<div class="site-actions">
+  <!-- 汉堡菜单按钮（手机上显示） -->
+  <button
+    id="fz-nav-toggle"
+    class="icon-btn nav-toggle"
+    type="button"
+    aria-label="Menu"
+    aria-expanded="false"
+  >
+    <span class="nav-toggle-bar"></span>
+    <span class="nav-toggle-bar"></span>
+    <span class="nav-toggle-bar"></span>
+  </button>
+  
     <!-- 主导航（按你站点结构） -->
     <nav class="site-nav" aria-label="Primary">
       <a href="{{ '/' | relative_url }}">HOME</a>
