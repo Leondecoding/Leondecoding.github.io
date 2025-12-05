@@ -36,60 +36,64 @@ function openCart(){ensureCartUI(); qs('#cartDrawer').setAttribute('open',''); r
 function closeCart(){qs('#cartDrawer')?.removeAttribute('open')}
 
 document.addEventListener('DOMContentLoaded', () => {
-  // ===== 页脚年份 =====
-  const y = qs('#year');
-  if (y) y.textContent = new Date().getFullYear();
+  // ===== 年份 =====
+  const yearEl = document.querySelector('#year');
+  if (yearEl) {
+    yearEl.textContent = new Date().getFullYear();
+  }
 
-  // ===== 导航高亮当前页面 =====
+  // ===== 顶部导航当前页面高亮 =====
   const path = location.pathname.split('/').pop() || 'index.html';
-  qsa('.nav a').forEach((a) => {
+  document.querySelectorAll('.nav a').forEach((a) => {
     const href = a.getAttribute('href') || '';
     if (href.endsWith(path)) {
       a.classList.add('active');
     }
   });
 
-  // ===== 购物车角标 & 购物车抽屉按钮 =====
+  // ===== 购物车角标 + 抽屉按钮 =====
   updateCartBadge();
 
-  // ✅ 保留你原来的：给购物车按钮绑定事件
-const cartBtn = qs('#cartBtn');
-if (cartBtn) {
-  cartBtn.addEventListener('click', openCart);
-}
+  const cartBtn = document.querySelector('#cartBtn');
+  if (cartBtn) {
+    cartBtn.addEventListener('click', openCart);
+  }
 
-// === 移动端导航：汉堡菜单 ===
-const header = qs('.site-header');
-const navBtn = qs('.nav-toggle');
-// nav 容器：能选到就用，选不到也没关系，只影响“点链接自动收起”这个功能
-const nav =
-  qs('.site-nav') ||
-  qs('.nav') ||
-  (header ? header.querySelector('nav') : null);
+  // ===== 移动端导航：汉堡菜单 =====
+  const header = document.querySelector('.site-header');
+  const nav    = document.querySelector('.site-header .site-nav');
+  const navBtn = document.querySelector('#fz-nav-toggle'); // 用按钮的 id
 
-if (header && navBtn) {
-  const closeNav = () => {
-    header.classList.remove('nav-open');
-    document.body.classList.remove('nav-open');
-    navBtn.setAttribute('aria-expanded', 'false');
-  };
+  if (header && nav && navBtn) {
+    const closeNav = () => {
+      header.classList.remove('nav-open');
+      document.body.classList.remove('nav-open');
+      navBtn.setAttribute('aria-expanded', 'false');
+    };
 
-  // 点汉堡按钮：打开 / 关闭菜单
-  navBtn.addEventListener('click', () => {
-    const willOpen = !header.classList.contains('nav-open');
-    header.classList.toggle('nav-open', willOpen);
-    document.body.classList.toggle('nav-open', willOpen);
-    navBtn.setAttribute('aria-expanded', willOpen ? 'true' : 'false');
-  });
+    navBtn.addEventListener('click', () => {
+      const willOpen = !header.classList.contains('nav-open');
 
-  // 只有在 nav 能选到时，才给它绑“点链接自动收起”的逻辑
-  if (nav) {
+      header.classList.toggle('nav-open', willOpen);
+      document.body.classList.toggle('nav-open', willOpen);
+      navBtn.setAttribute('aria-expanded', willOpen ? 'true' : 'false');
+    });
+
+    // 点菜单里的任意链接，自动收起
     nav.addEventListener('click', (e) => {
       if (e.target.matches('a')) {
         closeNav();
       }
     });
+
+    // 按 ESC 关闭菜单（可选）
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        closeNav();
+      }
+    });
   }
+});
 
   // 按 ESC 关闭菜单（可选）
   document.addEventListener('keydown', (e) => {
