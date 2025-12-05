@@ -59,38 +59,37 @@ document.addEventListener('DOMContentLoaded', () => {
     cartBtn.addEventListener('click', openCart);
   }
 
-  // ===== 移动端导航：汉堡菜单 =====
-  const header = document.querySelector('.site-header');
-  const nav    = document.querySelector('.site-header .site-nav');
-  const navBtn = document.querySelector('#fz-nav-toggle'); // 用按钮的 id
+ // ==== 移动端导航：汉堡菜单 ===
+const nav = qs('.site-header .site-nav');     // 只找 header 里的主导航
+const navBtn = qs('.nav-toggle');             // 汉堡按钮
 
-  if (header && nav && navBtn) {
-    const closeNav = () => {
-      header.classList.remove('nav-open');
-      document.body.classList.remove('nav-open');
-      navBtn.setAttribute('aria-expanded', 'false');
-    };
+if (nav && navBtn) {
+  const closeNav = () => {
+    nav.classList.remove('is-open');          // 折叠菜单
+    document.body.classList.remove('nav-open');
+    navBtn.setAttribute('aria-expanded', 'false');
+  };
 
-    navBtn.addEventListener('click', () => {
-      const willOpen = !header.classList.contains('nav-open');
+  // 点击汉堡：打开 / 关闭菜单
+  navBtn.addEventListener('click', () => {
+    const willOpen = !nav.classList.contains('is-open');
+    nav.classList.toggle('is-open', willOpen);
+    document.body.classList.toggle('nav-open', willOpen);
+    navBtn.setAttribute('aria-expanded', willOpen ? 'true' : 'false');
+  });
 
-      header.classList.toggle('nav-open', willOpen);
-      document.body.classList.toggle('nav-open', willOpen);
-      navBtn.setAttribute('aria-expanded', willOpen ? 'true' : 'false');
-    });
+  // 点击菜单里的链接后自动收起
+  nav.addEventListener('click', (e) => {
+    if (e.target.matches('a')) {
+      closeNav();
+    }
+  });
 
-    // 点菜单里的任意链接，自动收起
-    nav.addEventListener('click', (e) => {
-      if (e.target.matches('a')) {
-        closeNav();
-      }
-    });
-
-    // 按 ESC 关闭菜单（可选）
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape') {
-        closeNav();
-      }
-    });
-  }
+  // 按 ESC 关闭（在电脑上调试时有用）
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      closeNav();
+    }
+  });
+}
 });
