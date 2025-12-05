@@ -177,42 +177,50 @@ body {
 .fz-drawer__content{ padding:1rem; overflow:auto; flex:1; }
 .fz-drawer__footer{ padding:1rem; border-top:1px solid #eee; }
 
-/* === Mobile 导航：汉堡菜单 === */
+/* ==== Mobile 导航：汉堡菜单 ==== */
 @media (max-width: 900px) {
+
+  /* 让 header 容器变成 nav-toggle 的定位参考 */
   .site-header > .container {
     padding-inline: 16px;
     gap: 8px;
-    position: relative;          // ✅ 新增：让 header 容器成为定位参考
+    position: relative;
   }
 
+  /* 汉堡按钮：挨着 logo，垂直居中 */
   .nav-toggle {
     display: inline-flex;
     align-items: center;
     justify-content: center;
 
-    position: absolute;          // ✅ 新增：绝对定位
-    left: 60px;                 // ✅ 新增：贴左边
-    top: 50%;                    // ✅ 新增：垂直居中
-    transform: translateY(-50%); // ✅ 新增：精确居中
-    z-index: 120;                // ✅ 新增：盖在导航上面
+    position: absolute;
+    left: 60px;            // 靠左，离 logo 一点点
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 120;
   }
 
+  /* 移动端菜单面板：全屏覆盖 */
   .site-nav {
     position: fixed;
     inset: 0;
     padding: 80px 24px 32px;
     background: #fff;
     display: none;
+
     flex-direction: column;
     align-items: flex-start;
     gap: 24px;
-    font-size: 0.95rem;
+    font-size: .95rem;
     z-index: 60;
   }
 
+  /* 打开状态：显示菜单 */
   .site-header.nav-open .site-nav {
     display: flex;
+  }
 
+  /* 打开菜单时禁止页面滚动 */
   body.nav-open {
     overflow: hidden;
   }
