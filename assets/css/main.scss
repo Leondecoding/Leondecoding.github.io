@@ -191,7 +191,7 @@ body {
     justify-content: center;
 
     position: absolute;          // ✅ 新增：绝对定位
-    right: 20px;                 // ✅ 新增：贴右边
+    left: 72px;                 // ✅ 新增：贴右边
     top: 50%;                    // ✅ 新增：垂直居中
     transform: translateY(-50%); // ✅ 新增：精确居中
     z-index: 120;                // ✅ 新增：盖在导航上面
