@@ -210,9 +210,8 @@ body {
     z-index: 60;
   }
 
-  .site-nav.is-open {
+  .site-header.nav-open .site-nav {
     display: flex;
-  }
 
   body.nav-open {
     overflow: hidden;
