@@ -46,7 +46,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const path = location.pathname.split('/').pop() || 'index.html';
   document.querySelectorAll('.nav a').forEach((a) => {
     const href = a.getAttribute('href') || '';
-    if (href.endsWith(path)) {
+    if (href.endsWith(path)) {       // 注意是 endsWith，W 大写
       a.classList.add('active');
     }
   });
@@ -94,11 +94,3 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 });
-
-  // 按 ESC 关闭菜单（可选）
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') {
-      closeNav();
-    }
-  });
-}
