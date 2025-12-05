@@ -52,43 +52,49 @@ document.addEventListener('DOMContentLoaded', () => {
   // ===== 购物车角标 & 购物车抽屉按钮 =====
   updateCartBadge();
 
-  const cartBtn = qs('#cartBtn');
-  if (cartBtn) {
-    cartBtn.addEventListener('click', openCart);
-  }
+  // ✅ 保留你原来的：给购物车按钮绑定事件
+const cartBtn = qs('#cartBtn');
+if (cartBtn) {
+  cartBtn.addEventListener('click', openCart);
+}
 
-  // ===== 移动端导航：汉堡菜单 =====
-  const header = qs('.site-header');
-  const nav = qs('.site-nav, .site-header nav, .nav'); // 三重兜底，保证能选到
-  const navBtn = qs('.nav-toggle');
+// === 移动端导航：汉堡菜单 ===
+const header = qs('.site-header');
+const navBtn = qs('.nav-toggle');
+// nav 容器：能选到就用，选不到也没关系，只影响“点链接自动收起”这个功能
+const nav =
+  qs('.site-nav') ||
+  qs('.nav') ||
+  (header ? header.querySelector('nav') : null);
 
-  if (header && nav && navBtn) {
-    const closeNav = () => {
-      header.classList.remove('nav-open');
-      document.body.classList.remove('nav-open');
-      navBtn.setAttribute('aria-expanded', 'false');
-    };
+if (header && navBtn) {
+  const closeNav = () => {
+    header.classList.remove('nav-open');
+    document.body.classList.remove('nav-open');
+    navBtn.setAttribute('aria-expanded', 'false');
+  };
 
-    // 点击汉堡按钮：打开 / 关闭菜单
-    navBtn.addEventListener('click', () => {
-      const willOpen = !header.classList.contains('nav-open');
-      header.classList.toggle('nav-open', willOpen);
-      document.body.classList.toggle('nav-open', willOpen);
-      navBtn.setAttribute('aria-expanded', willOpen ? 'true' : 'false');
-    });
+  // 点汉堡按钮：打开 / 关闭菜单
+  navBtn.addEventListener('click', () => {
+    const willOpen = !header.classList.contains('nav-open');
+    header.classList.toggle('nav-open', willOpen);
+    document.body.classList.toggle('nav-open', willOpen);
+    navBtn.setAttribute('aria-expanded', willOpen ? 'true' : 'false');
+  });
 
-    // 点击菜单里的任意链接后自动收起
+  // 只有在 nav 能选到时，才给它绑“点链接自动收起”的逻辑
+  if (nav) {
     nav.addEventListener('click', (e) => {
       if (e.target.matches('a')) {
         closeNav();
       }
     });
-
-    // 按 ESC 关闭菜单（可选）
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape') {
-        closeNav();
-      }
-    });
   }
-});
+
+  // 按 ESC 关闭菜单（可选）
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      closeNav();
+    }
+  });
+}
