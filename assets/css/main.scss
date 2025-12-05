@@ -182,12 +182,19 @@ body {
   .site-header > .container {
     padding-inline: 16px;
     gap: 8px;
+    position: relative;          // ✅ 新增：让 header 容器成为定位参考
   }
 
   .nav-toggle {
     display: inline-flex;
     align-items: center;
     justify-content: center;
+
+    position: absolute;          // ✅ 新增：绝对定位
+    right: 20px;                 // ✅ 新增：贴右边
+    top: 50%;                    // ✅ 新增：垂直居中
+    transform: translateY(-50%); // ✅ 新增：精确居中
+    z-index: 120;                // ✅ 新增：盖在导航上面
   }
 
   .site-nav {
