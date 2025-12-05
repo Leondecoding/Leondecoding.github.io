@@ -121,41 +121,42 @@ body {
 
 /* === 汉堡按钮基础样式 === */
 .nav-toggle {
-  display: none;
-  position: relative;
-  width: 28px;
-  height: 24px;
+  display: none;               /* 桌面端隐藏，手机端在 @media 里再显示 */
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
   padding: 0;
-  border: none;
+  border: 0;
   background: none;
   cursor: pointer;
 }
 
 .nav-toggle-bar {
-  position: absolute;
-  left: 0;
-  right: 0;
+  display: block;
+  width: 20px;
   height: 2px;
   border-radius: 999px;
   background: currentColor;
-  transition: transform 0.2s ease, opacity 0.2s ease, top 0.2s ease, bottom 0.2s ease;
+  position: relative;
+  transition: transform 0.2s ease, opacity 0.2s ease;
 }
 
-.nav-toggle-bar:nth-child(1) { top: 4px; }
-.nav-toggle-bar:nth-child(2) { top: 11px; }
-.nav-toggle-bar:nth-child(3) { bottom: 4px; }
-
-/* 打开状态时变成“X” */
-.site-header.nav-open .nav-toggle-bar:nth-child(1) {
-  top: 11px;
-  transform: rotate(45deg);
+.nav-toggle-bar + .nav-toggle-bar {
+  margin-top: 5px;
 }
-.site-header.nav-open .nav-toggle-bar:nth-child(2) {
+
+/* 打开状态时变成“X” — 这里用 aria-expanded，而不是 .site-header.nav-open */
+.nav-toggle[aria-expanded="true"] .nav-toggle-bar:nth-child(1) {
+  transform: translateY(7px) rotate(45deg);
+}
+
+.nav-toggle[aria-expanded="true"] .nav-toggle-bar:nth-child(2) {
   opacity: 0;
 }
-.site-header.nav-open .nav-toggle-bar:nth-child(3) {
-  bottom: 11px;
-  transform: rotate(-45deg);
+
+.nav-toggle[aria-expanded="true"] .nav-toggle-bar:nth-child(3) {
+  transform: translateY(-7px) rotate(-45deg);
 }
 
 /* ===== 弹窗/抽屉占位 ===== */
@@ -180,47 +181,62 @@ body {
 /* ==== Mobile 导航：汉堡菜单 ==== */
 @media (max-width: 900px) {
 
-  /* 让 header 容器变成 nav-toggle 的定位参考 */
-  .site-header > .container {
+  /* 头部整体一行：左 logo，右侧动作区（汉堡 + 图标） */
+  .site-header .container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
     padding-inline: 16px;
-    gap: 8px;
-    position: relative;
   }
 
-  /* 默认汉堡按钮样式（手机可见、靠 logo 左边一点） */
+  .site-header .site-logo {
+    flex: 0 0 auto;
+  }
+
+  .site-header .site-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  /* 汉堡在手机上显示 */
   .nav-toggle {
     display: inline-flex;
-    align-items: center;
-    justify-content: center;
-
-    position: absolute;
-    left: 60px;            // 靠左，离 logo 一点点
-    top: 50%;
-    transform: translateY(-50%);
-    z-index: 120;
   }
 
-  /* 移动端菜单面板：全屏覆盖 */
-  .site-nav {
+  /* 主导航变成一个全屏的 overlay，默认隐藏 */
+  .site-header .site-nav {
     position: fixed;
     inset: 0;
-    padding: 80px 24px 32px;
+    padding: 80px 24px 24px;   /* 上面留出 header 的高度 */
     background: #fff;
-    display: none;
-
+    display: flex;
     flex-direction: column;
     align-items: flex-start;
-    gap: 24px;
-    font-size: .95rem;
-    z-index: 60;
+    gap: 1.2rem;
+    font-size: 1.05rem;
+
+    transform: translateY(-100%);
+    opacity: 0;
+    pointer-events: none;
+    transition: transform 0.25s ease, opacity 0.25s ease;
+    z-index: 900;
   }
 
-  /* ✅ 用 is-open 控制：展开时显示菜单 */
-  .site-nav.is-open {
-    display: flex;
+  .site-header .site-nav a {
+    text-decoration: none;
+    font-weight: 500;
   }
 
-  /* 打开菜单时禁止页面滚动（防止背景跟着滚） */
+  /* JS 会给 .site-nav 加 .is-open，这时菜单滑下来显示 */
+  .site-header .site-nav.is-open {
+    transform: translateY(0);
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  /* 打开菜单时禁止背景滚动 */
   body.nav-open {
     overflow: hidden;
   }
