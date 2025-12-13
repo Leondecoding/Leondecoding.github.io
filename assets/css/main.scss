@@ -206,23 +206,45 @@ body {
   }
 
   /* 主导航变成一个全屏的 overlay，默认隐藏 */
+  @media (max-width: 900px) {
+  /* ...你原来的 mobile header flex 代码保留... */
+
+  /* 主导航：从 header 下方开始的全屏抽屉（避免盖住汉堡） */
   .site-header .site-nav {
     position: fixed;
-    inset: 0;
-    padding: 80px 24px 24px;   /* 上面留出 header 的高度 */
+    top: var(--fz-header-h, 72px);
+    left: 0;
+    right: 0;
+    bottom: 0;
+
+    margin-left: 0;          /* 覆盖桌面端的 margin-left:85px */
+    padding: 18px 24px 24px;
     background: #fff;
+
     display: flex;
     flex-direction: column;
     align-items: flex-start;
     gap: 1.2rem;
-    font-size: 1.05rem;
 
-    transform: translateY(-100%);
+    overflow: auto;          /* 链接多时可滚动 */
+
+    transform: translateY(-110%);
     opacity: 0;
     pointer-events: none;
     transition: transform 0.25s ease, opacity 0.25s ease;
     z-index: 900;
   }
+
+  .site-header .site-nav.is-open {
+    transform: translateY(0);
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  body.nav-open {
+    overflow: hidden;
+  }
+}
 
   .site-header .site-nav a {
     text-decoration: none;
