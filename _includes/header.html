@@ -5,23 +5,9 @@
     <a class="site-logo" href="{{ '/' | relative_url }}" aria-label="{{ site.title | default: 'FZ Studio' }}">
       <img src="{{ site.logo | default: '/assets/images/logo.svg' | relative_url }}" alt="{{ site.title | default: 'FZ Studio' }}">
     </a>
-    
-<div class="site-actions">
-  <!-- 汉堡菜单按钮（手机上显示） -->
-  <button
-    id="fz-nav-toggle"
-    class="icon-btn nav-toggle"
-    type="button"
-    aria-label="Menu"
-    aria-expanded="false"
-  >
-    <span class="nav-toggle-bar"></span>
-    <span class="nav-toggle-bar"></span>
-    <span class="nav-toggle-bar"></span>
-  </button>
-  
-    <!-- 主导航（按你站点结构） -->
-    <nav class="site-nav" aria-label="Primary">
+
+    <!-- 主导航 -->
+    <nav id="fz-site-nav" class="site-nav" aria-label="Primary">
       <a href="{{ '/' | relative_url }}">HOME</a>
       <a href="{{ '/our-story/' | relative_url }}">OUR STORY</a>
       <a href="{{ '/studio/' | relative_url }}">STUDIO</a>
@@ -31,8 +17,22 @@
       <a href="{{ '/contact/' | relative_url }}">CONTACT</a>
     </nav>
 
-        <!-- 右上角动作按钮 -->
+    <!-- 右上角动作按钮（汉堡 + 搜索 + 账号 + 购物车） -->
     <div class="site-actions">
+      <!-- 汉堡菜单按钮（手机上显示） -->
+      <button
+        id="fz-nav-toggle"
+        class="icon-btn nav-toggle"
+        type="button"
+        aria-label="Menu"
+        aria-controls="fz-site-nav"
+        aria-expanded="false"
+      >
+        <span class="nav-toggle-bar"></span>
+        <span class="nav-toggle-bar"></span>
+        <span class="nav-toggle-bar"></span>
+      </button>
+
       <!-- 搜索 -->
       <button id="fz-search-btn" class="icon-btn" type="button" aria-label="Search" title="Search">
         <svg class="fz-icon" viewBox="0 0 24 24" aria-hidden="true">
@@ -41,41 +41,21 @@
         </svg>
       </button>
 
-      <!-- 登录 / Account 图标，点击跳到账号页面 -->
-<a href="{{ '/account/' | relative_url }}"
-   class="icon-btn"
-   aria-label="Account"
-   title="Account">
-  <svg class="fz-icon" viewBox="0 0 24 24" aria-hidden="true">
-    <circle cx="12" cy="9" r="4" fill="none" stroke="currentColor" stroke-width="1.4" />
-    <path
-      d="M5 19c1.5-3 4-4.5 7-4.5s5.5 1.5 7 4.5"
-      fill="none"
-      stroke="currentColor"
-      stroke-width="1.4"
-      stroke-linecap="round"
-      stroke-linejoin="round"
-    />
-  </svg>
-</a>
+      <!-- Account -->
+      <a href="{{ '/account/' | relative_url }}" class="icon-btn" aria-label="Account" title="Account">
+        <svg class="fz-icon" viewBox="0 0 24 24" aria-hidden="true">
+          <circle cx="12" cy="9" r="4" fill="none" stroke="currentColor" stroke-width="1.4" />
+          <path d="M5 19c1.5-3 4-4.5 7-4.5s5.5 1.5 7 4.5"
+                fill="none" stroke="currentColor" stroke-width="1.4"
+                stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </a>
 
-      <!-- 购物袋 -->
+      <!-- Cart -->
       <button id="fz-cart-btn" class="icon-btn" type="button" aria-label="Cart" title="Cart">
         <svg class="fz-icon" viewBox="0 0 24 24" aria-hidden="true">
-          <path
-            d="M7 8h10l-1 11H8L7 8z"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="1.4"
-            stroke-linejoin="round"
-          />
-          <path
-            d="M9.5 8a2.5 2.5 0 0 1 5 0"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="1.4"
-            stroke-linecap="round"
-          />
+          <path d="M7 8h10l-1 11H8L7 8z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round" />
+          <path d="M9.5 8a2.5 2.5 0 0 1 5 0" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" />
         </svg>
         <span id="fz-cart-count" hidden>0</span>
       </button>
