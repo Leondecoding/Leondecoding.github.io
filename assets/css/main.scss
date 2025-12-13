@@ -741,3 +741,65 @@ body {
   line-height: 1;
   cursor: pointer;
 }
+
+/* ===== Product detail: mobile stack (fix horizontal scroll) ===== */
+@media (max-width: 900px) {
+  /* 让详情页整体别被左 padding 顶出去（对 761~900px 的平板/大手机也有效） */
+  .container.product-page {
+    margin-top: 40px;
+    padding: 0 16px;
+  }
+
+  /* 关键：覆盖 .product-grid 的 inline 两列布局，否则会横向溢出 */
+  .container.product-page .product-grid {
+    grid-template-columns: 1fr !important;
+    gap: 24px !important;
+    padding-left: 0 !important;
+  }
+
+  /* 避免子元素在 grid 里因为最小宽度导致溢出 */
+  .container.product-page .product-grid > .product-gallery,
+  .container.product-page .product-grid > .product-info {
+    min-width: 0;
+    width: 100%;
+    margin: 0 !important;
+  }
+
+  /* 取消桌面端给 originals / cards 的“上下微调”，手机端要紧凑上下排 */
+  .container.product-page.product-page--originals .product-info,
+  .container.product-page.product-page--card .product-info {
+    margin-top: 0 !important;
+  }
+
+  /* 右侧信息区别限制 max-width（手机端要全宽） */
+  .container.product-page .product-info {
+    max-width: none;
+  }
+
+  /* 购买区域：Size（如有）→ Add to Cart → PayPal → 描述（描述本来就在后面） */
+  .container.product-page .product-info .product-actions {
+    max-width: none !important;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  /* 两个 form 都占满宽度 */
+  .container.product-page .product-info .product-actions form {
+    width: 100%;
+    margin: 0;
+  }
+
+  /* 调整按钮顺序：先购物车（含 size 选择），再 PayPal */
+  .container.product-page .product-info .product-actions form.product-cart {
+    order: 1;
+  }
+  .container.product-page .product-info .product-actions form:not(.product-cart) {
+    order: 2;
+  }
+
+  /* 保险：如果某些页面图片被写了 margin-left，手机端强制清掉 */
+  .container.product-page .product-gallery img {
+    margin-left: 0 !important;
+  }
+}
