@@ -803,3 +803,92 @@ body {
     margin-left: 0 !important;
   }
 }
+
+/* =========================================================
+   FIX: Header icons + hamburger should be BLACK (no blue tint)
+   ========================================================= */
+
+/* iOS/移动端常见的蓝色点按高亮，关掉（不影响功能） */
+.site-header .site-actions .icon-btn,
+.site-header .site-actions a.icon-btn,
+.container.product-page .product-actions button,
+.container.product-page .product-actions a {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* 强制头部所有 icon 按钮为黑色（SVG 用 currentColor） */
+.site-header .site-actions .icon-btn,
+.site-header .site-actions a.icon-btn,
+.site-header .site-actions .icon-btn:visited,
+.site-header .site-actions a.icon-btn:visited {
+  color: #111 !important;
+}
+
+/* 汉堡按钮：只显示三条横杠（并隐藏任何意外字符/伪元素图标） */
+.site-header .nav-toggle {
+  color: #111 !important;
+  font-size: 0;   /* 防止按钮里残留 “☰/乱码字符” */
+  line-height: 0;
+}
+
+.site-header .nav-toggle::before,
+.site-header .nav-toggle::after {
+  content: none !important; /* 防止旧的 icon-font 伪元素冒出来 */
+}
+
+/* 三条横杠的视觉 */
+.site-header .nav-toggle .nav-toggle-bar {
+  width: 22px;
+  height: 2px;
+  background: currentColor;
+  border-radius: 999px;
+}
+
+/* =========================================================
+   FIX: Product page buttons (Add to Cart / Pay via PayPal)
+   ========================================================= */
+
+/* 统一把产品页购买区里的文字颜色变黑 */
+.container.product-page .product-actions,
+.container.product-page .product-actions button,
+.container.product-page .product-actions a,
+.container.product-page .product-actions .fz-btn {
+  color: #111 !important;
+}
+
+/* Add to Cart（如果用的是 .fz-btn 默认按钮）确保边框也是黑的 */
+.container.product-page .product-actions .fz-btn:not(.fz-btn--primary) {
+  border-color: #111 !important;
+}
+
+/* Pay via PayPal：把“灰色条”做得更像按钮（短一点） 
+   - 这里用两种兜底：
+     A) 第二个 form（通常是 PayPal）
+     B) id/class 里包含 paypal 的元素
+*/
+@media (max-width: 900px) {
+  /* PayPal 那个容器/表单不要被拉成整条“色带” */
+  .container.product-page .product-actions form:nth-of-type(2) {
+    width: auto !important;
+  }
+
+  /* PayPal 相关按钮/容器统一灰底黑字 */
+  .container.product-page .product-actions form:nth-of-type(2) button,
+  .container.product-page .product-actions form:nth-of-type(2) a,
+  .container.product-page .product-actions [id*="paypal"],
+  .container.product-page .product-actions [class*="paypal"] {
+    background: #f2f2f2 !important;
+    border: 1px solid #ddd !important;
+    color: #111 !important;
+    border-radius: 12px;
+  }
+
+  /* 缩短成“按钮感”：给一个合理宽度范围 */
+  .container.product-page .product-actions form:nth-of-type(2) button,
+  .container.product-page .product-actions form:nth-of-type(2) a {
+    width: auto !important;
+    min-width: 220px;
+    max-width: 320px;
+    padding: 0.75rem 1rem;
+  }
+}
