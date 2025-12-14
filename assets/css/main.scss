@@ -744,13 +744,13 @@ body {
 }
 
 @media (max-width: 900px) {
-  .container.product-page .product-actions form[action*="paypal"] {
+  .container.product-page .product-actions form[action*="paypal"],
+  .container.product-page .product-actions form.product-cart {
     width: 100%;
     max-width: 260px;
     margin: 0 auto;
   }
 }
-
 
 /* 搜索/账号/购物车图标强制黑色 */
 .site-header .site-actions .icon-btn,
