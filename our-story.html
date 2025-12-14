@@ -137,31 +137,66 @@ class="center" style="padding:8px 0 56px;">
 
     f.addEventListener('submit', async (e) => {
       e.preventDefault();
-      const btn = f.querySelector('button[type="submit"]');
-      const btnLabel = btn ? (btn.dataset.label || btn.textContent) : '';
-      if (btn && !btn.dataset.label) btn.dataset.label = btnLabel;
-      if (btn) btn.disabled = true;
 
-      // 让提示区可见，并显示发送中
+      const btn = f.querySelector('button[type="submit"]');
+      const originalLabel = btn ? (btn.dataset.label || btn.textContent.trim() || 'Sign up') : '';
+      if (btn && !btn.dataset.label) btn.dataset.label = originalLabel;
+
+      // Clear any previous message; during submit we only show ONE "Sending..." (on the button)
       m.className = 'nl-msg';
-      m.style.display = 'block';
-      m.textContent = 'Sending...';
+      m.style.display = 'none';
+      m.textContent = '';
+
+      // If a previous success timer exists, cancel it
+      if (f._nlTimer) {
+        clearTimeout(f._nlTimer);
+        f._nlTimer = null;
+      }
+
+      if (btn) {
+        btn.style.display = '';
+        btn.disabled = true;
+        btn.textContent = 'Sending...';
+      }
 
       try {
         await fetch(f.action, { method: 'POST', body: new FormData(f), mode: 'no-cors' });
+
         f.reset();
+
+        // After success: hide the button so only the thanks line shows
+        if (btn) {
+          btn.disabled = false;
+          btn.style.display = 'none';
+          btn.textContent = btn.dataset.label || 'Sign up';
+        }
+
         m.className = 'nl-msg ok';
         m.style.display = 'block';
         m.textContent = 'Thanks! Your email has been added.';
+
+        // After a few seconds: hide thanks and bring back "Sign up"
+        f._nlTimer = setTimeout(() => {
+          m.className = 'nl-msg';
+          m.style.display = 'none';
+          m.textContent = '';
+          if (btn) {
+            btn.style.display = '';
+            btn.textContent = btn.dataset.label || 'Sign up';
+          }
+          f._nlTimer = null;
+        }, 3000);
+
       } catch (err) {
+        // On error: restore button and show error message
+        if (btn) {
+          btn.disabled = false;
+          btn.style.display = '';
+          btn.textContent = btn.dataset.label || 'Sign up';
+        }
         m.className = 'nl-msg err';
         m.style.display = 'block';
         m.textContent = 'Something went wrong. Please try again.';
-      } finally {
-        if (btn) {
-          btn.disabled = false;
-          btn.textContent = btn.dataset.label || 'Sign up';
-        }
       }
     });
   }
