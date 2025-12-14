@@ -718,7 +718,9 @@ body {
 /* Product page only: style the classic PayPal form button on product detail pages */
 .container.product-page .product-actions form[action*="paypal"] > button[type="submit"],
 .container.product-page .product-actions form[action*="paypal"] > input[type="submit"],
-.container.product-page .product-actions form[action*="paypal"] > input[type="image"] {
+.container.product-page .product-actions form[action*="paypal"] > input[type="image"],
+.container.product-page .product-actions form.product-cart > button,
+.container.product-page .product-actions #btn-add-to-cart {
   -webkit-appearance: none;
   appearance: none;
 
