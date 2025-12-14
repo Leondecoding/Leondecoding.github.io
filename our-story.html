@@ -138,6 +138,8 @@ class="center" style="padding:8px 0 56px;">
     f.addEventListener('submit', async (e) => {
       e.preventDefault();
       const btn = f.querySelector('button[type="submit"]');
+      const btnLabel = btn ? (btn.dataset.label || btn.textContent) : '';
+      if (btn && !btn.dataset.label) btn.dataset.label = btnLabel;
       if (btn) btn.disabled = true;
 
       // 让提示区可见，并显示发送中
@@ -156,7 +158,10 @@ class="center" style="padding:8px 0 56px;">
         m.style.display = 'block';
         m.textContent = 'Something went wrong. Please try again.';
       } finally {
-        if (btn) btn.disabled = false;
+        if (btn) {
+          btn.disabled = false;
+          btn.textContent = btn.dataset.label || 'Sign up';
+        }
       }
     });
   }
@@ -174,4 +179,3 @@ class="center" style="padding:8px 0 56px;">
 </script>
 
 <script src="/assets/js/fz-ui.js" defer></script>
-
