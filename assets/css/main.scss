@@ -711,11 +711,7 @@ body {
   color: #111 !important;
 }
 
-/* Add to Cart（如果用的是 .fz-btn 默认按钮）确保边框也是黑的 */
-.container.product-page .product-actions .fz-btn:not(.fz-btn--primary) {
-  border-color: #111 !important;
-}
-/* Product page only: style the classic PayPal form button on product detail pages */
+/* Product page only: unify Add to Cart + classic PayPal form button */
 .container.product-page .product-actions form[action*="paypal"] > button[type="submit"],
 .container.product-page .product-actions form[action*="paypal"] > input[type="submit"],
 .container.product-page .product-actions form[action*="paypal"] > input[type="image"],
@@ -728,37 +724,30 @@ body {
   align-items: center;
   justify-content: center;
 
-  height: 46px;!important;
-  width: 100%;!important;
+  height: 46px !important;
+  min-height: 46px !important;
+  width: 100%;
   box-sizing: border-box;
 
-  padding: 0 16px !important; /* override inline padding in product.html */
+  padding: 0 16px !important;
   background: #f2f2f2 !important;
   color: #111 !important;
   border: 1px solid #ddd !important;
   border-radius: 12px !important;
 
-  font-size: 16px;important;
-  font-weight: 600;important;
-  line-height: 1;important;
+  font-size: 16px !important;
+  font-weight: 600 !important;
+  line-height: 1 !important;
 }
 
 @media (max-width: 900px) {
   .container.product-page .product-actions form[action*="paypal"],
   .container.product-page .product-actions form.product-cart {
-    width: 100%;!important;
-    max-width: 260px;!important;
-    margin: 0 auto;!important;
+    width: 100% !important;
+    max-width: 260px !important;
+    margin: 0 auto !important;
   }
 }
-
-/* 搜索/账号/购物车图标强制黑色 */
-.site-header .site-actions .icon-btn,
-.site-header .site-actions a.icon-btn {
-  color: #111 !important;
-  -webkit-tap-highlight-color: transparent;
-}
-
 
 /* =========================================================
    Mobile Navigation (clean)
