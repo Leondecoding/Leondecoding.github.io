@@ -163,8 +163,26 @@ class="center" style="padding:8px 0 56px;">
         btn.textContent = 'Sending...';
       }
 
-      try {
-        await fetch(f.action, { method: 'POST', body: new FormData(f), mode: 'no-cors' });
+      
+
+      // Fill context fields if present (some scripts reject empty values)
+      const setIfEmpty = (name, val) => {
+        const el = f.querySelector(`[name="${name}"]`);
+        if (el && !el.value) el.value = val;
+      };
+      setIfEmpty('ua', navigator.userAgent || '');
+      setIfEmpty('ref', document.referrer || '');
+      setIfEmpty('token', `${Date.now()}-${Math.random().toString(36).slice(2, 10)}`);
+try {
+        const fd = new FormData(f);
+        const params = new URLSearchParams();
+        for (const [k, v] of fd.entries()) params.append(k, v);
+        await fetch(f.action, {
+          method: 'POST',
+          mode: 'no-cors',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8' },
+          body: params
+        });
         f.reset();
 
         // 2) Success message (still a single line: the button)
