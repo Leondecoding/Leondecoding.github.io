@@ -117,7 +117,6 @@ class="center" style="padding:8px 0 56px;">
   <!-- 只保留一个提示节点 -->
   <p id="nl-msg-freebie" class="nl-msg" role="status" aria-live="polite"></p>
 </section>
-  </section>   <!-- ← 第104行：freebie-signup 结束 -->
 
 <!-- Footer（放在 Freebie 区域正下方） -->
 <hr style="max-width:880px;margin:40px auto 24px;border:0;border-top:1px solid #eee;">
@@ -125,9 +124,10 @@ class="center" style="padding:8px 0 56px;">
   <p>We send only occasional notes. Unsubscribe anytime.</p>
 </footer>
 
-<script>   <!-- ← 这里开始是你现在文件里的第105行（原来的 <script>） -->
+</div>
 
-  <script>
+<!-- Newsletter/Freebie signup handler (AJAX submit + inline message) -->
+<script>
 (function () {
   // 通用绑定：无跳转提交、提示可见
   function wire(formId, msgId) {
@@ -175,4 +175,3 @@ class="center" style="padding:8px 0 56px;">
 
 <script src="/assets/js/fz-ui.js" defer></script>
 
-</script>
