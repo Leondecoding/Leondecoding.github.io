@@ -133,72 +133,68 @@ class="center" style="padding:8px 0 56px;">
   function wire(formId, msgId) {
     const f = document.getElementById(formId);
     const m = document.getElementById(msgId);
-    if (!f || !m) return;
+    if (!f) return;
 
+    // Use capture so we can stop other handlers (prevents double "Sending..." from other scripts)
     f.addEventListener('submit', async (e) => {
       e.preventDefault();
+      e.stopImmediatePropagation();
 
       const btn = f.querySelector('button[type="submit"]');
-      const originalLabel = btn ? (btn.dataset.label || btn.textContent.trim() || 'Sign up') : '';
+      const originalLabel = btn ? (btn.dataset.label || btn.textContent.trim() || 'Sign up') : 'Sign up';
       if (btn && !btn.dataset.label) btn.dataset.label = originalLabel;
 
-      // Clear any previous message; during submit we only show ONE "Sending..." (on the button)
-      m.className = 'nl-msg';
-      m.style.display = 'none';
-      m.textContent = '';
+      // Always hide/clear the separate message node to avoid duplicate lines
+      if (m) {
+        m.textContent = '';
+        m.className = 'nl-msg';
+        m.style.setProperty('display', 'none', 'important');
+      }
 
-      // If a previous success timer exists, cancel it
+      // Clear any previous timer
       if (f._nlTimer) {
         clearTimeout(f._nlTimer);
         f._nlTimer = null;
       }
 
+      // 1) Sending...
       if (btn) {
-        btn.style.display = '';
         btn.disabled = true;
         btn.textContent = 'Sending...';
       }
 
       try {
         await fetch(f.action, { method: 'POST', body: new FormData(f), mode: 'no-cors' });
-
         f.reset();
 
-        // After success: hide the button so only the thanks line shows
+        // 2) Success message (still a single line: the button)
         if (btn) {
-          btn.disabled = false;
-          btn.style.display = 'none';
-          btn.textContent = btn.dataset.label || 'Sign up';
+          btn.textContent = 'Thanks! Your email has been added.';
         }
 
-        m.className = 'nl-msg ok';
-        m.style.display = 'block';
-        m.textContent = 'Thanks! Your email has been added.';
-
-        // After a few seconds: hide thanks and bring back "Sign up"
+        // 3) After a few seconds: revert back to Sign up
         f._nlTimer = setTimeout(() => {
-          m.className = 'nl-msg';
-          m.style.display = 'none';
-          m.textContent = '';
           if (btn) {
-            btn.style.display = '';
+            btn.disabled = false;
             btn.textContent = btn.dataset.label || 'Sign up';
           }
           f._nlTimer = null;
         }, 3000);
 
       } catch (err) {
-        // On error: restore button and show error message
+        // Error: show one-line error, then revert
         if (btn) {
-          btn.disabled = false;
-          btn.style.display = '';
-          btn.textContent = btn.dataset.label || 'Sign up';
+          btn.textContent = 'Something went wrong. Please try again.';
         }
-        m.className = 'nl-msg err';
-        m.style.display = 'block';
-        m.textContent = 'Something went wrong. Please try again.';
+        f._nlTimer = setTimeout(() => {
+          if (btn) {
+            btn.disabled = false;
+            btn.textContent = btn.dataset.label || 'Sign up';
+          }
+          f._nlTimer = null;
+        }, 3000);
       }
-    });
+    }, true);
   }
 
   // 给 Our Story 顶部那个表单补齐上下文（有这些隐藏域才会填）
