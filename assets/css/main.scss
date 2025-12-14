@@ -728,8 +728,8 @@ body {
   align-items: center;
   justify-content: center;
 
-  height: 46px;
-  width: 100%;
+  height: 46px;!important;
+  width: 100%;!important;
   box-sizing: border-box;
 
   padding: 0 16px !important; /* override inline padding in product.html */
@@ -738,17 +738,17 @@ body {
   border: 1px solid #ddd !important;
   border-radius: 12px !important;
 
-  font-size: 16px;
-  font-weight: 600;
-  line-height: 1;
+  font-size: 16px;important;
+  font-weight: 600;important;
+  line-height: 1;important;
 }
 
 @media (max-width: 900px) {
   .container.product-page .product-actions form[action*="paypal"],
   .container.product-page .product-actions form.product-cart {
-    width: 100%;
-    max-width: 260px;
-    margin: 0 auto;
+    width: 100%;!important;
+    max-width: 260px;!important;
+    margin: 0 auto;!important;
   }
 }
 
