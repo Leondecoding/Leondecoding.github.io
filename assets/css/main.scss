@@ -119,46 +119,6 @@ body {
 }
 .fz-badge { position:absolute; transform:translate(10px,-10px); min-width:18px; height:18px; padding:0 5px; border-radius:999px; font-size:.75rem; line-height:18px; text-align:center; color:#fff; background:#111; }
 
-/* === 汉堡按钮基础样式 === */
-.nav-toggle {
-  display: none;               /* 桌面端隐藏，手机端在 @media 里再显示 */
-  align-items: center;
-  justify-content: center;
-  width: 40px;
-  height: 40px;
-  padding: 0;
-  border: 0;
-  background: none;
-  cursor: pointer;
-}
-
-.nav-toggle-bar {
-  display: block;
-  width: 20px;
-  height: 2px;
-  border-radius: 999px;
-  background: currentColor;
-  position: relative;
-  transition: transform 0.2s ease, opacity 0.2s ease;
-}
-
-.nav-toggle-bar + .nav-toggle-bar {
-  margin-top: 5px;
-}
-
-/* 打开状态时变成“X” — 这里用 aria-expanded，而不是 .site-header.nav-open */
-.nav-toggle[aria-expanded="true"] .nav-toggle-bar:nth-child(1) {
-  transform: translateY(7px) rotate(45deg);
-}
-
-.nav-toggle[aria-expanded="true"] .nav-toggle-bar:nth-child(2) {
-  opacity: 0;
-}
-
-.nav-toggle[aria-expanded="true"] .nav-toggle-bar:nth-child(3) {
-  transform: translateY(-7px) rotate(-45deg);
-}
-
 /* ===== 弹窗/抽屉占位 ===== */
 .fz-panel,.fz-drawer{ position:fixed; inset:0; display:block; }
 .fz-panel__backdrop,.fz-drawer__backdrop{ position:absolute; inset:0; background:rgba(0,0,0,.35); }
@@ -178,91 +138,6 @@ body {
 .fz-drawer__content{ padding:1rem; overflow:auto; flex:1; }
 .fz-drawer__footer{ padding:1rem; border-top:1px solid #eee; }
 
-/* ==== Mobile 导航：汉堡菜单 ==== */
-@media (max-width: 900px) {
-
-  /* 头部整体一行：左 logo，右侧动作区（汉堡 + 图标） */
-  .site-header .container {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 1rem;
-    padding-inline: 16px;
-  }
-
-  .site-header .site-logo {
-    flex: 0 0 auto;
-  }
-
-  .site-header .site-actions {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-  }
-
-  /* 汉堡在手机上显示 */
-  .nav-toggle {
-    display: inline-flex;
-  }
-
-  /* 主导航变成一个全屏的 overlay，默认隐藏 */
-  @media (max-width: 900px) {
-  /* ...你原来的 mobile header flex 代码保留... */
-
-  /* 主导航：从 header 下方开始的全屏抽屉（避免盖住汉堡） */
-  .site-header .site-nav {
-    position: fixed;
-    top: var(--fz-header-h, 72px);
-    left: 0;
-    right: 0;
-    bottom: 0;
-
-    margin-left: 0;          /* 覆盖桌面端的 margin-left:85px */
-    padding: 18px 24px 24px;
-    background: #fff;
-
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 1.2rem;
-
-    overflow: auto;          /* 链接多时可滚动 */
-
-    transform: translateY(-110%);
-    opacity: 0;
-    pointer-events: none;
-    transition: transform 0.25s ease, opacity 0.25s ease;
-    z-index: 900;
-  }
-
-  .site-header .site-nav.is-open {
-    transform: translateY(0);
-    opacity: 1;
-    pointer-events: auto;
-  }
-
-  body.nav-open {
-    overflow: hidden;
-  }
-}
-
-  .site-header .site-nav a {
-    text-decoration: none;
-    font-weight: 500;
-  }
-
-  /* JS 会给 .site-nav 加 .is-open，这时菜单滑下来显示 */
-  .site-header .site-nav.is-open {
-    transform: translateY(0);
-    opacity: 1;
-    pointer-events: auto;
-  }
-
-  /* 打开菜单时禁止背景滚动 */
-  body.nav-open {
-    overflow: hidden;
-  }
-}
 
 /* ===== 列表页：4 列网格（上4下4） ===== */
 .fz-grid { max-width:1200px; margin:28px auto 48px; display:grid; gap:28px; }
@@ -978,5 +853,112 @@ body {
     width: 100% !important;
     max-width: 260px !important; /* 你现在 actions 本来就 max-width:260 */
     margin: 0 auto;
+  }
+}
+
+/* =========================================================
+   Mobile Nav (clean)
+   - Desktop: no hamburger, keep horizontal nav as-is
+   - Mobile (<=900): show hamburger, nav becomes full-screen drawer
+   ========================================================= */
+
+/* --- Hamburger base (desktop hidden by default) --- */
+.nav-toggle{
+  display: none;                 /* 关键：桌面端永远不显示 */
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  color: #111;
+}
+
+/* 3 bars */
+.nav-toggle-bar{
+  display: block;
+  width: 20px;
+  height: 2px;
+  border-radius: 999px;
+  background: currentColor;
+  transition: transform .2s ease, opacity .2s ease;
+}
+
+/* 用 gap 控制间距，不用 margin-top（避免横排时变怪） */
+.nav-toggle{ gap: 6px; }
+
+/* open -> X（仍然用 aria-expanded，不改你的 JS 逻辑） */
+.nav-toggle[aria-expanded="true"] .nav-toggle-bar:nth-child(1){
+  transform: translateY(8px) rotate(45deg);
+}
+.nav-toggle[aria-expanded="true"] .nav-toggle-bar:nth-child(2){
+  opacity: 0;
+}
+.nav-toggle[aria-expanded="true"] .nav-toggle-bar:nth-child(3){
+  transform: translateY(-8px) rotate(-45deg);
+}
+
+
+/* --- Mobile layout only --- */
+@media (max-width: 900px){
+
+  /* 手机端才显示汉堡，并且竖向堆叠三条线 */
+  .nav-toggle{
+    display: inline-flex;
+    flex-direction: column;      /* 关键：三条横杠竖向堆叠 */
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* 手机端：图标统一黑色（不影响桌面） */
+  .site-header .site-actions .icon-btn,
+  .site-header .site-actions a.icon-btn{
+    color: #111;
+  }
+
+  /* 手机端 header 微调（只改 padding，不动桌面结构） */
+  .site-header > .container{
+    padding: 16px 16px;
+  }
+
+  /* 手机端：主导航变成全屏抽屉（默认隐藏） */
+  .site-header .site-nav{
+    position: fixed;
+    top: var(--fz-header-h, 72px);
+    left: 0;
+    right: 0;
+    bottom: 0;
+
+    margin-left: 0;
+    padding: 18px 24px 24px;
+    background: #fff;
+
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1.2rem;
+
+    overflow: auto;
+
+    transform: translateY(-110%);
+    opacity: 0;
+    pointer-events: none;
+    transition: transform .25s ease, opacity .25s ease;
+    z-index: 900;
+  }
+
+  .site-header .site-nav.is-open{
+    transform: translateY(0);
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  body.nav-open{
+    overflow: hidden;
+  }
+
+  .site-header .site-nav a{
+    font-weight: 500;
+    text-decoration: none;
   }
 }
