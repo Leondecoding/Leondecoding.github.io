@@ -29,6 +29,7 @@
 
     const setOpen = (open) => {
       nav.classList.toggle('is-open', open);
+      btn.classList.toggle('is-open', open);
       document.body.classList.toggle('nav-open', open);
       btn.setAttribute('aria-expanded', open ? 'true' : 'false');
       nav.setAttribute('aria-hidden', open ? 'false' : 'true');
