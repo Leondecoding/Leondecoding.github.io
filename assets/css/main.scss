@@ -273,32 +273,6 @@ body {
     padding-left: 0;
     row-gap: 24px;
   }
-    /* Product detail: mobile — make Pay via PayPal match Add to Cart */
-  .container.product-page .product-info .product-actions{
-    max-width: 260px;
-  }
-  .container.product-page .product-info .product-actions form{
-    width: 100%;
-  }
-
-  /* 第二个按钮/表单（通常就是 Pay via PayPal） */
-  .container.product-page .product-info .product-actions form:nth-of-type(2) button,
-  .container.product-page .product-info .product-actions form:nth-of-type(2) input[type="submit"],
-  .container.product-page .product-info .product-actions form:nth-of-type(2) a{
-    background: #f2f2f2 !important;
-    border: 1px solid #ddd !important;
-    color: #111 !important;
-
-    border-radius: 14px !important;
-    min-height: 46px;
-    padding: 14px 18px;
-
-    width: 100%;
-    max-width: 260px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-  }
 }
 /* ===== Original Art: lower right info panel a bit ===== */
 /* 只针对 Original Art（.product-page--originals），把右侧信息栏整体往下挪一点 */
@@ -741,38 +715,40 @@ body {
 .container.product-page .product-actions .fz-btn:not(.fz-btn--primary) {
   border-color: #111 !important;
 }
+/* Product page only: style the classic PayPal form button on product detail pages */
+.container.product-page .product-actions form[action*="paypal"] > button[type="submit"],
+.container.product-page .product-actions form[action*="paypal"] > input[type="submit"],
+.container.product-page .product-actions form[action*="paypal"] > input[type="image"] {
+  -webkit-appearance: none;
+  appearance: none;
 
-/* Pay via PayPal：把“灰色条”做得更像按钮（短一点） 
-   - 这里用两种兜底：
-     A) 第二个 form（通常是 PayPal）
-     B) id/class 里包含 paypal 的元素
-*/
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  height: 46px;
+  width: 100%;
+  box-sizing: border-box;
+
+  padding: 0 16px !important; /* override inline padding in product.html */
+  background: #f2f2f2 !important;
+  color: #111 !important;
+  border: 1px solid #ddd !important;
+  border-radius: 12px !important;
+
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 1;
+}
+
 @media (max-width: 900px) {
-  /* PayPal 那个容器/表单不要被拉成整条“色带” */
-  .container.product-page .product-actions form:nth-of-type(2) {
-    width: auto !important;
-  }
-
-  /* PayPal 相关按钮/容器统一灰底黑字 */
-  .container.product-page .product-actions form:nth-of-type(2) button,
-  .container.product-page .product-actions form:nth-of-type(2) a,
-  .container.product-page .product-actions [id*="paypal"],
-  .container.product-page .product-actions [class*="paypal"] {
-    background: #f2f2f2 !important;
-    border: 1px solid #ddd !important;
-    color: #111 !important;
-    border-radius: 12px;
-  }
-
-  /* 缩短成“按钮感”：给一个合理宽度范围 */
-  .container.product-page .product-actions form:nth-of-type(2) button,
-  .container.product-page .product-actions form:nth-of-type(2) a {
-    width: auto !important;
-    min-width: 220px;
-    max-width: 320px;
-    padding: 0.75rem 1rem;
+  .container.product-page .product-actions form[action*="paypal"] {
+    width: 100%;
+    max-width: 260px;
+    margin: 0 auto;
   }
 }
+
 
 /* 搜索/账号/购物车图标强制黑色 */
 .site-header .site-actions .icon-btn,
@@ -781,39 +757,6 @@ body {
   -webkit-tap-highlight-color: transparent;
 }
 
-/* ===== Product page: make Pay via PayPal look like Add to Cart ===== */
-.container.product-page .product-actions button,
-.container.product-page .product-actions a {
-  -webkit-tap-highlight-color: transparent;
-}
-
-/* 尝试命中 PayPal 按钮：常见 id/class 命名兜底 */
-.container.product-page .product-actions #paypalBtn,
-.container.product-page .product-actions #fz-paypal-btn,
-.container.product-page .product-actions .paypal-btn,
-.container.product-page .product-actions [class*="paypal"],
-.container.product-page .product-actions [id*="paypal"] {
-  background: #f2f2f2 !important;
-  border: 1px solid #ddd !important;
-  color: #111 !important;
-  border-radius: 999px !important;
-
-  padding: .75rem 1rem !important;
-  line-height: 1.2;
-}
-
-/* 让它不要像一条“色带”：给最大宽度，居中 */
-@media (max-width: 900px) {
-  .container.product-page .product-actions #paypalBtn,
-  .container.product-page .product-actions #fz-paypal-btn,
-  .container.product-page .product-actions .paypal-btn,
-  .container.product-page .product-actions [class*="paypal"],
-  .container.product-page .product-actions [id*="paypal"] {
-    width: 100% !important;
-    max-width: 260px !important; /* 你现在 actions 本来就 max-width:260 */
-    margin: 0 auto;
-  }
-}
 
 /* =========================================================
    Mobile Navigation (clean)
