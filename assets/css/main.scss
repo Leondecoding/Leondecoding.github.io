@@ -536,6 +536,22 @@ body {
   display: inline-block;  /* 或留给组件自身覆盖 */
 }
 
+/* Cart drawer: make +/- and remove (×) black, without touching primary buttons */
+.fz-drawer__panel button:not(.fz-btn),
+.fz-drawer__panel a:not(.fz-btn) {
+  color: #111 !important;
+  -webkit-text-fill-color: #111 !important; /* iOS Safari 兜底 */
+}
+
+/* If icons are SVG, force them to follow currentColor */
+.fz-drawer__panel button:not(.fz-btn) svg,
+.fz-drawer__panel button:not(.fz-btn) svg *,
+.fz-drawer__panel a:not(.fz-btn) svg,
+.fz-drawer__panel a:not(.fz-btn) svg * {
+  fill: currentColor !important;
+  stroke: currentColor !important;
+}
+
 /* ==== Product page: 图片画廊 + Lightbox 布局 ==== */
 
 /* 左侧主图 + 三张小图的容器（所有产品共用，默认顶对齐） */
