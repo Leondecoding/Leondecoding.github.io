@@ -273,6 +273,32 @@ body {
     padding-left: 0;
     row-gap: 24px;
   }
+    /* Product detail: mobile — make Pay via PayPal match Add to Cart */
+  .container.product-page .product-info .product-actions{
+    max-width: 260px;
+  }
+  .container.product-page .product-info .product-actions form{
+    width: 100%;
+  }
+
+  /* 第二个按钮/表单（通常就是 Pay via PayPal） */
+  .container.product-page .product-info .product-actions form:nth-of-type(2) button,
+  .container.product-page .product-info .product-actions form:nth-of-type(2) input[type="submit"],
+  .container.product-page .product-info .product-actions form:nth-of-type(2) a{
+    background: #f2f2f2 !important;
+    border: 1px solid #ddd !important;
+    color: #111 !important;
+
+    border-radius: 14px !important;
+    min-height: 46px;
+    padding: 14px 18px;
+
+    width: 100%;
+    max-width: 260px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
 }
 /* ===== Original Art: lower right info panel a bit ===== */
 /* 只针对 Original Art（.product-page--originals），把右侧信息栏整体往下挪一点 */
