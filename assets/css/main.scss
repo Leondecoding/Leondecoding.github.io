@@ -892,3 +892,91 @@ body {
     padding: 0.75rem 1rem;
   }
 }
+
+/* ===== Fix hamburger layout: 3 bars + X ===== */
+.site-header #fz-nav-toggle {
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #111 !important;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+
+  font-size: 0;     /* 防止按钮里出现文字/符号 */
+  line-height: 0;
+}
+
+.site-header #fz-nav-toggle::before,
+.site-header #fz-nav-toggle::after {
+  content: none !important; /* 防止旧的伪元素图标 */
+}
+
+.site-header #fz-nav-toggle .nav-toggle-bar {
+  display: block;
+  width: 22px;
+  height: 2px;
+  background: currentColor;
+  border-radius: 999px;
+
+  transform: none;
+  transform-origin: center;
+  transition: transform .2s ease, opacity .2s ease;
+}
+
+/* open -> X */
+.site-header #fz-nav-toggle.is-open .nav-toggle-bar:nth-child(1) {
+  transform: translateY(8px) rotate(45deg);
+}
+.site-header #fz-nav-toggle.is-open .nav-toggle-bar:nth-child(2) {
+  opacity: 0;
+}
+.site-header #fz-nav-toggle.is-open .nav-toggle-bar:nth-child(3) {
+  transform: translateY(-8px) rotate(-45deg);
+}
+
+/* 搜索/账号/购物车图标强制黑色 */
+.site-header .site-actions .icon-btn,
+.site-header .site-actions a.icon-btn {
+  color: #111 !important;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* ===== Product page: make Pay via PayPal look like Add to Cart ===== */
+.container.product-page .product-actions button,
+.container.product-page .product-actions a {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* 尝试命中 PayPal 按钮：常见 id/class 命名兜底 */
+.container.product-page .product-actions #paypalBtn,
+.container.product-page .product-actions #fz-paypal-btn,
+.container.product-page .product-actions .paypal-btn,
+.container.product-page .product-actions [class*="paypal"],
+.container.product-page .product-actions [id*="paypal"] {
+  background: #f2f2f2 !important;
+  border: 1px solid #ddd !important;
+  color: #111 !important;
+  border-radius: 999px !important;
+
+  padding: .75rem 1rem !important;
+  line-height: 1.2;
+}
+
+/* 让它不要像一条“色带”：给最大宽度，居中 */
+@media (max-width: 900px) {
+  .container.product-page .product-actions #paypalBtn,
+  .container.product-page .product-actions #fz-paypal-btn,
+  .container.product-page .product-actions .paypal-btn,
+  .container.product-page .product-actions [class*="paypal"],
+  .container.product-page .product-actions [id*="paypal"] {
+    width: 100% !important;
+    max-width: 260px !important; /* 你现在 actions 本来就 max-width:260 */
+    margin: 0 auto;
+  }
+}
