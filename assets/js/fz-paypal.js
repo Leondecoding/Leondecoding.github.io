@@ -50,6 +50,11 @@
     // clear previous (avoid "already rendered" errors)
     mount.innerHTML = '';
 
+     // Make PayPal button look like a normal CTA (same width feel as Add to Cart)
+mount.style.width = '100%';
+mount.style.maxWidth = '260px';
+mount.style.margin = '0 auto';
+     
     const cfg = (window.FZ_PAYPAL||{});
     ensureSdk(cfg, () => {
       if (!window.paypal) return;
@@ -63,7 +68,16 @@
       }
 
       window.paypal.Buttons({
-        style: { shape:'rect', layout:'vertical', label:'paypal' },
+         
+        style: {
+  layout: 'vertical',
+  shape: 'pill',
+  color: 'silver',   // 灰色（最接近你要的 Add to Cart 灰底）
+  label: 'paypal',
+  height: 46,
+  tagline: false
+},
+
         onInit: function(data, actions){
           if (!cart.length) actions.disable();
           // Observe cart changes (optional): re-enable/disable based on emptiness
