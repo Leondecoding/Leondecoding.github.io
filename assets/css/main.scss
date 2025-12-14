@@ -699,26 +699,6 @@ body {
   color: #111 !important;
 }
 
-/* 汉堡按钮：只显示三条横杠（并隐藏任何意外字符/伪元素图标） */
-.site-header .nav-toggle {
-  color: #111 !important;
-  font-size: 0;   /* 防止按钮里残留 “☰/乱码字符” */
-  line-height: 0;
-}
-
-.site-header .nav-toggle::before,
-.site-header .nav-toggle::after {
-  content: none !important; /* 防止旧的 icon-font 伪元素冒出来 */
-}
-
-/* 三条横杠的视觉 */
-.site-header .nav-toggle .nav-toggle-bar {
-  width: 22px;
-  height: 2px;
-  background: currentColor;
-  border-radius: 999px;
-}
-
 /* =========================================================
    FIX: Product page buttons (Add to Cart / Pay via PayPal)
    ========================================================= */
@@ -768,53 +748,6 @@ body {
   }
 }
 
-/* ===== Fix hamburger layout: 3 bars + X ===== */
-.site-header #fz-nav-toggle {
-  width: 44px;
-  height: 44px;
-  padding: 0;
-  border: 0;
-  background: transparent;
-  color: #111 !important;
-
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-
-  font-size: 0;     /* 防止按钮里出现文字/符号 */
-  line-height: 0;
-}
-
-.site-header #fz-nav-toggle::before,
-.site-header #fz-nav-toggle::after {
-  content: none !important; /* 防止旧的伪元素图标 */
-}
-
-.site-header #fz-nav-toggle .nav-toggle-bar {
-  display: block;
-  width: 22px;
-  height: 2px;
-  background: currentColor;
-  border-radius: 999px;
-
-  transform: none;
-  transform-origin: center;
-  transition: transform .2s ease, opacity .2s ease;
-}
-
-/* open -> X */
-.site-header #fz-nav-toggle.is-open .nav-toggle-bar:nth-child(1) {
-  transform: translateY(8px) rotate(45deg);
-}
-.site-header #fz-nav-toggle.is-open .nav-toggle-bar:nth-child(2) {
-  opacity: 0;
-}
-.site-header #fz-nav-toggle.is-open .nav-toggle-bar:nth-child(3) {
-  transform: translateY(-8px) rotate(-45deg);
-}
-
 /* 搜索/账号/购物车图标强制黑色 */
 .site-header .site-actions .icon-btn,
 .site-header .site-actions a.icon-btn {
@@ -857,71 +790,65 @@ body {
 }
 
 /* =========================================================
-   Mobile Nav (clean)
-   - Desktop: no hamburger, keep horizontal nav as-is
-   - Mobile (<=900): show hamburger, nav becomes full-screen drawer
+   Mobile Navigation (clean)
+   Desktop: keep current horizontal nav; hide hamburger
+   Mobile (<=900): show hamburger; nav drawer
    ========================================================= */
 
-/* --- Hamburger base (desktop hidden by default) --- */
-.nav-toggle{
-  display: none;                 /* 关键：桌面端永远不显示 */
-  width: 40px;
-  height: 40px;
-  padding: 0;
-  border: 0;
-  background: transparent;
-  cursor: pointer;
-  color: #111;
+/* Desktop/default: hide hamburger */
+.site-header #fz-nav-toggle.nav-toggle{
+  display: none;
 }
 
-/* 3 bars */
-.nav-toggle-bar{
-  display: block;
-  width: 20px;
-  height: 2px;
-  border-radius: 999px;
-  background: currentColor;
-  transition: transform .2s ease, opacity .2s ease;
-}
-
-/* 用 gap 控制间距，不用 margin-top（避免横排时变怪） */
-.nav-toggle{ gap: 6px; }
-
-/* open -> X（仍然用 aria-expanded，不改你的 JS 逻辑） */
-.nav-toggle[aria-expanded="true"] .nav-toggle-bar:nth-child(1){
-  transform: translateY(8px) rotate(45deg);
-}
-.nav-toggle[aria-expanded="true"] .nav-toggle-bar:nth-child(2){
-  opacity: 0;
-}
-.nav-toggle[aria-expanded="true"] .nav-toggle-bar:nth-child(3){
-  transform: translateY(-8px) rotate(-45deg);
-}
-
-
-/* --- Mobile layout only --- */
+/* Mobile only */
 @media (max-width: 900px){
 
-  /* 手机端才显示汉堡，并且竖向堆叠三条线 */
-  .nav-toggle{
+  /* Hamburger */
+  .site-header #fz-nav-toggle.nav-toggle{
     display: inline-flex;
-    flex-direction: column;      /* 关键：三条横杠竖向堆叠 */
+    flex-direction: column;
     align-items: center;
     justify-content: center;
-  }
+    gap: 6px;
 
-  /* 手机端：图标统一黑色（不影响桌面） */
-  .site-header .site-actions .icon-btn,
-  .site-header .site-actions a.icon-btn{
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    cursor: pointer;
+
     color: #111;
+    font-size: 0;
+    line-height: 0;
   }
 
-  /* 手机端 header 微调（只改 padding，不动桌面结构） */
-  .site-header > .container{
-    padding: 16px 16px;
+  .site-header #fz-nav-toggle.nav-toggle::before,
+  .site-header #fz-nav-toggle.nav-toggle::after{
+    content: none;
   }
 
-  /* 手机端：主导航变成全屏抽屉（默认隐藏） */
+  .site-header #fz-nav-toggle .nav-toggle-bar{
+    display: block;
+    width: 20px;
+    height: 2px;
+    border-radius: 999px;
+    background: currentColor;
+    transition: transform .2s ease, opacity .2s ease;
+  }
+
+  /* open -> X (use aria-expanded from your JS) */
+  .site-header #fz-nav-toggle[aria-expanded="true"] .nav-toggle-bar:nth-child(1){
+    transform: translateY(7px) rotate(45deg);
+  }
+  .site-header #fz-nav-toggle[aria-expanded="true"] .nav-toggle-bar:nth-child(2){
+    opacity: 0;
+  }
+  .site-header #fz-nav-toggle[aria-expanded="true"] .nav-toggle-bar:nth-child(3){
+    transform: translateY(-7px) rotate(-45deg);
+  }
+
+  /* Nav drawer */
   .site-header .site-nav{
     position: fixed;
     top: var(--fz-header-h, 72px);
@@ -953,9 +880,7 @@ body {
     pointer-events: auto;
   }
 
-  body.nav-open{
-    overflow: hidden;
-  }
+  body.nav-open{ overflow: hidden; }
 
   .site-header .site-nav a{
     font-weight: 500;
