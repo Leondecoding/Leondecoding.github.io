@@ -131,89 +131,155 @@ class="center" style="padding:8px 0 56px;">
 (function () {
   // 通用绑定：无跳转提交、提示可见
   function wire(formId, msgId) {
-    const f = document.getElementById(formId);
-    const m = document.getElementById(msgId);
-    if (!f) return;
+  const f = document.getElementById(formId);
+  const m = document.getElementById(msgId);
+  if (!f) return;
 
-    // Use capture so we can stop other handlers (prevents double "Sending..." from other scripts)
-    f.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      e.stopImmediatePropagation();
+  // Prevent double-binding (which can cause duplicate status lines)
+  if (f.dataset.nlBound === '1') return;
+  f.dataset.nlBound = '1';
 
-      const btn = f.querySelector('button[type="submit"]');
-      const originalLabel = btn ? (btn.dataset.label || btn.textContent.trim() || 'Sign up') : 'Sign up';
-      if (btn && !btn.dataset.label) btn.dataset.label = originalLabel;
+  const btn = f.querySelector('button[type="submit"]');
+  if (btn && !btn.dataset.label) btn.dataset.label = (btn.textContent || '').trim() || 'Sign up';
 
-      // Always hide/clear the separate message node to avoid duplicate lines
-      if (m) {
-        m.textContent = '';
-        m.className = 'nl-msg';
-        m.style.setProperty('display', 'none', 'important');
-      }
-
-      // Clear any previous timer
-      if (f._nlTimer) {
-        clearTimeout(f._nlTimer);
-        f._nlTimer = null;
-      }
-
-      // 1) Sending...
-      if (btn) {
-        btn.disabled = true;
-        btn.textContent = 'Sending...';
-      }
-
-      
-
-      // Fill context fields if present (some scripts reject empty values)
-      const setIfEmpty = (name, val) => {
-        const el = f.querySelector(`[name="${name}"]`);
-        if (el && !el.value) el.value = val;
-      };
-      setIfEmpty('ua', navigator.userAgent || '');
-      setIfEmpty('ref', document.referrer || '');
-      setIfEmpty('token', `${Date.now()}-${Math.random().toString(36).slice(2, 10)}`);
-try {
-        const fd = new FormData(f);
-        const params = new URLSearchParams();
-        for (const [k, v] of fd.entries()) params.append(k, v);
-        await fetch(f.action, {
-          method: 'POST',
-          mode: 'no-cors',
-          headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8' },
-          body: params
-        });
-        f.reset();
-
-        // 2) Success message (still a single line: the button)
-        if (btn) {
-          btn.textContent = 'Thanks! Your email has been added.';
-        }
-
-        // 3) After a few seconds: revert back to Sign up
-        f._nlTimer = setTimeout(() => {
-          if (btn) {
-            btn.disabled = false;
-            btn.textContent = btn.dataset.label || 'Sign up';
-          }
-          f._nlTimer = null;
-        }, 3000);
-
-      } catch (err) {
-        // Error: show one-line error, then revert
-        if (btn) {
-          btn.textContent = 'Something went wrong. Please try again.';
-        }
-        f._nlTimer = setTimeout(() => {
-          if (btn) {
-            btn.disabled = false;
-            btn.textContent = btn.dataset.label || 'Sign up';
-          }
-          f._nlTimer = null;
-        }, 3000);
-      }
-    }, true);
+  // Use a hidden iframe submission (more reliable on mobile Safari than fetch/no-cors)
+  const iframeId = `nl_iframe_${formId}`;
+  let iframe = document.getElementById(iframeId);
+  if (!iframe) {
+    iframe = document.createElement('iframe');
+    iframe.id = iframeId;
+    iframe.name = iframeId;
+    iframe.style.display = 'none';
+    iframe.setAttribute('aria-hidden', 'true');
+    document.body.appendChild(iframe);
   }
+
+  let pending = false;
+
+  const hideMsg = () => {
+    if (!m) return;
+    m.className = 'nl-msg';
+    m.style.display = 'none';
+    m.textContent = '';
+  };
+
+  const showSending = () => {
+    if (!btn) return;
+    btn.style.display = '';
+    btn.disabled = true;
+    btn.textContent = 'Sending...';
+  };
+
+  const showThanks = () => {
+    if (btn) {
+      btn.disabled = false;
+      btn.style.display = 'none';
+      btn.textContent = btn.dataset.label || 'Sign up';
+    }
+    if (m) {
+      m.className = 'nl-msg ok';
+      m.style.display = 'block';
+      m.textContent = 'Thanks! Your email has been added.';
+    }
+    // After a few seconds: hide Thanks and restore button
+    f._nlTimer = setTimeout(() => {
+      if (m) {
+        m.className = 'nl-msg';
+        m.style.display = 'none';
+        m.textContent = '';
+      }
+      if (btn) {
+        btn.style.display = '';
+        btn.textContent = btn.dataset.label || 'Sign up';
+      }
+      f._nlTimer = null;
+    }, 3000);
+  };
+
+  const showError = () => {
+    if (btn) {
+      btn.disabled = false;
+      btn.style.display = '';
+      btn.textContent = btn.dataset.label || 'Sign up';
+    }
+    if (m) {
+      m.className = 'nl-msg err';
+      m.style.display = 'block';
+      m.textContent = 'Something went wrong. Please try again.';
+    }
+    f._nlTimer = setTimeout(() => {
+      hideMsg();
+      if (btn) btn.textContent = btn.dataset.label || 'Sign up';
+      f._nlTimer = null;
+    }, 3000);
+  };
+
+  // When the iframe loads after submit, treat it as "done"
+  iframe.addEventListener('load', () => {
+    if (!pending) return;
+    pending = false;
+
+    if (f._nlTimeout) {
+      clearTimeout(f._nlTimeout);
+      f._nlTimeout = null;
+    }
+    if (f._nlTimer) {
+      clearTimeout(f._nlTimer);
+      f._nlTimer = null;
+    }
+    showThanks();
+  });
+
+  f.addEventListener('submit', (e) => {
+    // Capture + stop others: ensures only one status line (no duplicate Sending)
+    e.preventDefault();
+    e.stopImmediatePropagation();
+
+    // Clear any previous timers/messages
+    if (f._nlTimer) { clearTimeout(f._nlTimer); f._nlTimer = null; }
+    if (f._nlTimeout) { clearTimeout(f._nlTimeout); f._nlTimeout = null; }
+    hideMsg();
+
+    // Fill context fields if present (some scripts reject empty values)
+    const setIfEmpty = (name, val) => {
+      const el = f.querySelector(`[name="${name}"]`);
+      if (el && !el.value) el.value = val;
+    };
+    setIfEmpty('ua', navigator.userAgent || '');
+    setIfEmpty('ref', document.referrer || '');
+    setIfEmpty('token', `${Date.now()}-${Math.random().toString(36).slice(2, 10)}`);
+
+    showSending();
+
+    pending = true;
+
+    // Submit to hidden iframe
+    const prevTarget = f.getAttribute('target');
+    f.setAttribute('target', iframeId);
+
+    // Fallback: if no load event within 8s, show error (mobile network blockers etc.)
+    f._nlTimeout = setTimeout(() => {
+      if (!pending) return;
+      pending = false;
+      f._nlTimeout = null;
+      showError();
+    }, 8000);
+
+    try {
+      f.submit();
+    } catch (err) {
+      pending = false;
+      if (f._nlTimeout) { clearTimeout(f._nlTimeout); f._nlTimeout = null; }
+      showError();
+    } finally {
+      // Restore original target after the submit is dispatched
+      setTimeout(() => {
+        if (prevTarget) f.setAttribute('target', prevTarget);
+        else f.removeAttribute('target');
+      }, 0);
+    }
+  }, true);
+}
 
   // 给 Our Story 顶部那个表单补齐上下文（有这些隐藏域才会填）
   const ref = document.querySelector('#nl-form-ourstory input[name="ref"]');
