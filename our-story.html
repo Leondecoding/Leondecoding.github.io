@@ -227,6 +227,16 @@ class="center" style="padding:8px 0 56px;">
       clearTimeout(f._nlTimer);
       f._nlTimer = null;
     }
+
+    // Clear the email field after a successful submit (desktop + mobile)
+    // Using reset() keeps hidden default values (source/page) intact.
+    try { f.reset(); } catch (e) {}
+    const emailEl = f.querySelector('input[name="email"]');
+    if (emailEl) {
+      emailEl.value = '';
+      emailEl.blur();
+    }
+
     showThanks();
   });
 
@@ -248,9 +258,6 @@ class="center" style="padding:8px 0 56px;">
     setIfEmpty('ua', navigator.userAgent || '');
     setIfEmpty('ref', document.referrer || '');
     setIfEmpty('token', `${Date.now()}-${Math.random().toString(36).slice(2, 10)}`);
-    // Prevent iOS/Safari autofill from poisoning the honeypot field (can suppress email notifications)
-    const hp = f.querySelector('input[name="_gotcha"]');
-    if (hp) hp.value = '';
 
     showSending();
 
